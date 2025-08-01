@@ -1,0 +1,61 @@
+<!-- section.html -->
+<main id="section-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>sections</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">sections</a></li>
+      </ul>
+    </div>
+    <button id="btnAddSections" class="btn">
+      <i class='bx bx-plus'></i> Add section
+    </button>
+  </div>
+
+  <div class="filter-container">
+    <label for="sectionFilter">Filter:</label>
+    <select id="sectionFilter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="archived">Archived</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table class="section-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>section Name</th>
+          <th>Section</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="sectionTableBody">
+        <!-- JS will populate rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div id="SectionsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2 id="modalTitle">Add section</h2>
+      <form id="sectionForm">
+        <label for="deptName">section Name:</label>
+        <input type="text" id="deptName" name="deptName" required>
+        
+        <label for="deptStatus">Status:</label>
+        <select id="deptStatus" name="deptStatus">
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </select>
+
+        <button type="submit" class="btn">Save</button>
+      </form>
+    </div>
+  </div>
+</main>
