@@ -28,6 +28,7 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Image</th>
           <th>Students ID</th>
           <th>Students Name</th>
           <th>Department</th>
@@ -45,16 +46,31 @@
   <div id="StudentsModal" class="modal">
     <div class="modal-content">
       <span class="close-btn" id="closeModal">&times;</span>
-      <h2 id="modalTitle">Add Students</h2>
+      <h2 id="modalTitle">Add Student</h2>
       <form id="StudentsForm">
-        <label for="deptName">Students Name:</label>
-        <input type="text" id="deptName" name="deptName" required>
-        
-        <label for="deptStatus">Status:</label>
-        <select id="deptStatus" name="deptStatus">
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
-        </select>
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentId" required>
+
+        <label for="studentImage">Student Photo:</label>
+        <div class="image-upload-container">
+          <div class="image-preview" id="imagePreview">
+            <img src="" alt="Image Preview" class="image-preview__image" style="display: none;">
+            <span class="image-preview__default-text">Image preview</span>
+          </div>
+          <input type="file" id="studentImage" name="studentImage" accept="image/*">
+        </div>
+
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" name="studentName" required>
+
+        <label for="studentDept">Department:</label>
+        <input type="text" id="studentDept" name="studentDept" required>
+
+        <label for="studentSection">Section:</label>
+        <input type="text" id="studentSection" name="studentSection" required>
+
+        <label for="studentContact">Contact No:</label>
+        <input type="tel" id="studentContact" name="studentContact" required>
 
         <button type="submit" class="btn">Save</button>
       </form>
