@@ -28,9 +28,8 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>section Name</th>
-          <th>Section</th>
-          <th>Date</th>
+          <th>Section Name</th>
+          <th>Date Created</th>
         </tr>
       </thead>
       <tbody id="sectionTableBody">
@@ -45,15 +44,8 @@
       <span class="close-btn" id="closeModal">&times;</span>
       <h2 id="modalTitle">Add section</h2>
       <form id="sectionForm">
-        <label for="deptName">section Name:</label>
-        <input type="text" id="deptName" name="deptName" required>
-        
-        <label for="deptStatus">Status:</label>
-        <select id="deptStatus" name="deptStatus">
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
-        </select>
-
+        <label for="sectionName">Section Name:</label>
+        <input type="text" id="sectionName" name="sectionName" required>
         <button type="submit" class="btn">Save</button>
       </form>
     </div>
