@@ -29,11 +29,12 @@
         <tr>
           <th>ID</th>
           <th>Image</th>
-          <th>Violations ID</th>
-          <th>Violations Name</th>
+          <th>Students ID</th>
+          <th>Student Name</th>
           <th>Department</th>
           <th>Section</th>
           <th>Contact No</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="ViolationsTableBody">
@@ -43,37 +44,111 @@
   </div>
 
   <!-- Modal -->
-  <div id="ViolationsModal" class="modal">
-    <div class="modal-content">
-      <span class="close-btn" id="closeModal">&times;</span>
-      <h2 id="modalTitle">Add Student</h2>
-      <form id="ViolationsForm">
-        <label for="studentId">Student ID:</label>
-        <input type="text" id="studentId" name="studentId" required>
+  <!-- Violation Details Modal -->
+  <div id="ViolationDetailsModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <span class="close-btn" id="closeDetailsModal">&times;</span>
+      <h2 id="violationModalTitle">Record Violation</h2>
 
-        <label for="studentImage">Student Photo:</label>
-        <div class="image-upload-container">
-          <div class="image-preview" id="imagePreview">
-            <img src="" alt="Image Preview" class="image-preview__image" style="display: none;">
-            <span class="image-preview__default-text">Image preview</span>
-          </div>
-          <input type="file" id="studentImage" name="studentImage" accept="image/*">
+      <!-- Student Info Section -->
+      <div class="student-info-card">
+        <div class="student-image">
+          <img id="modalStudentImage" src="" alt="Student Image">
         </div>
+        <div class="student-details">
+          <div class="detail-row">
+            <span class="detail-label">Student ID:</span>
+            <span id="modalStudentId" class="detail-value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Name:</span>
+            <span id="modalStudentName" class="detail-value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Department:</span>
+            <span id="modalStudentDept" class="detail-value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Section:</span>
+            <span id="modalStudentSection" class="detail-value">-</span>
+          </div>
+        </div>
+      </div>
 
-        <label for="studentName">Student Name:</label>
-        <input type="text" id="studentName" name="studentName" required>
+      <!-- Violation Type Selection -->
+      <div class="violation-type-section">
+        <h3>Violation Type</h3>
+        <div class="violation-types">
+          <div class="violation-type-card" data-violation="uniform">
+            <input type="radio" id="uniformViolation" name="violationType" value="improper_uniform">
+            <label for="uniformViolation">Improper Uniform</label>
+          </div>
+          <div class="violation-type-card" data-violation="footwear">
+            <input type="radio" id="footwearViolation" name="violationType" value="improper_footwear">
+            <label for="footwearViolation">Improper Footwear</label>
+          </div>
+          <div class="violation-type-card" data-violation="id">
+            <input type="radio" id="idViolation" name="violationType" value="no_id">
+            <label for="idViolation">No ID</label>
+          </div>
+        </div>
+      </div>
 
-        <label for="studentDept">Department:</label>
-        <input type="text" id="studentDept" name="studentDept" required>
+      <!-- Violation Level Table -->
+      <div class="violation-levels">
+        <table class="violation-level-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Permitted 1</th>
+              <th>Permitted 2</th>
+              <th>Warning 1</th>
+              <th>Warning 2</th>
+              <th>Warning 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-violation="uniform">
+              <td>Improper Uniform</td>
+              <td><input type="radio" name="uniformLevel" value="permitted1"></td>
+              <td><input type="radio" name="uniformLevel" value="permitted2"></td>
+              <td><input type="radio" name="uniformLevel" value="warning1"></td>
+              <td><input type="radio" name="uniformLevel" value="warning2"></td>
+              <td><input type="radio" name="uniformLevel" value="warning3"></td>
+            </tr>
+            <tr data-violation="footwear">
+              <td>Improper Footwear</td>
+              <td><input type="radio" name="footwearLevel" value="permitted1"></td>
+              <td><input type="radio" name="footwearLevel" value="permitted2"></td>
+              <td><input type="radio" name="footwearLevel" value="warning1"></td>
+              <td><input type="radio" name="footwearLevel" value="warning2"></td>
+              <td><input type="radio" name="footwearLevel" value="warning3"></td>
+            </tr>
+            <tr data-violation="id">
+              <td>No ID</td>
+              <td><input type="radio" name="idLevel" value="permitted1"></td>
+              <td><input type="radio" name="idLevel" value="permitted2"></td>
+              <td><input type="radio" name="idLevel" value="warning1"></td>
+              <td><input type="radio" name="idLevel" value="warning2"></td>
+              <td><input type="radio" name="idLevel" value="warning3"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <label for="Violationsection">Section:</label>
-        <input type="text" id="Violationsection" name="Violationsection" required>
+      <!-- Additional Notes -->
+      <div class="violation-notes">
+        <label for="violationNotes">Additional Notes:</label>
+        <textarea id="violationNotes" rows="3"
+          placeholder="Enter any additional details about the violation..."></textarea>
+      </div>
 
-        <label for="studentContact">Contact No:</label>
-        <input type="tel" id="studentContact" name="studentContact" required>
-
-        <button type="submit" class="btn">Save</button>
-      </form>
+      <!-- Action Buttons -->
+      <div class="modal-actions">
+        <button type="button" class="btn btn-cancel">Cancel</button>
+        <button type="button" class="btn btn-submit">Record Violation</button>
+      </div>
     </div>
   </div>
+
 </main>

@@ -2,8 +2,8 @@ function initViolationsModule() {
   console.log('🛠 Initializing Violations module...');
 
   const btnAddViolations = document.getElementById('btnAddViolations');
-  const modal = document.getElementById('ViolationsModal');
-  const closeBtn = document.getElementById('closeModal'); // note: same ID name as sa department, ok lang yan as long as nasa ibang fragment siya
+  const modal = document.getElementById('ViolationDetailsModal'); // NEW ID
+  const closeBtn = document.getElementById('closeDetailsModal'); // NEW ID
 
   if (!btnAddViolations || !modal || !closeBtn) {
     console.error('❗ Violations module elements not found!');
