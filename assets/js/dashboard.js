@@ -58,6 +58,10 @@ function loadContent(page) {
         console.log('⚡ Initializing Sections module...');
         initSectionsModule();
       }
+      else if (page.toLowerCase() === 'violations' && typeof initViolationsModule === 'function') {
+        console.log('⚡ Initializing Violations module...');
+        initViolationsModule();
+      }
       // Add more modules here...
     } else if (this.status === 404) {
       mainContent.innerHTML = '<h2>Page not found.</h2>';

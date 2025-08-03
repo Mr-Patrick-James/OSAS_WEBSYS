@@ -1,0 +1,79 @@
+<!-- Violations.html -->
+<main id="Violations-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>Violations</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">Violations Data</a></li>
+      </ul>
+    </div>
+    <button id="btnAddViolations" class="btn">
+      <i class='bx bx-plus'></i> Add Violations
+    </button>
+  </div>
+
+  <div class="filter-container">
+    <label for="ViolationsFilter">Filter:</label>
+    <select id="ViolationsFilter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="archived">Archived</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table class="Violations-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Violations ID</th>
+          <th>Violations Name</th>
+          <th>Department</th>
+          <th>Section</th>
+          <th>Contact No</th>
+        </tr>
+      </thead>
+      <tbody id="ViolationsTableBody">
+        <!-- JS will populate rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div id="ViolationsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2 id="modalTitle">Add Student</h2>
+      <form id="ViolationsForm">
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentId" required>
+
+        <label for="studentImage">Student Photo:</label>
+        <div class="image-upload-container">
+          <div class="image-preview" id="imagePreview">
+            <img src="" alt="Image Preview" class="image-preview__image" style="display: none;">
+            <span class="image-preview__default-text">Image preview</span>
+          </div>
+          <input type="file" id="studentImage" name="studentImage" accept="image/*">
+        </div>
+
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" name="studentName" required>
+
+        <label for="studentDept">Department:</label>
+        <input type="text" id="studentDept" name="studentDept" required>
+
+        <label for="Violationsection">Section:</label>
+        <input type="text" id="Violationsection" name="Violationsection" required>
+
+        <label for="studentContact">Contact No:</label>
+        <input type="tel" id="studentContact" name="studentContact" required>
+
+        <button type="submit" class="btn">Save</button>
+      </form>
+    </div>
+  </div>
+</main>
