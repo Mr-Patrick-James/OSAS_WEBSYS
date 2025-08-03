@@ -1,0 +1,79 @@
+<!-- Reports.html -->
+<main id="Reports-page">
+  <div class="head-title">
+    <div class="left">
+      <h1>Reports</h1>
+      <ul class="breadcrumb">
+        <li><a href="#">Dashboard</a></li>
+        <li><i class='bx bx-chevron-right'></i></li>
+        <li><a class="active" href="#">Reports Data</a></li>
+      </ul>
+    </div>
+    <button id="btnAddReports" class="btn">
+      <i class='bx bx-plus'></i> Add Reports
+    </button>
+  </div>
+
+  <div class="filter-container">
+    <label for="ReportsFilter">Filter:</label>
+    <select id="ReportsFilter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="archived">Archived</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table class="Reports-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Reports ID</th>
+          <th>Reports Name</th>
+          <th>Department</th>
+          <th>Section</th>
+          <th>Contact No</th>
+        </tr>
+      </thead>
+      <tbody id="ReportsTableBody">
+        <!-- JS will populate rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div id="ReportsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2 id="modalTitle">Add Student</h2>
+      <form id="ReportsForm">
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentId" required>
+
+        <label for="studentImage">Student Photo:</label>
+        <div class="image-upload-container">
+          <div class="image-preview" id="imagePreview">
+            <img src="" alt="Image Preview" class="image-preview__image" style="display: none;">
+            <span class="image-preview__default-text">Image preview</span>
+          </div>
+          <input type="file" id="studentImage" name="studentImage" accept="image/*">
+        </div>
+
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" name="studentName" required>
+
+        <label for="studentDept">Department:</label>
+        <input type="text" id="studentDept" name="studentDept" required>
+
+        <label for="Reportsection">Section:</label>
+        <input type="text" id="Reportsection" name="Reportsection" required>
+
+        <label for="studentContact">Contact No:</label>
+        <input type="tel" id="studentContact" name="studentContact" required>
+
+        <button type="submit" class="btn">Save</button>
+      </form>
+    </div>
+  </div>
+</main>
