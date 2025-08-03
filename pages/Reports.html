@@ -10,12 +10,22 @@
       </ul>
     </div>
     <button id="btnAddReports" class="btn">
-      <i class='bx bx-plus'></i> Add Reports
+      <i class='bx bx-plus'></i> Generate Reports
     </button>
   </div>
 
   <div class="filter-container">
     <label for="ReportsFilter">Filter:</label>
+    <select id="ReportsFilter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="archived">Archived</option>
+    </select>
+    <select id="ReportsFilter">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="archived">Archived</option>
+    </select>
     <select id="ReportsFilter">
       <option value="all">All</option>
       <option value="active">Active</option>
@@ -28,12 +38,15 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Image</th>
-          <th>Reports ID</th>
-          <th>Reports Name</th>
+          <th>Student ID</th>
+          <th>Student Name</th>
           <th>Department</th>
           <th>Section</th>
           <th>Contact No</th>
+          <th>Improper_footwear</th>
+          <th>Improper_uniform</th>
+          <th>No ID</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="ReportsTableBody">
