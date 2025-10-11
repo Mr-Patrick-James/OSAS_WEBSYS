@@ -8,15 +8,15 @@ const searchForm = document.querySelector('#content nav form');
 const switchMode = document.getElementById('switch-mode');
 const mainContent = document.getElementById('main-content');
 
-// Load default content (dashboard)
+// Load default content (user dashboard)
 document.addEventListener('DOMContentLoaded', function () {
   // Check if user is authenticated
   checkAuthentication();
   
-  loadContent('dashcontent');
+  loadContent('user_dashcontent');
 
   // Set dashboard as active by default
-  const dashboardLink = document.querySelector('[data-page="dashcontent"]');
+  const dashboardLink = document.querySelector('[data-page="user_dashcontent"]');
   if (dashboardLink) {
     dashboardLink.parentElement.classList.add('active');
   }
@@ -35,10 +35,10 @@ function checkAuthentication() {
   const session = JSON.parse(userSession);
   
   // Check if user role is correct for this dashboard
-  if (session.role !== 'admin') {
+  if (session.role !== 'user') {
     // Wrong role, redirect to appropriate dashboard
-    if (session.role === 'user') {
-      window.location.href = 'user_dashboard.html';
+    if (session.role === 'admin') {
+      window.location.href = 'dashboard.html';
     } else {
       window.location.href = '../includes/login.html';
     }
@@ -57,7 +57,13 @@ function updateUserInfo(session) {
     profileName.textContent = session.name;
   }
   
-  console.log('Admin authenticated:', session.name, 'Role:', session.role);
+  // Update student ID if element exists
+  const studentId = document.querySelector('.student-id');
+  if (studentId && session.studentId) {
+    studentId.textContent = `ID: ${session.studentId}`;
+  }
+  
+  console.log('User authenticated:', session.name, 'Role:', session.role);
 }
 
 // Logout function
@@ -245,6 +251,55 @@ function getNotificationIcon(type) {
     info: 'bx-info-circle'
   };
   return icons[type] || icons.info;
+}
+
+// Initialize user dashboard
+function initializeUserDashboard() {
+  // Add event listeners for violation details buttons
+  const viewDetailsButtons = document.querySelectorAll('.btn-view-details');
+  viewDetailsButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      showViolationDetails(this);
+    });
+  });
+
+  // Update violation counts and status
+  updateViolationStats();
+  
+  console.log('⚡ User dashboard initialized');
+}
+
+// Show violation details
+function showViolationDetails(button) {
+  const row = button.closest('tr');
+  const violationType = row.querySelector('.violation-info span').textContent;
+  const date = row.querySelector('td:first-child').textContent;
+  
+  showNotification(`Viewing details for ${violationType} on ${date}`, 'info');
+  // Here you can implement a modal or detailed view
+}
+
+// Update violation statistics
+function updateViolationStats() {
+  // This would typically fetch data from an API
+  // For now, we'll use mock data
+  const stats = {
+    activeViolations: 0,
+    totalViolations: 3,
+    status: 'Good',
+    daysClean: 7
+  };
+
+  // Update the stats display
+  const activeViolations = document.querySelector('.box-info li:nth-child(1) h3');
+  const totalViolations = document.querySelector('.box-info li:nth-child(2) h3');
+  const status = document.querySelector('.box-info li:nth-child(3) h3');
+  const daysClean = document.querySelector('.box-info li:nth-child(4) h3');
+
+  if (activeViolations) activeViolations.textContent = stats.activeViolations;
+  if (totalViolations) totalViolations.textContent = stats.totalViolations;
+  if (status) status.textContent = stats.status;
+  if (daysClean) daysClean.textContent = stats.daysClean;
 }
 
 // Initialize settings page
@@ -440,9 +495,9 @@ function loadContent(page) {
       mainContent.innerHTML = this.responseText;
 
       // Initialize charts and announcements if dashboard content is loaded
-      if (page.toLowerCase() === 'dashcontent') {
+      if (page.toLowerCase() === 'user_dashcontent') {
         setTimeout(() => {
-          initializeCharts();
+          initializeUserDashboard();
           initializeAnnouncements();
         }, 100);
       }

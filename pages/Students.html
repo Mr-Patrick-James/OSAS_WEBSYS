@@ -1,4 +1,4 @@
-<!-- Students.html -->
+<!-- Students.html (updated header + CSS + JS) -->
 <main id="Students-page">
   <div class="head-title">
     <div class="left">
@@ -9,9 +9,18 @@
         <li><a class="active" href="#">Students Data</a></li>
       </ul>
     </div>
-    <button id="btnAddStudents" class="btn">
-      <i class='bx bx-plus'></i> Add Students
-    </button>
+
+    <!-- Buttons container: Add and Print placed side-by-side -->
+    <div class="header-actions">
+      <button id="btnAddStudents" class="btn">
+        <i class='bx bx-plus'></i> Add Students
+      </button>
+
+      <!-- New Print button -->
+      <button id="btnPrintStudents" class="btn">
+        <i class='bx bx-printer'></i> Print
+      </button>
+    </div>
   </div>
 
   <div class="filter-container">
@@ -23,7 +32,8 @@
     </select>
   </div>
 
-  <div class="table-container">
+  <!-- Wrap table in a print-area so CSS can target exactly what to print -->
+  <div id="printArea" class="table-container">
     <table class="Students-table">
       <thead>
         <tr>
@@ -42,7 +52,7 @@
     </table>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal (unchanged) -->
   <div id="StudentsModal" class="modal">
     <div class="modal-content">
       <span class="close-btn" id="closeModal">&times;</span>

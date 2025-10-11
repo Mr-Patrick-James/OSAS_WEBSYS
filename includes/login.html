@@ -60,11 +60,9 @@
                     <a href="/forgot-password" class="forgot-password">Forgot password?</a>
                 </div>
 
-                <a href="dashboard.html">
-                    <button type="button" class="login-button" id="loginButton">
-                        <span>Login</span>
-                    </button>
-                </a>
+                <button type="submit" class="login-button" id="loginButton">
+                    <span>Login</span>
+                </button>
 
 
                 <div class="social-login">
@@ -88,7 +86,7 @@
 
             <div class="login-footer">
                 <p>Don't have an account?
-                    <a href="/signup" class="signup-link">Sign up</a>
+                    <a href="../includes/signup.html" class="signup-link">Sign up</a>
                 </p>
             </div>
         </div>
@@ -154,6 +152,18 @@
             document.getElementById(`${field}-error`).textContent = '';
         }
 
+        // Static credentials for testing - role determined by username
+        const staticCredentials = [
+            // Admin users
+            { username: 'admin', password: 'admin', role: 'admin', name: 'Administrator' },
+            { username: 'osas_admin', password: 'osas2024', role: 'admin', name: 'OSAS Admin' },
+            
+            // Student users
+            { username: 'user', password: 'user', role: 'user', name: 'John Doe', studentId: '2024-001' },
+            { username: 'student', password: 'student123', role: 'user', name: 'Jane Smith', studentId: '2024-002' },
+            { username: 'test_student', password: 'test123', role: 'user', name: 'Test Student', studentId: '2024-003' }
+        ];
+
         // Form validation and submission
         function handleLogin(event) {
             event.preventDefault();
@@ -176,8 +186,6 @@
 
             if (!password) {
                 errors.password = 'Password is required';
-            } else if (password.length < 6) {
-                errors.password = 'Password must be at least 6 characters';
             }
 
             // Display errors if any
@@ -191,19 +199,63 @@
 
             if (hasErrors) return;
 
+            // Check credentials - find user by username and password
+            const validUser = staticCredentials.find(user => 
+                user.username === username && user.password === password
+            );
+
+            if (!validUser) {
+                showError('Invalid username or password');
+                return;
+            }
+
             // Simulate login process
             const loginButton = document.getElementById('loginButton');
             loginButton.disabled = true;
-            loginButton.innerHTML = '<span class="loading-spinner"></span>';
+            loginButton.innerHTML = '<span class="loading-spinner"></span> Logging in...';
 
             // Simulate API call
             setTimeout(() => {
-                // In a real app, you would redirect to dashboard after successful login
-                // window.location.href = '/dashboard';
-                alert('Login successful! (This is a demo)');
-                loginButton.disabled = false;
-                loginButton.innerHTML = '<span>Login</span>';
+                // Store user session
+                const userSession = {
+                    role: validUser.role,
+                    username: username,
+                    name: validUser.name,
+                    studentId: validUser.studentId || null,
+                    loginTime: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userSession', JSON.stringify(userSession));
+                
+                // Redirect based on detected role
+                if (validUser.role === 'admin') {
+                    window.location.href = 'dashboard.html';
+                } else if (validUser.role === 'user') {
+                    window.location.href = 'user_dashboard.html';
+                }
             }, 1500);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-toast';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(errorDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (errorDiv.parentElement) {
+                    errorDiv.remove();
+                }
+            }, 5000);
         }
 
         // Initialize

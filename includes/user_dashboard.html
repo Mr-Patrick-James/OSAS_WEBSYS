@@ -6,13 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
   <title>E-OSAS SYSTEM</title>
-  <link rel="stylesheet" href="../assets/styles/dashboard.css">
-  <link rel="stylesheet" href="../assets/styles/department.css">
-  <link rel="stylesheet" href="../assets/styles/students.css">
-  <link rel="stylesheet" href="../assets/styles/section.css">
-  <link rel="stylesheet" href="../assets/styles/violation.css">
-  <link rel="stylesheet" href="../assets/styles/report.css">
-  <link rel="stylesheet" href="../assets/styles/settings.css">
+  <link rel="stylesheet" href="../assets/styles/user_dashboard.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -27,39 +21,27 @@
 
     <ul class="side-menu top">
       <li class="active">
-        <a href="#" data-page="dashcontent">
+        <a href="#" data-page="user_dashcontent">
           <i class='bx bxs-dashboard'></i>
-          <span class="text">Dashboard</span>
+          <span class="text">My Dashboard</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Department">
-          <i class='bx bxs-building'></i>
-          <span class="text">Department</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-page="Sections">
-          <i class='bx bxs-layer'></i>
-          <span class="text">Sections</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-page="Students">
-          <i class='bx bxs-group'></i>
-          <span class="text">Students</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-page="Violations">
+        <a href="#" data-page="my_violations">
           <i class='bx bxs-shield-x'></i>
-          <span class="text">Violations</span>
+          <span class="text">My Violations</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Reports">
-          <i class='bx bxs-file'></i>
-          <span class="text">Reports</span>
+        <a href="#" data-page="my_profile">
+          <i class='bx bxs-user'></i>
+          <span class="text">My Profile</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-page="announcements">
+          <i class='bx bxs-megaphone'></i>
+          <span class="text">Announcements</span>
         </a>
       </li>
     </ul>
@@ -111,11 +93,7 @@
   </section>
   <!-- CONTENT -->
 
-  <script src="../assets/js/dashboard.js"></script>
-  <script src="../assets/js/department.js"></script>
-  <script src="../assets/js/student.js"></script>
-  <script src="../assets/js/section.js"></script>
-  <script src="../assets/js/violation.js"></script>
+  <script src="../assets/js/user_dashboard.js"></script>
 </body>
 
 </html>
