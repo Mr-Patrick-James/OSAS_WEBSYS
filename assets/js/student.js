@@ -15,11 +15,11 @@ function initStudentsModule() {
 
   // --- Demo data (replace with real data) ---
   let students = [
-    { id: 1, photo: '', studentId: '2023-001', name: 'Juan Dela Cruz', dept: 'Computer Science', section: 'CS-101', contact: '09171234567' },
-    { id: 2, photo: '', studentId: '2023-002', name: 'Maria Santos',    dept: 'Business Administration', section: 'BA-201', contact: '09179876543' },
-    { id: 3, photo: '', studentId: '2023-003', name: 'Pedro Reyes',     dept: 'Education', section: 'ED-301', contact: '09171239876' },
-    { id: 4, photo: '', studentId: '2023-004', name: 'Anna Lopez',      dept: 'Engineering', section: 'ENG-401', contact: '09174563218' },
-    { id: 5, photo: '', studentId: '2023-005', name: 'Chris Lim',       dept: 'Nursing', section: 'NUR-501', contact: '09175678901' }
+    { id: 1, photo: '', studentId: '2024-001', name: 'Juan Dela Cruz', dept: 'Bachelor of Science in Information System', section: 'BSIS-1', contact: '09171234567' },
+    { id: 2, photo: '', studentId: '2024-002', name: 'Maria Santos',    dept: 'Wielding and Fabrication Technology', section: 'WFT-2', contact: '09179876543' },
+    { id: 3, photo: '', studentId: '2024-003', name: 'Pedro Reyes',     dept: 'Bachelor of Technical-Vocational Education and Training', section: 'BTVTED-3', contact: '09171239876' },
+    { id: 4, photo: '', studentId: '2024-004', name: 'Anna Lopez',      dept: 'Computer Hardware Servicing', section: 'CHS-1', contact: '09174563218' },
+    { id: 5, photo: '', studentId: '2024-005', name: 'Chris Lim',       dept: 'Bachelor of Science in Information System', section: 'BSIS-1', contact: '09175678901' }
   ];
 
   // --- Render helper ---

@@ -6,7 +6,7 @@ let reportsData = {
   trend: 12,
   departmentAnalysis: [
     {
-      department: 'Computer Science',
+      department: 'BSIS',
       totalViolations: 15,
       improperUniform: 8,
       improperFootwear: 4,
@@ -15,7 +15,7 @@ let reportsData = {
       trend: 12
     },
     {
-      department: 'Business',
+      department: 'WFT',
       totalViolations: 12,
       improperUniform: 5,
       improperFootwear: 6,
@@ -24,7 +24,7 @@ let reportsData = {
       trend: -8
     },
     {
-      department: 'Education',
+      department: 'BTVTED',
       totalViolations: 8,
       improperUniform: 3,
       improperFootwear: 2,
@@ -33,7 +33,7 @@ let reportsData = {
       trend: 0
     },
     {
-      department: 'Engineering',
+      department: 'CHS',
       totalViolations: 10,
       improperUniform: 4,
       improperFootwear: 3,
@@ -128,10 +128,10 @@ function createDepartmentRow(dept) {
 // Helper functions
 function getDepartmentIcon(department) {
   const icons = {
-    'Computer Science': 'laptop',
-    'Business': 'briefcase',
-    'Education': 'graduation',
-    'Engineering': 'cog'
+    'BSIS': 'laptop',
+    'WFT': 'code-alt',
+    'BTVTED': 'graduation',
+    'CHS': 'health'
   };
   return icons[department] || 'building';
 }

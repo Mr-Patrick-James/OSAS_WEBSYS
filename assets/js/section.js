@@ -14,11 +14,11 @@ function initSectionsModule() {
 
   // --- Static demo data (replace with your real data) ---
   let sections = [
-    { id: 1, name: "CS-101", date: "2023-06-10", status: "active" },
-    { id: 2, name: "BA-201", date: "2023-06-15", status: "archived" },
-    { id: 3, name: "ED-301", date: "2023-07-01", status: "active" },
-    { id: 4, name: "ENG-401", date: "2023-07-20", status: "archived" },
-    { id: 5, name: "NUR-501", date: "2023-08-05", status: "active" }
+    { id: 1, name: "BSIS-1", date: "2023-06-10", status: "active" },
+    { id: 2, name: "WFT-2", date: "2023-06-15", status: "archived" },
+    { id: 3, name: "BTVTED-3", date: "2023-07-01", status: "active" },
+    { id: 4, name: "CHS-1", date: "2023-07-20", status: "archived" },
+    { id: 5, name: "BSIS-2", date: "2023-08-05", status: "active" }
   ];
 
   // --- Render helper ---

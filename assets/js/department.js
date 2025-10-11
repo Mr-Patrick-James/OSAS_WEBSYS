@@ -14,11 +14,10 @@ function initDepartmentModule() {
 
   // --- Demo data (replace with real data) ---
   let departments = [
-    { id: 1, name: "Computer Science", date: "2023-06-12", status: "active" },
-    { id: 2, name: "Business Administration", date: "2023-06-18", status: "archived" },
-    { id: 3, name: "Education", date: "2023-07-02", status: "active" },
-    { id: 4, name: "Engineering", date: "2023-07-15", status: "archived" },
-    { id: 5, name: "Nursing", date: "2023-08-01", status: "active" }
+    { id: 1, name: "Bachelor of Science in Information System", date: "2023-06-12", status: "active" },
+    { id: 2, name: "Weilding and Fabrication Technology", date: "2023-06-18", status: "active" },
+    { id: 3, name: "Bachelor of Technical-Vocational Education and Training", date: "2023-07-02", status: "active" },
+    { id: 4, name: "Computer Hardware Servicing", date: "2023-07-15", status: "active" }
   ];
 
   // --- Render helper ---

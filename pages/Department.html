@@ -8,7 +8,15 @@
         <li><i class='bx bx-chevron-right'></i></li>
         <li><a class="active" href="#">Departments</a></li>
       </ul>
-    </div> <button id="btnAddDepartment" class="btn"> <i class='bx bx-plus'></i> Add Department </button>
+    </div>
+    <div class="header-actions">
+      <button id="btnAddDepartment" class="btn">
+        <i class='bx bx-plus'></i> Add Department
+      </button>
+      <button id="btnPrintDepartments" class="btn">
+        <i class='bx bx-printer'></i> Print
+      </button>
+    </div>
   </div>
 
   <div class="filter-container">
@@ -20,7 +28,7 @@
     </select>
   </div>
 
-  <div class="table-container">
+  <div id="printArea" class="table-container">
     <table class="department-table">
       <thead>
         <tr>
@@ -49,3 +57,43 @@
     </div>
   </div>
 </main>
+
+<script>
+// Print functionality for Departments
+document.addEventListener('DOMContentLoaded', function() {
+  const printBtn = document.getElementById('btnPrintDepartments');
+  if (printBtn) {
+    printBtn.addEventListener('click', function() {
+      const printArea = document.getElementById('printArea');
+      
+      // Create print content
+      const printContent = `
+        <html>
+          <head>
+            <title>Departments Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              h1 { color: #333; margin-bottom: 10px; }
+              .report-date { color: #666; margin-bottom: 20px; }
+            </style>
+          </head>
+          <body>
+            <h1>Departments Report</h1>
+            <div class="report-date">Generated on: ${new Date().toLocaleDateString()}</div>
+            ${printArea.innerHTML}
+          </body>
+        </html>
+      `;
+      
+      // Open print window
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    });
+  }
+});
+</script>

@@ -286,15 +286,13 @@ function initializeCharts() {
     new Chart(violationTypesCtx, {
       type: 'pie',
       data: {
-        labels: ['Academic Dishonesty', 'Disruptive Behavior', 'Dress Code', 'Late Attendance', 'Other'],
+        labels: ['Improper Uniform', 'Improper Footwear', 'No ID'],
         datasets: [{
-          data: [25, 20, 15, 30, 10],
+          data: [45, 35, 20],
           backgroundColor: [
             '#FFD700',
             '#FFCE26',
-            '#FD7238',
-            '#DB504A',
-            '#AAAAAA'
+            '#FD7238'
           ],
           borderWidth: 2,
           borderColor: '#ffffff'
@@ -325,16 +323,15 @@ function initializeCharts() {
     new Chart(departmentViolationsCtx, {
       type: 'bar',
       data: {
-        labels: ['Engineering', 'Business', 'Education', 'Arts', 'Science'],
+        labels: ['BSIS', 'WFT', 'BTVTED', 'CHS'],
         datasets: [{
           label: 'Violations',
-          data: [45, 32, 28, 19, 15],
+          data: [28, 22, 18, 15],
           backgroundColor: [
             '#FFD700',
             '#FFCE26',
             '#FD7238',
-            '#DB504A',
-            '#AAAAAA'
+            '#DB504A'
           ],
           borderRadius: 8,
           borderSkipped: false,
