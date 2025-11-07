@@ -23,10 +23,16 @@
   <div class="announcements-container">
     <div class="announcements-header">
       <h3><i class='bx bxs-megaphone'></i> Latest Announcements</h3>
-      <button class="announcement-toggle" onclick="toggleAnnouncements()">
-        <i class='bx bx-chevron-down'></i>
-      </button>
+      <div class="header-actions">
+        <button id="addAnnouncementBtn" class="btn-add" onclick="openAddModal()">
+          <i class='bx bx-plus'></i> Add Announcement
+        </button>
+        <button class="announcement-toggle" onclick="toggleAnnouncements()">
+          <i class='bx bx-chevron-down'></i>
+        </button>
+      </div>
     </div>
+
     <div class="announcements-content" id="announcementsContent">
       <div class="announcement-item urgent">
         <div class="announcement-icon">
@@ -34,36 +40,39 @@
         </div>
         <div class="announcement-details">
           <h4>Important: New Violation Policies</h4>
-          <p>Effective immediately, new disciplinary policies have been implemented. Please review the updated guidelines.</p>
+          <p>Effective immediately, new disciplinary policies have been implemented. Please review the updated
+            guidelines.</p>
           <span class="announcement-time">2 hours ago</span>
         </div>
         <div class="announcement-actions">
           <button class="btn-read-more">Read More</button>
         </div>
       </div>
-      
+
       <div class="announcement-item">
         <div class="announcement-icon">
           <i class='bx bxs-info-circle'></i>
         </div>
         <div class="announcement-details">
-          <h4>System Maintenance Scheduled</h4>
-          <p>The OSAS system will undergo maintenance on Sunday, 2:00 AM - 4:00 AM. Please plan accordingly.</p>
-          <span class="announcement-time">1 day ago</span>
+          <h4>Violation Exemption</h4>
+          <p>Students are allowed to wear a plain white T-shirt tomorrow due to extreme heat conditions. Regular dress
+            code will resume the following day.</p>
+          <span class="announcement-time">1 hour ago</span>
         </div>
         <div class="announcement-actions">
           <button class="btn-read-more">Read More</button>
         </div>
       </div>
-      
+
       <div class="announcement-item">
         <div class="announcement-icon">
-          <i class='bx bxs-bell'></i>
+          <i class='bx bxs-info-circle'></i>
         </div>
         <div class="announcement-details">
-          <h4>New Feature: Mobile App Update</h4>
-          <p>Download the latest version of the OSAS mobile app for improved performance and new features.</p>
-          <span class="announcement-time">3 days ago</span>
+          <h4>Violation Exemption</h4>
+          <p>Due to continuous rain, students are temporarily allowed to wear slippers and bring jackets for comfort.
+            Please return to proper uniform once the weather improves.</p>
+          <span class="announcement-time">3 hours ago</span>
         </div>
         <div class="announcement-actions">
           <button class="btn-read-more">Read More</button>
@@ -71,6 +80,40 @@
       </div>
     </div>
   </div>
+
+  <!-- Add Announcement Modal -->
+  <div id="addAnnouncementModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" onclick="closeAddModal()"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <h3><i class='bx bxs-megaphone'></i> Add New Announcement</h3>
+        <button class="modal-close" onclick="closeAddModal()">&times;</button>
+      </header>
+
+      <form id="addAnnForm" onsubmit="event.preventDefault(); addAnnouncement();">
+        <label>Title
+          <input type="text" id="annTitle" placeholder="Announcement title" required />
+        </label>
+
+        <label>Message
+          <textarea id="annMessage" placeholder="Write your announcement..." rows="3" required></textarea>
+        </label>
+
+        <label>Type
+          <select id="annType">
+            <option value="info">Info</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="btn-submit">Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <ul class="box-info">
     <li>
@@ -115,7 +158,7 @@
           <canvas id="violationTypesChart"></canvas>
         </div>
       </div>
-      
+
       <div class="chart-card">
         <div class="chart-header">
           <h3>Violations by Department</h3>
@@ -126,7 +169,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="chart-section">
       <div class="chart-card full-width">
         <div class="chart-header">

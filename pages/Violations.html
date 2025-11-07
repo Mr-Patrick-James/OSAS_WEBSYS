@@ -23,8 +23,16 @@
     <label for="ViolationsFilter">Filter:</label>
     <select id="ViolationsFilter">
       <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="archived">Archived</option>
+      <option value="active">All</option>
+      <option value="active">BSIS</option>
+      <option value="active">WFT</option>
+      <option value="active">BTVTED</option>
+      <option value="active">CHS</option>
+    </select>
+    <select id="ViolationsFilter">
+      <option value="all">All</option>
+      <option value="active">Permitted</option>
+      <option value="archived">Warning</option>
     </select>
   </div>
 
@@ -54,7 +62,7 @@
           <td>Bachelor of Science in Information System</td>
           <td>BSIS-1</td>
           <td>+63 099 123-4567</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">Disciplinary Action</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V001')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V001')" title="Delete">🗑️</button>
@@ -70,7 +78,7 @@
           <td>Wielding and Fabrication Technology</td>
           <td>WFT-2</td>
           <td>+63 099 234-5678</td>
-          <td><span class="status pending">Pending</span></td>
+          <td><span class="status pending">Permitted</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V002')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V002')" title="Delete">🗑️</button>
@@ -86,7 +94,7 @@
           <td>Bachelor of Technical-Vocational Education and Training</td>
           <td>BTVTED-3</td>
           <td>+63 099 345-6789</td>
-          <td><span class="status resolved">Resolved</span></td>
+          <td><span class="status resolved">Warning</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V003')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V003')" title="Delete">🗑️</button>
@@ -102,7 +110,7 @@
           <td>Computer Hardware Servicing</td>
           <td>CHS-1</td>
           <td>+63 099 456-7890</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">Warning</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V004')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V004')" title="Delete">🗑️</button>
@@ -134,7 +142,7 @@
           <td>Wielding and Fabrication Technology</td>
           <td>WFT-2</td>
           <td>+63 099 678-9012</td>
-          <td><span class="status pending">Pending</span></td>
+          <td><span class="status pending">Permitted</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V006')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V006')" title="Delete">🗑️</button>
@@ -150,7 +158,7 @@
           <td>Bachelor of Technical-Vocational Education and Training</td>
           <td>BTVTED-2</td>
           <td>+63 099 789-0123</td>
-          <td><span class="status resolved">Resolved</span></td>
+          <td><span class="status resolved">Permitted</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V007')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V007')" title="Delete">🗑️</button>
@@ -166,7 +174,7 @@
           <td>Computer Hardware Servicing</td>
           <td>CHS-1</td>
           <td>+63 099 890-1234</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">Permitted</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V008')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V008')" title="Delete">🗑️</button>
@@ -198,7 +206,7 @@
           <td>Wielding and Fabrication Technology</td>
           <td>WFT-2</td>
           <td>+63 099 012-3456</td>
-          <td><span class="status resolved">Resolved</span></td>
+          <td><span class="status resolved">Permitted</span></td>
           <td class="action-buttons">
             <button class="action-btn edit" onclick="editViolation('V010')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="deleteViolation('V010')" title="Delete">🗑️</button>

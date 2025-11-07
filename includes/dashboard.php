@@ -96,7 +96,7 @@
       <label for="switch-mode" class="switch-mode"></label>
       <a href="#" class="notification">
         <i class='bx bxs-bell'></i>
-        <span class="num">7</span>
+        <span class="num">1</span>
       </a>
       <a href="#" class="profile">
         <img src="../assets/img/user.jpg">
@@ -116,6 +116,8 @@
   <script src="../assets/js/student.js"></script>
   <script src="../assets/js/section.js"></script>
   <script src="../assets/js/violation.js"></script>
+
+  
 </body>
 
 </html>

@@ -18,19 +18,37 @@
     <label for="ReportsFilter">Filter:</label>
     <select id="ReportsFilter">
       <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="archived">Archived</option>
+      <option value="active">BSIS</option>
+      <option value="archived">WFT</option>
+      <option value="archived">BTVTED</option>
+      <option value="archived">CHS</option>
     </select>
     <select id="ReportsFilter">
       <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="archived">Archived</option>
+      <option value="active">BSIS-1</option>
+      <option value="archived">WFT-2</option>
+      <option value="archived">BTVTED-3</option>
+      <option value="archived">CHS-1</option>
     </select>
     <select id="ReportsFilter">
       <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="archived">Archived</option>
+      <option value="active">Permitted</option>
+      <option value="archived">Warning</option>
     </select>
+
+    <select id="ReportsTimeFilter">
+      <option value="today">Today</option>
+      <option value="this_week">This Week</option>
+      <option value="this_month">This Month</option>
+      <option value="this_year">This Year</option>
+      <option value="last_7_days">Last 7 Days</option>
+      <option value="last_30_days">Last 30 Days</option>
+    </select>
+
+    <label for="ReportsStart">From:</label>
+    <input type="datetime-local" id="ReportsStart" name="ReportsStart">
+    <label for="ReportsEnd">To:</label>
+    <input type="datetime-local" id="ReportsEnd" name="ReportsEnd">
   </div>
 
   <div class="table-container">
@@ -53,14 +71,14 @@
         <tr>
           <td>R001</td>
           <td>2024-001</td>
-          <td>Juan Dela Cruz</td>
+          <td>John Doe</td>
           <td>Bachelor of Science in Information System</td>
           <td>BSIS-1</td>
           <td>09171234567</td>
-          <td>2</td>
-          <td>1</td>
-          <td>0</td>
-          <td><span class="status active">Active</span></td>
+          <td>3</td>
+          <td>3</td>
+          <td>3</td>
+          <td><span class="status active">Disciplinary Action</span></td>
         </tr>
         <tr>
           <td>R002</td>
@@ -72,7 +90,7 @@
           <td>1</td>
           <td>2</td>
           <td>1</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">Permitted</span></td>
         </tr>
         <tr>
           <td>R003</td>
@@ -84,7 +102,7 @@
           <td>0</td>
           <td>1</td>
           <td>2</td>
-          <td><span class="status pending">Pending</span></td>
+          <td><span class="status pending">Permitted</span></td>
         </tr>
         <tr>
           <td>R004</td>
@@ -96,7 +114,7 @@
           <td>1</td>
           <td>0</td>
           <td>1</td>
-          <td><span class="status resolved">Resolved</span></td>
+          <td><span class="status resolved">Warning</span></td>
         </tr>
         <tr>
           <td>R005</td>
@@ -120,7 +138,7 @@
           <td>2</td>
           <td>1</td>
           <td>1</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">Permitted</span></td>
         </tr>
         <tr>
           <td>R007</td>
@@ -132,7 +150,7 @@
           <td>1</td>
           <td>0</td>
           <td>2</td>
-          <td><span class="status pending">Pending</span></td>
+          <td><span class="status pending">Warning</span></td>
         </tr>
         <tr>
           <td>R008</td>
@@ -144,7 +162,7 @@
           <td>0</td>
           <td>2</td>
           <td>1</td>
-          <td><span class="status resolved">Resolved</span></td>
+          <td><span class="status resolved">Warning</span></td>
         </tr>
         <tr>
           <td>R009</td>
@@ -156,7 +174,7 @@
           <td>1</td>
           <td>1</td>
           <td>0</td>
-          <td><span class="status active">Active</span></td>
+          <td><span class="status active">warning</span></td>
         </tr>
         <tr>
           <td>R010</td>

@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <!-- SIDEBAR -->
+  
   <section id="sidebar">
     <a href="#" class="brand">
       <img src="../assets/img/default.png" alt="Crown Icon"
@@ -81,7 +81,7 @@
         <span class="num">7</span>
       </a>
       <a href="#" class="profile">
-        <img src="../assets/img/user.jpg">
+        <img src="../assets/img/default.png">
       </a>
     </nav>
     <!-- NAVBAR -->

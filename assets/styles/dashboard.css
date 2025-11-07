@@ -689,6 +689,112 @@ body {
   font-size: 18px;
   flex-shrink: 0;
 }
+/* Add Announcement Button */
+.btn-add {
+  background: linear-gradient(135deg, #ffb347, #ffcc33); /* gold-orange gradient */
+  color: #272626;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  font-weight: 550;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-add:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+.modal[aria-hidden="false"] {
+  display: block;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.modal-panel {
+  background: #fff;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 10px;
+  padding: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+.modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Form */
+#addAnnForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#addAnnForm input,
+#addAnnForm textarea,
+#addAnnForm select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.btn-cancel,
+.btn-submit {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-cancel {
+  background: #e5e7eb;
+}
+.btn-submit {
+  background: linear-gradient(135deg, #ffb347, #ffcc33); /* gold-orange gradient */
+  color: #fff;
+}
 
 .announcement-item.urgent .announcement-icon {
   background: rgba(219, 80, 74, 0.1);
