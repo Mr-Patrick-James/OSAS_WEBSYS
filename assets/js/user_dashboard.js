@@ -10,13 +10,11 @@ const mainContent = document.getElementById('main-content');
 
 // Load default content when the page loads
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('✅ user_dashboard.js loaded');
-
   // Check if user is authenticated
   checkAuthentication();
 
   // Load default dashboard content
-  loadContent('../pages/user-page/user_dashcontent');
+  loadContent('user-page/user_dashcontent');
 
   // Set dashboard as active by default
   const dashboardLink = document.querySelector('[data-page="user-page/user_dashcontent"]');
@@ -99,6 +97,76 @@ function logout() {
   }
 }
 
+// Side menu functionality
+allSideMenu.forEach(item => {
+  const li = item.parentElement;
+
+  item.addEventListener('click', function (e) {
+    e.preventDefault();
+    const page = this.getAttribute('data-page');
+
+    // Update active menu item
+    allSideMenu.forEach(i => i.parentElement.classList.remove('active'));
+    li.classList.add('active');
+
+    // Load the corresponding content
+    loadContent(page);
+  });
+});
+
+// Function to load content dynamically
+function loadContent(page) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', `../pages/${page}.php`, true);
+
+  xhr.onload = function () {
+    if (this.status === 200) {
+      mainContent.innerHTML = this.responseText;
+
+      // Initialize charts and announcements if dashboard content is loaded
+      if (page.toLowerCase() === 'user_dashcontent') {
+        setTimeout(() => {
+          initializeUserDashboard();
+          initializeAnnouncements();
+        }, 100);
+      }
+
+      // Initialize settings if settings page is loaded
+      if (page.toLowerCase() === 'settings') {
+        setTimeout(() => {
+          initializeSettings();
+        }, 100);
+      }
+
+      // Initialize module JS if needed
+      if (page.toLowerCase() === 'department' && typeof initDepartmentModule === 'function') {
+        console.log('⚡ Initializing Department module...');
+        initDepartmentModule();
+      }
+      else if (page.toLowerCase() === 'students' && typeof initStudentsModule === 'function') {
+        console.log('⚡ Initializing Students module...');
+        initStudentsModule();
+      }
+      else if (page.toLowerCase() === 'sections' && typeof initSectionsModule === 'function') {
+        console.log('⚡ Initializing Sections module...');
+        initSectionsModule();
+      }
+      else if (page.toLowerCase() === 'violations' && typeof initViolationsModule === 'function') {
+        console.log('⚡ Initializing Violations module...');
+        initViolationsModule();
+      }
+      // Add more modules here...
+    } else if (this.status === 404) {
+      mainContent.innerHTML = '<h2>Page not found.</h2>';
+    }
+  };
+
+  xhr.onerror = function () {
+    mainContent.innerHTML = '<h2>Error loading page.</h2>';
+  };
+
+  xhr.send();
+}
 
 // Announcements functionality
 function toggleAnnouncements() {
@@ -493,78 +561,6 @@ function initializeCharts() {
     });
   }
 }
-
-// Side menu functionality
-allSideMenu.forEach(item => {
-  const li = item.parentElement;
-
-  item.addEventListener('click', function (e) {
-    e.preventDefault();
-    const page = this.getAttribute('data-page');
-
-    // Update active menu item
-    allSideMenu.forEach(i => i.parentElement.classList.remove('active'));
-    li.classList.add('active');
-
-    // Load the corresponding content
-    loadContent(page);
-  });
-});
-
-// Function to load content dynamically
-function loadContent(page) {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', `../pages/${page}.html`, true);
-
-  xhr.onload = function () {
-    if (this.status === 200) {
-      mainContent.innerHTML = this.responseText;
-
-      // Initialize charts and announcements if dashboard content is loaded
-      if (page.toLowerCase() === 'user_dashcontent') {
-        setTimeout(() => {
-          initializeUserDashboard();
-          initializeAnnouncements();
-        }, 100);
-      }
-
-      // Initialize settings if settings page is loaded
-      if (page.toLowerCase() === 'settings') {
-        setTimeout(() => {
-          initializeSettings();
-        }, 100);
-      }
-
-      // Initialize module JS if needed
-      if (page.toLowerCase() === 'department' && typeof initDepartmentModule === 'function') {
-        console.log('⚡ Initializing Department module...');
-        initDepartmentModule();
-      }
-      else if (page.toLowerCase() === 'students' && typeof initStudentsModule === 'function') {
-        console.log('⚡ Initializing Students module...');
-        initStudentsModule();
-      }
-      else if (page.toLowerCase() === 'sections' && typeof initSectionsModule === 'function') {
-        console.log('⚡ Initializing Sections module...');
-        initSectionsModule();
-      }
-      else if (page.toLowerCase() === 'violations' && typeof initViolationsModule === 'function') {
-        console.log('⚡ Initializing Violations module...');
-        initViolationsModule();
-      }
-      // Add more modules here...
-    } else if (this.status === 404) {
-      mainContent.innerHTML = '<h2>Page not found.</h2>';
-    }
-  };
-
-  xhr.onerror = function () {
-    mainContent.innerHTML = '<h2>Error loading page.</h2>';
-  };
-
-  xhr.send();
-}
-
 
 // Toggle sidebar
 menuBar.addEventListener('click', function () {
