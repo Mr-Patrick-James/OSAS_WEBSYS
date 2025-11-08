@@ -27,37 +27,37 @@
 
     <ul class="side-menu top">
       <li class="active">
-        <a href="#" data-page="dashcontent">
+        <a href="#" data-page="admin_page/dashcontent">
           <i class='bx bxs-dashboard'></i>
           <span class="text">Dashboard</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Department">
+        <a href="#" data-page="admin_page/Department">
           <i class='bx bxs-building'></i>
           <span class="text">Department</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Sections">
+        <a href="#" data-page="admin_page/Sections">
           <i class='bx bxs-layer'></i>
           <span class="text">Sections</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Students">
+        <a href="#" data-page="admin_page/Students">
           <i class='bx bxs-group'></i>
           <span class="text">Students</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Violations">
+        <a href="#" data-page="admin_page/Violations">
           <i class='bx bxs-shield-x'></i>
           <span class="text">Violations</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="Reports">
+        <a href="#" data-page="admin_page/Reports">
           <i class='bx bxs-file'></i>
           <span class="text">Reports</span>
         </a>

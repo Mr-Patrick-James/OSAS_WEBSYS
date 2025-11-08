@@ -8,77 +8,103 @@ const searchForm = document.querySelector('#content nav form');
 const switchMode = document.getElementById('switch-mode');
 const mainContent = document.getElementById('main-content');
 
-// Load default content (user dashboard)
+// Load default content when the page loads
 document.addEventListener('DOMContentLoaded', function () {
+  console.log('✅ user_dashboard.js loaded');
+
   // Check if user is authenticated
   checkAuthentication();
-  
-  loadContent('user_dashcontent');
+
+  // Load default dashboard content
+  loadContent('../pages/user-page/user_dashcontent');
 
   // Set dashboard as active by default
-  const dashboardLink = document.querySelector('[data-page="user_dashcontent"]');
+  const dashboardLink = document.querySelector('[data-page="user-page/user_dashcontent"]');
   if (dashboardLink) {
     dashboardLink.parentElement.classList.add('active');
   }
 });
 
-// Check user authentication
+// ✅ Check user authentication
 function checkAuthentication() {
   const userSession = localStorage.getItem('userSession');
-  
+
+  console.log('🔍 Checking authentication...');
+
   if (!userSession) {
-    // No session found, redirect to login
-    window.location.href = '../includes/login.html';
+    redirectToLogin();
     return;
   }
-  
-  const session = JSON.parse(userSession);
-  
-  // Check if user role is correct for this dashboard
+
+  let session;
+  try {
+    session = JSON.parse(userSession);
+
+    // Check expiry
+    const now = new Date().getTime();
+    if (!session.expires || session.expires < now) {
+      console.warn('⚠️ Session expired.');
+      localStorage.removeItem('userSession');
+      redirectToLogin();
+      return;
+    }
+
+  } catch (error) {
+    console.error('❌ Invalid session data. Clearing storage.');
+    localStorage.removeItem('userSession');
+    redirectToLogin();
+    return;
+  }
+
+  // Check if user role matches the page
   if (session.role !== 'user') {
-    // Wrong role, redirect to appropriate dashboard
+    console.warn('⚠️ Wrong role detected:', session.role);
     if (session.role === 'admin') {
-      window.location.href = 'dashboard.html';
+      window.location.href = '../includes/dashboard.php';
     } else {
-      window.location.href = '../includes/login.html';
+      redirectToLogin();
     }
     return;
   }
-  
-  // Update user info in the interface
+
+  // ✅ Update user info on dashboard
   updateUserInfo(session);
+  console.log('✅ Authenticated:', session.name, '| Role:', session.role);
 }
 
-// Update user information in the interface
+// Helper function for redirecting to login
+function redirectToLogin() {
+  window.location.href = '../index.php';
+}
+
+// ✅ Update user information in the interface
 function updateUserInfo(session) {
-  // Update profile name if element exists
   const profileName = document.querySelector('.profile-name');
-  if (profileName) {
-    profileName.textContent = session.name;
-  }
-  
-  // Update student ID if element exists
   const studentId = document.querySelector('.student-id');
+
+  if (profileName) {
+    profileName.textContent = session.name || 'Unknown User';
+  }
+
   if (studentId && session.studentId) {
     studentId.textContent = `ID: ${session.studentId}`;
   }
-  
-  console.log('User authenticated:', session.name, 'Role:', session.role);
 }
 
-// Logout function
+// ✅ Logout function
 function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('userSession');
-    window.location.href = '../includes/login.html';
+    window.location.href = '../index.php';
   }
 }
+
 
 // Announcements functionality
 function toggleAnnouncements() {
   const content = document.getElementById('announcementsContent');
   const toggle = document.querySelector('.announcement-toggle');
-  
+
   if (content && toggle) {
     content.classList.toggle('collapsed');
     toggle.classList.toggle('rotated');
@@ -90,7 +116,7 @@ function initializeAnnouncements() {
   // Add click events to read more buttons
   const readMoreButtons = document.querySelectorAll('.btn-read-more');
   readMoreButtons.forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.addEventListener('click', function (e) {
       e.stopPropagation();
       // Here you can add functionality to show full announcement details
       console.log('Read more clicked for announcement');
@@ -113,10 +139,10 @@ function markAsRead(button) {
   const announcementItem = button.closest('.announcement-item');
   announcementItem.classList.remove('unread');
   button.style.display = 'none';
-  
+
   // Update announcement count
   updateAnnouncementCount();
-  
+
   // Show success message
   showNotification('Announcement marked as read', 'success');
 }
@@ -130,7 +156,7 @@ function markAllAsRead() {
       markButton.style.display = 'none';
     }
   });
-  
+
   updateAnnouncementCount();
   showNotification('All announcements marked as read', 'success');
 }
@@ -165,17 +191,17 @@ function showSettingsTab(tabName) {
   // Hide all panels
   const panels = document.querySelectorAll('.settings-panel');
   panels.forEach(panel => panel.classList.remove('active'));
-  
+
   // Remove active class from all tabs
   const tabs = document.querySelectorAll('.settings-tab');
   tabs.forEach(tab => tab.classList.remove('active'));
-  
+
   // Show selected panel
   const selectedPanel = document.getElementById(`${tabName}-settings`);
   if (selectedPanel) {
     selectedPanel.classList.add('active');
   }
-  
+
   // Add active class to selected tab
   const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
   if (selectedTab) {
@@ -231,10 +257,10 @@ function showNotification(message, type = 'info') {
       <i class='bx bx-x'></i>
     </button>
   `;
-  
+
   // Add to body
   document.body.appendChild(notification);
-  
+
   // Auto remove after 3 seconds
   setTimeout(() => {
     if (notification.parentElement) {
@@ -258,14 +284,14 @@ function initializeUserDashboard() {
   // Add event listeners for violation details buttons
   const viewDetailsButtons = document.querySelectorAll('.btn-view-details');
   viewDetailsButtons.forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
       showViolationDetails(this);
     });
   });
 
   // Update violation counts and status
   updateViolationStats();
-  
+
   console.log('⚡ User dashboard initialized');
 }
 
@@ -274,7 +300,7 @@ function showViolationDetails(button) {
   const row = button.closest('tr');
   const violationType = row.querySelector('.violation-info span').textContent;
   const date = row.querySelector('td:first-child').textContent;
-  
+
   showNotification(`Viewing details for ${violationType} on ${date}`, 'info');
   // Here you can implement a modal or detailed view
 }
@@ -306,11 +332,11 @@ function updateViolationStats() {
 function initializeSettings() {
   // Set default active tab
   showSettingsTab('general');
-  
+
   // Add event listeners for toggle switches
   const toggleSwitches = document.querySelectorAll('.toggle-switch input');
   toggleSwitches.forEach(toggle => {
-    toggle.addEventListener('change', function() {
+    toggle.addEventListener('change', function () {
       const statusElement = this.closest('.setting-item').querySelector('.setting-status');
       if (statusElement) {
         if (this.checked) {
@@ -323,7 +349,7 @@ function initializeSettings() {
       }
     });
   });
-  
+
   console.log('⚡ Settings page initialized');
 }
 

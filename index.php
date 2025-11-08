@@ -1,49 +1,10 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/db_connect.php'; // ✅ Correct path to DB config
-
-// Handle login submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-
-    if (empty($username) || empty($password)) {
-        $error = "All fields are required!";
-    } else {
-        // Secure prepared statement
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1");
-        $stmt->bind_param("ss", $username, $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result && $result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-
-            // Verify password (ensure passwords in DB are hashed)
-            if (password_verify($password, $user['password'])) {
-                // ✅ Store session data
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
-
-                // ✅ Redirect based on role
-                if ($user['role'] === 'admin') {
-                    header("Location: ./admin/dashboard.php");
-                    exit;
-                } else {
-                    header("Location: ./user/dashboard.php");
-                    exit;
-                }
-            } else {
-                $error = "Invalid username or password!";
-            }
-        } else {
-            $error = "Invalid username or password!";
-        }
-    }
+$error = '';
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -68,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="logo">
                     <img src="./assets/img/default.png" alt="Logo" width="55" height="55">
                 </div>
-
                 <h2>Welcome Back</h2>
                 <p>Please enter your credentials to login</p>
             </div>
@@ -83,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form class="login-form" method="POST" action="">
+            <form id="loginForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="username">Username or Email</label>
@@ -142,18 +102,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const toggleButton = document.querySelector('.toggle-password i');
+    document.addEventListener('DOMContentLoaded', function () {
+        // 🔹 Persistent login check
+        const userSession = localStorage.getItem('userSession');
+        if (userSession) {
+            try {
+                const session = JSON.parse(userSession);
+                const now = new Date().getTime();
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleButton.classList.replace('fa-eye-slash', 'fa-eye');
+                if (!session.expires || session.expires > now) {
+                    if (session.role === 'admin') {
+                        window.location.href = './includes/dashboard.php';
+                    } else if (session.role === 'user') {
+                        window.location.href = './includes/user_dashboard.php';
+                    }
+                } else {
+                    localStorage.removeItem('userSession'); // expired
+                }
+            } catch {
+                localStorage.removeItem('userSession');
             }
         }
+    });
+
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.querySelector('.toggle-password i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // 🔹 AJAX login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('rememberMe').checked;
+
+        fetch('./auth/login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&rememberMe=${remember}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Store session in localStorage
+                const expires = remember ? new Date().getTime() + 30*24*60*60*1000 : null; // 30 days if remember
+                localStorage.setItem('userSession', JSON.stringify({
+                    name: data.name,
+                    role: data.role,
+                    studentId: data.studentId,
+                    expires: expires
+                }));
+
+                if (data.role === 'admin') {
+                    window.location.href = './includes/dashboard.php';
+                } else {
+                    window.location.href = './includes/user_dashboard.php';
+                }
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error('Login error:', err));
+    });
     </script>
 </body>
 </html>

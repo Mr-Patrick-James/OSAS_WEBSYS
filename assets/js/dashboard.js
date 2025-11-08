@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Check if user is authenticated
   checkAuthentication();
   
-  loadContent('dashcontent');
+  loadContent('admin_page/dashcontent');
 
   // Set dashboard as active by default
-  const dashboardLink = document.querySelector('[data-page="dashcontent"]');
+  const dashboardLink = document.querySelector('[data-page="admin_page/dashcontent"]');
   if (dashboardLink) {
     dashboardLink.parentElement.classList.add('active');
   }
@@ -28,7 +28,7 @@ function checkAuthentication() {
   
   if (!userSession) {
     // No session found, redirect to login
-    window.location.href = '../includes/login.html';
+    window.location.href = '../index.php';
     return;
   }
   
@@ -38,9 +38,9 @@ function checkAuthentication() {
   if (session.role !== 'admin') {
     // Wrong role, redirect to appropriate dashboard
     if (session.role === 'user') {
-      window.location.href = 'user_dashboard.html';
+      window.location.href = '../includes/user_dashboard.php';
     } else {
-      window.location.href = '../includes/login.html';
+      window.location.href = '../index.php';
     }
     return;
   }
@@ -64,7 +64,7 @@ function updateUserInfo(session) {
 function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('userSession');
-    window.location.href = '../includes/login.html';
+    window.location.href = '../index.php';
   }
 }
 
@@ -430,7 +430,7 @@ allSideMenu.forEach(item => {
 // Function to load content dynamically
 function loadContent(page) {
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', `../pages/${page}.html`, true);
+  xhr.open('GET', `../pages/${page}.php`, true);
 
   xhr.onload = function () {
     if (this.status === 200) {

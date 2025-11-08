@@ -21,25 +21,25 @@
 
     <ul class="side-menu top">
       <li class="active">
-        <a href="#" data-page="user_dashcontent">
+        <a href="#" data-page="user-page/user_dashcontent">
           <i class='bx bxs-dashboard'></i>
           <span class="text">My Dashboard</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="my_violations">
+        <a href="#" data-page="user-page/my_violations">
           <i class='bx bxs-shield-x'></i>
           <span class="text">My Violations</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="my_profile">
+        <a href="#" data-page="user-page/my_profile">
           <i class='bx bxs-user'></i>
           <span class="text">My Profile</span>
         </a>
       </li>
       <li>
-        <a href="#" data-page="announcements">
+        <a href="#" data-page="user-page/announcements">
           <i class='bx bxs-megaphone'></i>
           <span class="text">Announcements</span>
         </a>
