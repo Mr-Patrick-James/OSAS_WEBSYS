@@ -1,3 +1,7 @@
+// ===============================
+// USER DASHBOARD SCRIPT (FULL FIX)
+// ===============================
+
 // DOM Elements
 const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
 const menuBar = document.querySelector('#content nav .bx.bx-menu');
@@ -8,114 +12,150 @@ const searchForm = document.querySelector('#content nav form');
 const switchMode = document.getElementById('switch-mode');
 const mainContent = document.getElementById('main-content');
 
-// Load default content when the page loads
+// ===============================
+// PAGE INITIALIZATION
+// ===============================
 document.addEventListener('DOMContentLoaded', function () {
-  // Check if user is authenticated
-  checkAuthentication();
+  console.log("🚀 Initializing user dashboard...");
 
-  // Load default dashboard content
-  loadContent('user-page/user_dashcontent');
+  const session = checkAuthentication();
 
-  // Set dashboard as active by default
-  const dashboardLink = document.querySelector('[data-page="user-page/user_dashcontent"]');
+  if (!session) return; // Redirected if not authenticated
+
+  // Load default page
+  const defaultPage = 'user-page/user_dashcontent';
+  loadContent(defaultPage);
+
+  // Highlight active menu
+  const dashboardLink = document.querySelector(`[data-page="${defaultPage}"]`);
   if (dashboardLink) {
+    allSideMenu.forEach(i => i.parentElement.classList.remove('active'));
     dashboardLink.parentElement.classList.add('active');
   }
 });
 
-// ✅ Check user authentication
+// ===============================
+// AUTHENTICATION HANDLING
+// ===============================
 function checkAuthentication() {
-  const userSession = localStorage.getItem('userSession');
-
   console.log('🔍 Checking authentication...');
 
-  if (!userSession) {
+  // Get session from localStorage (persistent) or sessionStorage (temporary)
+  let storedSession = localStorage.getItem('userSession') || sessionStorage.getItem('userSession');
+
+  // Fallback: try cookies if no JS storage found
+  if (!storedSession) {
+    const cookieSession = getCookie('userSession');
+    if (cookieSession) storedSession = cookieSession;
+  }
+
+  if (!storedSession) {
+    console.warn('❌ No session found. Redirecting to login.');
     redirectToLogin();
-    return;
+    return null;
   }
 
   let session;
   try {
-    session = JSON.parse(userSession);
-
-    // Check expiry
-    const now = new Date().getTime();
-    if (!session.expires || session.expires < now) {
-      console.warn('⚠️ Session expired.');
-      localStorage.removeItem('userSession');
-      redirectToLogin();
-      return;
-    }
-
-  } catch (error) {
-    console.error('❌ Invalid session data. Clearing storage.');
+    session = JSON.parse(storedSession);
+  } catch (err) {
+    console.error('❌ Invalid session format. Clearing...');
     localStorage.removeItem('userSession');
+    sessionStorage.removeItem('userSession');
     redirectToLogin();
-    return;
+    return null;
   }
 
-  // Check if user role matches the page
+  const now = new Date().getTime();
+  if (session.expires && now > session.expires) {
+    console.warn('⚠️ Session expired. Clearing storage.');
+    localStorage.removeItem('userSession');
+    sessionStorage.removeItem('userSession');
+    redirectToLogin();
+    return null;
+  }
+
+  // Role check
   if (session.role !== 'user') {
-    console.warn('⚠️ Wrong role detected:', session.role);
+    console.warn('⚠️ Unauthorized role detected:', session.role);
     if (session.role === 'admin') {
       window.location.href = '../includes/dashboard.php';
     } else {
       redirectToLogin();
     }
-    return;
+    return null;
   }
 
-  // ✅ Update user info on dashboard
   updateUserInfo(session);
-  console.log('✅ Authenticated:', session.name, '| Role:', session.role);
+  console.log('✅ Authenticated as:', session.name, '| Role:', session.role);
+  return session;
 }
 
-// Helper function for redirecting to login
 function redirectToLogin() {
   window.location.href = '../index.php';
 }
 
-// ✅ Update user information in the interface
+// ===============================
+// USER INFO
+// ===============================
 function updateUserInfo(session) {
   const profileName = document.querySelector('.profile-name');
   const studentId = document.querySelector('.student-id');
 
-  if (profileName) {
-    profileName.textContent = session.name || 'Unknown User';
-  }
-
-  if (studentId && session.studentId) {
-    studentId.textContent = `ID: ${session.studentId}`;
-  }
+  if (profileName) profileName.textContent = session.name || 'Unknown User';
+  if (studentId && session.studentId) studentId.textContent = `ID: ${session.studentId}`;
 }
 
-// ✅ Logout function
+// ===============================
+// LOGOUT FUNCTION
+// ===============================
 function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('userSession');
+    sessionStorage.removeItem('userSession');
+    deleteCookie('userSession');
     window.location.href = '../index.php';
   }
 }
 
-// Side menu functionality
+// ===============================
+// COOKIE HELPERS
+// ===============================
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+
+function deleteCookie(name) {
+  document.cookie = name + '=; Max-Age=0; path=/';
+}
+
+// ===============================
+// SIDEBAR HANDLING
+// ===============================
 allSideMenu.forEach(item => {
   const li = item.parentElement;
 
   item.addEventListener('click', function (e) {
     e.preventDefault();
     const page = this.getAttribute('data-page');
+    if (!page) return;
 
-    // Update active menu item
     allSideMenu.forEach(i => i.parentElement.classList.remove('active'));
     li.classList.add('active');
 
-    // Load the corresponding content
     loadContent(page);
   });
 });
 
-// Function to load content dynamically
+// ===============================
+// DYNAMIC CONTENT LOADER
+// ===============================
 function loadContent(page) {
+  console.log(`📄 Loading page: ${page}`);
+
   const xhr = new XMLHttpRequest();
   xhr.open('GET', `../pages/${page}.php`, true);
 
@@ -123,46 +163,32 @@ function loadContent(page) {
     if (this.status === 200) {
       mainContent.innerHTML = this.responseText;
 
-      // Initialize charts and announcements if dashboard content is loaded
-      if (page.toLowerCase() === 'user_dashcontent') {
+      // Initialize modules
+      if (page.toLowerCase().includes('user_dashcontent')) {
         setTimeout(() => {
-          initializeUserDashboard();
-          initializeAnnouncements();
+          if (typeof initializeUserDashboard === 'function') initializeUserDashboard();
+          if (typeof initializeAnnouncements === 'function') initializeAnnouncements();
         }, 100);
       }
 
-      // Initialize settings if settings page is loaded
-      if (page.toLowerCase() === 'settings') {
-        setTimeout(() => {
-          initializeSettings();
-        }, 100);
-      }
-
-      // Initialize module JS if needed
-      if (page.toLowerCase() === 'department' && typeof initDepartmentModule === 'function') {
-        console.log('⚡ Initializing Department module...');
-        initDepartmentModule();
-      }
-      else if (page.toLowerCase() === 'students' && typeof initStudentsModule === 'function') {
-        console.log('⚡ Initializing Students module...');
-        initStudentsModule();
-      }
-      else if (page.toLowerCase() === 'sections' && typeof initSectionsModule === 'function') {
-        console.log('⚡ Initializing Sections module...');
-        initSectionsModule();
-      }
-      else if (page.toLowerCase() === 'violations' && typeof initViolationsModule === 'function') {
-        console.log('⚡ Initializing Violations module...');
+      if (page.toLowerCase().includes('my_violations') && typeof initViolationsModule === 'function') {
         initViolationsModule();
       }
-      // Add more modules here...
+
+      if (page.toLowerCase().includes('my_profile') && typeof initProfileModule === 'function') {
+        initProfileModule();
+      }
+
+      if (page.toLowerCase().includes('announcements') && typeof initAnnouncementsModule === 'function') {
+        initAnnouncementsModule();
+      }
     } else if (this.status === 404) {
-      mainContent.innerHTML = '<h2>Page not found.</h2>';
+      mainContent.innerHTML = '<h2 style="color:red; padding:20px;">Page not found.</h2>';
     }
   };
 
   xhr.onerror = function () {
-    mainContent.innerHTML = '<h2>Error loading page.</h2>';
+    mainContent.innerHTML = '<h2 style="color:red; padding:20px;">Error loading page.</h2>';
   };
 
   xhr.send();

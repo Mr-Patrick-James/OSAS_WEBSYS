@@ -539,3 +539,78 @@
         background-position: 100% 50%;
     }
 }
+
+
+
+/* 🔹 Toast Notification Styles */
+        .toast {
+            position: fixed;
+            top: -60px;
+            right: 20px;
+            background: #222;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+            z-index: 9999;
+            font-size: 0.95rem;
+        }
+
+        .toast.show {
+            top: 20px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #E53935, #B71C1C);
+        }
+
+        /* 🔹 Spinner on Login Button */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }

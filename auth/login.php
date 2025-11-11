@@ -2,10 +2,10 @@
 session_start();
 include("../config/db_connect.php");
 
-// Set JSON response header
+// JSON response
 header('Content-Type: application/json');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
     $remember = isset($_POST['rememberMe']) && $_POST['rememberMe'] === 'true';
@@ -15,8 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Query user
-    $query = "SELECT * FROM users WHERE username = ? OR email = ?";
+    // Query user by username or email
+    $query = "SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ss", $username, $username);
     $stmt->execute();
@@ -26,29 +26,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user["password"])) {
-            // Admin: use PHP session
-            if ($user["role"] === "admin") {
-                $_SESSION["user_id"] = $user["id"];
-                $_SESSION["username"] = $user["username"];
-                $_SESSION["role"] = $user["role"];
 
-                echo json_encode([
-                    'status' => 'success',
-                    'role' => 'admin',
-                    'name' => $user["username"],
-                    'studentId' => $user["id"],
-                    'expires' => time() + ($remember ? 30*24*60*60 : 6*60*60) // seconds
-                ]);
-                exit();
+            // ✅ Always create PHP session
+            $_SESSION["user_id"] = $user["id"];
+            $_SESSION["username"] = $user["username"];
+            $_SESSION["role"] = $user["role"];
+
+            // Set expiry (6 hours default, 30 days if remember me)
+            $expiryTime = time() + ($remember ? 30*24*60*60 : 6*60*60);
+
+            // ✅ Set cookies only if remember is checked
+            if ($remember) {
+                setcookie("user_id", $user["id"], $expiryTime, "/");
+                setcookie("username", $user["username"], $expiryTime, "/");
+                setcookie("role", $user["role"], $expiryTime, "/");
+            } else {
+                // Clear cookies if previously set
+                setcookie("user_id", "", time() - 3600, "/");
+                setcookie("username", "", time() - 3600, "/");
+                setcookie("role", "", time() - 3600, "/");
             }
 
-            // User: store in localStorage via AJAX
             echo json_encode([
                 'status' => 'success',
-                'role' => 'user',
+                'role' => $user["role"],
                 'name' => $user["username"],
                 'studentId' => $user["id"],
-                'expires' => time() + ($remember ? 30*24*60*60 : 6*60*60) // seconds
+                'expires' => $expiryTime
             ]);
             exit();
         } else {
@@ -63,3 +67,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
     exit();
 }
+?>

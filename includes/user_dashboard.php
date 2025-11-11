@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  
+
   <section id="sidebar">
     <a href="#" class="brand">
       <img src="../assets/img/default.png" alt="Crown Icon"
@@ -92,7 +92,7 @@
     </div>
   </section>
   <!-- CONTENT -->
-
+  <script src="assets/js/initModules.js"></script>
   <script src="../assets/js/user_dashboard.js"></script>
 </body>
 

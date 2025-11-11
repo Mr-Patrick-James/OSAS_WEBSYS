@@ -100,80 +100,123 @@ if (isset($_GET['error'])) {
             </div>
         </div>
     </div>
-
+    <script src="assets/js/initModules.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // 🔹 Persistent login check
-        const userSession = localStorage.getItem('userSession');
-        if (userSession) {
-            try {
-                const session = JSON.parse(userSession);
-                const now = new Date().getTime();
+        document.addEventListener('DOMContentLoaded', function() {
+            // 🔹 Persistent login check
+            const userSession = localStorage.getItem('userSession'); // Always persistent
+            if (userSession) {
+                try {
+                    const session = JSON.parse(userSession);
+                    const now = new Date().getTime();
 
-                if (!session.expires || session.expires > now) {
-                    if (session.role === 'admin') {
-                        window.location.href = './includes/dashboard.php';
-                    } else if (session.role === 'user') {
-                        window.location.href = './includes/user_dashboard.php';
+                    if (session.expires && session.expires > now) {
+                        // Redirect based on role
+                        if (session.role === 'admin') {
+                            window.location.href = './includes/dashboard.php';
+                        } else if (session.role === 'user') {
+                            window.location.href = './includes/user_dashboard.php';
+                        }
+                    } else {
+                        // Remove expired session
+                        localStorage.removeItem('userSession');
                     }
-                } else {
-                    localStorage.removeItem('userSession'); // expired
+                } catch {
+                    localStorage.removeItem('userSession');
                 }
-            } catch {
-                localStorage.removeItem('userSession');
             }
-        }
-    });
+        });
 
-    function togglePasswordVisibility() {
-        const passwordInput = document.getElementById('password');
-        const toggleButton = document.querySelector('.toggle-password i');
-
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleButton.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            toggleButton.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    }
-
-    // 🔹 AJAX login
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const remember = document.getElementById('rememberMe').checked;
-
-        fetch('./auth/login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&rememberMe=${remember}`
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Store session in localStorage
-                const expires = remember ? new Date().getTime() + 30*24*60*60*1000 : null; // 30 days if remember
-                localStorage.setItem('userSession', JSON.stringify({
-                    name: data.name,
-                    role: data.role,
-                    studentId: data.studentId,
-                    expires: expires
-                }));
-
-                if (data.role === 'admin') {
-                    window.location.href = './includes/dashboard.php';
-                } else {
-                    window.location.href = './includes/user_dashboard.php';
-                }
+        // 🔹 Password toggle
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.toggle-password i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
-                alert(data.message);
+                passwordInput.type = 'password';
+                toggleButton.classList.replace('fa-eye-slash', 'fa-eye');
             }
-        })
-        .catch(err => console.error('Login error:', err));
-    });
+        }
+
+        // 🔹 Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        // 🔹 AJAX Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginButton = document.getElementById('loginButton');
+
+            if (!username || !password) {
+                showToast('Please fill in all fields.', 'error');
+                return;
+            }
+
+            // Loading state
+            loginButton.disabled = true;
+            loginButton.innerHTML = `<div class="spinner"></div><span>Logging in...</span>`;
+
+            fetch('./auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&rememberMe=true` // Always true
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = `<span>Login</span>`;
+
+                    if (data.status === 'success') {
+                        showToast('Login successful! Redirecting...', 'success');
+
+                        // Always use localStorage for persistent login
+                        const sessionData = {
+                            name: data.name,
+                            role: data.role,
+                            studentId: data.studentId,
+                            expires: data.expires * 1000 // convert PHP timestamp to JS ms
+                        };
+
+                        localStorage.setItem('userSession', JSON.stringify(sessionData));
+
+                        setTimeout(() => {
+                            if (data.role === 'admin') {
+                                window.location.href = './includes/dashboard.php';
+                            } else {
+                                window.location.href = './includes/user_dashboard.php';
+                            }
+                        }, 1000);
+                    } else {
+                        showToast(data.message || 'Invalid credentials.', 'error');
+                    }
+                })
+                .catch(err => {
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = `<span>Login</span>`;
+                    console.error('Login error:', err);
+                    showToast('Server error. Please try again later.', 'error');
+                });
+        });
     </script>
 </body>
+
 </html>
