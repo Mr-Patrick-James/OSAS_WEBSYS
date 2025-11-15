@@ -12,8 +12,167 @@ if (isset($_GET['error'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSAS | Login</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a2d6d">
+    <link rel="apple-touch-icon" href="assets/img/default.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./assets/styles/login.css">
+    <style>
+        /* Error toast styles */
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .error-toast i {
+            font-size: 1.2rem;
+        }
+
+        .error-toast button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        .error-toast button:hover {
+            opacity: 0.8;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Background animation for light mode */
+        @keyframes backgroundShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+
+
+        /* 🔹 Toast Notification Styles */
+        .toast {
+            position: fixed;
+            top: -60px;
+            right: 20px;
+            background: #222;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+            z-index: 9999;
+            font-size: 0.95rem;
+        }
+
+        .toast.show {
+            top: 20px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #E53935, #B71C1C);
+        }
+
+        /* 🔹 Spinner on Login Button */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +180,7 @@ if (isset($_GET['error'])) {
         <div class="login-card">
             <div class="gold-border"></div>
 
-            <div class="theme-toggle" onclick="toggleTheme()">
+            <div class="theme-toggle" id="themeToggle">
                 <i class="fas fa-sun"></i>
             </div>
 
@@ -54,7 +213,7 @@ if (isset($_GET['error'])) {
                         <label for="password">Password</label>
                         <div class="password-input-wrapper">
                             <input id="password" name="password" type="password" placeholder="Enter your password" required>
-                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                            <button type="button" class="toggle-password" id="passwordToggle">Fz
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -100,123 +259,26 @@ if (isset($_GET['error'])) {
             </div>
         </div>
     </div>
-    <script src="assets/js/initModules.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 🔹 Persistent login check
-            const userSession = localStorage.getItem('userSession'); // Always persistent
-            if (userSession) {
-                try {
-                    const session = JSON.parse(userSession);
-                    const now = new Date().getTime();
 
-                    if (session.expires && session.expires > now) {
-                        // Redirect based on role
-                        if (session.role === 'admin') {
-                            window.location.href = './includes/dashboard.php';
-                        } else if (session.role === 'user') {
-                            window.location.href = './includes/user_dashboard.php';
-                        }
-                    } else {
-                        // Remove expired session
-                        localStorage.removeItem('userSession');
-                    }
-                } catch {
-                    localStorage.removeItem('userSession');
-                }
-            }
-        });
+    <button id="installPWA" style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background:#4a2d6d;
+    color:white;
+    border:none;
+    cursor:pointer;
+    display:none;">
+        Install App
+    </button>
 
-        // 🔹 Password toggle
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const toggleButton = document.querySelector('.toggle-password i');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleButton.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
+    <script src="service-worker.js"></script>
+    <script src="assets/js/pwa.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/login.js"></script>
 
-        // 🔹 Toast Notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        <span>${message}</span>
-    `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 50);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 500);
-            }, 3000);
-        }
-
-        // 🔹 AJAX Login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const loginButton = document.getElementById('loginButton');
-
-            if (!username || !password) {
-                showToast('Please fill in all fields.', 'error');
-                return;
-            }
-
-            // Loading state
-            loginButton.disabled = true;
-            loginButton.innerHTML = `<div class="spinner"></div><span>Logging in...</span>`;
-
-            fetch('./auth/login.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&rememberMe=true` // Always true
-                })
-                .then(res => res.json())
-                .then(data => {
-                    loginButton.disabled = false;
-                    loginButton.innerHTML = `<span>Login</span>`;
-
-                    if (data.status === 'success') {
-                        showToast('Login successful! Redirecting...', 'success');
-
-                        // Always use localStorage for persistent login
-                        const sessionData = {
-                            name: data.name,
-                            role: data.role,
-                            studentId: data.studentId,
-                            expires: data.expires * 1000 // convert PHP timestamp to JS ms
-                        };
-
-                        localStorage.setItem('userSession', JSON.stringify(sessionData));
-
-                        setTimeout(() => {
-                            if (data.role === 'admin') {
-                                window.location.href = './includes/dashboard.php';
-                            } else {
-                                window.location.href = './includes/user_dashboard.php';
-                            }
-                        }, 1000);
-                    } else {
-                        showToast(data.message || 'Invalid credentials.', 'error');
-                    }
-                })
-                .catch(err => {
-                    loginButton.disabled = false;
-                    loginButton.innerHTML = `<span>Login</span>`;
-                    console.error('Login error:', err);
-                    showToast('Server error. Please try again later.', 'error');
-                });
-        });
-    </script>
 </body>
 
 </html>

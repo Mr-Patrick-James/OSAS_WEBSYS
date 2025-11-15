@@ -19,7 +19,7 @@
 
             <div class="signup-header">
                 <div class="logo">
-                    <img src="https://via.placeholder.com/55" alt="Logo" width="55" height="55">
+                    <img src="../assets/img/default.png" alt="Logo" width="55" height="55">
                 </div>
 
                 <h2>Create Account</h2>
