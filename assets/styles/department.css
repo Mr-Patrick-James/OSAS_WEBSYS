@@ -1,329 +1,297 @@
-/* Default (light mode) variables */
-:root {
-  --background: #F5F5F5;
-  --table:#FFFFFF;
-  --card-bg: #ffffff;
-  --text-primary: #2d3748;
-  --text-secondary: #4a5568;
-  --text-muted: #718096;
-  --border: #e2e8f0;
-  --border-hover: #cbd5e0;
-  --accent: #FFD700;
-  --accent-hover: #f3bd0a;
-  --status-active-bg: #ebf8ff;
-  --status-active-text: #3182ce;
-  --status-archived-bg: #fff5f5;
-  --status-archived-text: #e53e3e;
-}
+/* ========================================= */
+/*    DEPARTMENTS PAGE – CLEAN & MODERN (NO YELLOW HEADER)   */
+/* ========================================= */
 
-/* Dark mode overrides */
-body.dark {
-  --background: #121212;
-  --table:#1A1A1A;
-  --card-bg: #222121;
-  --text-primary: #edf2f7;
-  --text-secondary: #e2e8f0;
-  --text-muted: #a0aec0;
-  --border: #4a5568;
-  --border-hover: #718096;
-  --accent: #FFD700;
-  --accent-hover: #f3bd0a;
-  --status-active-bg: #2a4365;
-  --status-active-text: #63b3ed;
-  --status-archived-bg: #742a2a;
-  --status-archived-text: #feb2b2;
-}
-
-/* Department Page Styles */
 #department-page {
-  padding: 20px;
-  background-color: var(--background);
-  min-height: calc(100vh - 70px);
+  padding: 24px;
+  min-height: calc(100vh - 56px);
+  font-family: var(--poppins);
 }
 
+/* Header & Breadcrumb */
 #department-page .head-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 #department-page .head-title .left h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 5px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
 }
 
 #department-page .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
-  color: var(--text-muted);
+  font-size: 14.5px;
+  color: var(--dark-grey);
 }
 
 #department-page .breadcrumb a {
-  color: var(--text-muted);
+  color: var(--dark-grey);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.3s ease;
 }
 
-#department-page .breadcrumb a:hover {
-  color: var(--accent);
-}
-
+#department-page .breadcrumb a:hover,
 #department-page .breadcrumb a.active {
-  color: var(--text-primary);
-  font-weight: 500;
+  color: var(--gold);
+  font-weight: 600;
 }
 
 #department-page .breadcrumb i {
-  font-size: 12px;
+  font-size: 16px;
+  color: var(--dark-grey);
 }
 
+/* Buttons – Gold Gradient (only accents) */
 #department-page .btn {
-  background-color: var(--accent);
-  color: white;
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+  color: #2c2c2c;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(66, 153, 225, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 179, 71, 0.3);
 }
 
 #department-page .btn:hover {
-  background-color: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 179, 71, 0.4);
 }
 
-#department-page .btn:active {
-  transform: translateY(0);
-}
-
-#department-page .filter-container {
-  margin-bottom: 20px;
+/* Filter */
+.filter-container {
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-#department-page .filter-container label {
-  font-weight: 500;
-  color: var(--text-secondary);
+.filter-container label {
+  font-weight: 600;
+  color: var(--dark);
 }
 
-#department-page .filter-container select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background-color: var(--card-bg);
-  color: var(--text-secondary);
+.filter-container select {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--grey);
+  background: var(--light);
+  color: var(--dark);
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
-#department-page .filter-container select:hover {
-  border-color: var(--border-hover);
+.filter-container select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
 }
 
-#department-page .filter-container select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-}
-
-#department-page .table-container {
-  background-color: var(--card-bg);
-  border-radius: 10px;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+/* Table – Clean White Header */
+.table-container {
+  background: var(--light);
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-#department-page .department-table {
+.table-container:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.department-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-#department-page .department-table thead {
-  background-color: var(--table);
-  border-bottom: 1px solid var(--border);
+.department-table thead {
+  background: var(--light); /* Clean white header */
+  border-bottom: 2px solid var(--grey);
 }
 
-#department-page .department-table th {
-  padding: 15px 20px;
+.department-table th {
+  padding: 18px 24px;
   text-align: left;
-  color: var(--text-secondary);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  color: var(--dark);
 }
 
-#department-page .department-table tbody tr {
-  border-bottom: 1px solid var(--border);
-  transition: background-color 0.2s;
+.department-table tbody tr {
+  border-bottom: 1px solid var(--grey);
+  transition: all 0.3s ease;
 }
 
-#department-page .department-table tbody tr:last-child {
-  border-bottom: none;
+.department-table tbody tr:hover {
+  background: var(--grey);
 }
 
-#department-page .department-table tbody tr:hover {
-  background-color: rgba(0,0,0,0.03);
+.department-table td {
+  padding: 18px 24px;
+  color: var(--dark);
+  font-size: 15px;
 }
 
-#department-page .department-table td {
-  padding: 15px 20px;
-  color: var(--text-primary);
-  font-size: 14px;
-}
-
-#department-page .department-table .status {
-  display: inline-block;
-  padding: 5px 12px;
+/* Status & Actions */
+.department-table .status {
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-#department-page .department-table .status.active {
-  background-color: var(--status-active-bg);
-  color: var(--status-active-text);
+.department-table .status.active {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
 }
 
-#department-page .department-table .status.archived {
-  background-color: var(--status-archived-bg);
-  color: var(--status-archived-text);
+.department-table .status.archived {
+  background: rgba(244, 67, 54, 0.15);
+  color: #c62828;
 }
 
-#department-page .action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-#department-page .action-btn {
+.action-btn {
   background: none;
   border: none;
+  padding: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: all 0.2s;
+  font-size: 18px;
+  transition: all 0.3s ease;
 }
 
-#department-page .action-btn.edit {
-  color: var(--accent);
-}
+.action-btn.edit { color: var(--gold); }
+.action-btn.edit:hover { background: rgba(255, 215, 0, 0.15); }
 
-#department-page .action-btn.edit:hover {
-  background-color: var(--status-active-bg);
-}
+.action-btn.delete { color: var(--red); }
+.action-btn.delete:hover { background: rgba(219, 80, 74, 0.15); }
 
-#department-page .action-btn.delete {
-  color: var(--status-archived-text);
-}
-
-#department-page .action-btn.delete:hover {
-  background-color: var(--status-archived-bg);
-}
-
-/* Modal Styles */
-#department-page .modal {
+/* Modal – Clean Header (No Yellow) */
+#departmentModal {
   display: none;
   position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-   width: 100%;
-  height: 100%;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
-#department-page .modal.active {
+#departmentModal.active {
   display: flex;
-  opacity: 1;
 }
 
-#department-page .modal-content {
-  background-color: var(--card-bg);
-  border-radius: 10px;
-  width: 100%;
-  max-width: 500px;
-  padding: 25px;
-  border: 1px solid rgba(0,0,0,0.18);
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12);
-  transform: translateY(-20px);
-  transition: transform 0.3s ease;
+.modal-content {
+  background: var(--light);
+  width: 90%;
+  max-width: 520px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalIn 0.4s ease-out;
 }
 
-#department-page .modal.active .modal-content {
-  transform: translateY(0);
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-#department-page .close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 24px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.2s;
+#modalTitle {
+  background: var(--light);
+  color: var(--dark);
+  padding: 24px 28px 20px;
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--grey);
 }
 
-#department-page .close-btn:hover {
-  color: var(--text-secondary);
-}
-
-#department-page #modalTitle {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: var(--text-primary);
-  font-size: 22px;
-}
-
-#department-page #departmentForm {
+#departmentForm {
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
 }
 
-#department-page #departmentForm label {
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-size: 14px;
+#departmentForm label {
+  font-weight: 600;
+  color: var(--dark);
 }
 
-#department-page #departmentForm input,
-#department-page #departmentForm select {
-  padding: 10px 15px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  font-size: 14px;
-  transition: all 0.2s;
+#departmentForm input,
+#departmentForm select {
+  padding: 14px 18px;
+  border: 1px solid var(--grey);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--light);
+  color: var(--dark);
+  transition: all 0.3s ease;
 }
 
-#department-page #departmentForm input:focus,
-#department-page #departmentForm select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
+#departmentForm input:focus,
+#departmentForm select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
 }
 
-#department-page #departmentForm button[type="submit"] {
-  margin-top: 10px;
-  align-self: flex-end;
+#departmentForm button[type="submit"] {
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+  color: #2c2c2c;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#departmentForm button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 179, 71, 0.4);
+}
+
+.close-btn {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--dark-grey);
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: var(--grey);
+  color: var(--red);
 }

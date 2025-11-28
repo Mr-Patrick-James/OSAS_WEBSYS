@@ -8,10 +8,16 @@ const searchForm = document.querySelector('#content nav form');
 const switchMode = document.getElementById('switch-mode');
 const mainContent = document.getElementById('main-content');
 
+// Theme state (sync with login.js)
+let darkMode = true;
+
 // Load default content (dashboard)
 document.addEventListener('DOMContentLoaded', function () {
   // Check if user is authenticated
   checkAuthentication();
+  
+  // Initialize theme from localStorage or system preference
+  initializeTheme();
   
   loadContent('admin_page/dashcontent');
 
@@ -21,6 +27,65 @@ document.addEventListener('DOMContentLoaded', function () {
     dashboardLink.parentElement.classList.add('active');
   }
 });
+
+// Initialize theme from localStorage
+function initializeTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedTheme) {
+    darkMode = savedTheme === 'dark';
+  } else {
+    darkMode = systemPrefersDark;
+  }
+  
+  updateTheme();
+  
+  // Sync the switch mode checkbox
+  if (switchMode) {
+    switchMode.checked = darkMode;
+  }
+}
+
+// Update theme across the application
+function updateTheme() {
+  // Toggle dark class on body (for your current CSS)
+  document.body.classList.toggle('dark', darkMode);
+  
+  // Also add dark-mode class for compatibility with login.js
+  document.body.classList.toggle('dark-mode', darkMode);
+  
+  // Update theme toggle icon if exists
+  const themeToggle = document.querySelector('.theme-toggle i');
+  if (themeToggle) {
+    if (darkMode) {
+      themeToggle.classList.remove('fa-sun');
+      themeToggle.classList.add('fa-moon');
+    } else {
+      themeToggle.classList.remove('fa-moon');
+      themeToggle.classList.add('fa-sun');
+    }
+  }
+  
+  // Update theme-color meta tag for PWA
+  updateThemeColor();
+}
+
+// Update theme color meta tag
+function updateThemeColor() {
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute('content', darkMode ? '#121212' : '#4a2d6d');
+  }
+}
+
+// Toggle theme function (compatible with login.js)
+function toggleTheme() {
+  darkMode = !darkMode;
+  updateTheme();
+  localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  console.log('Theme toggled to:', darkMode ? 'dark' : 'light');
+}
 
 // Check user authentication
 function checkAuthentication() {
@@ -64,6 +129,8 @@ function updateUserInfo(session) {
 function logout() {
   if (confirm('Are you sure you want to logout?')) {
     localStorage.removeItem('userSession');
+    // Also clear theme preference if you want fresh start on next login
+    // localStorage.removeItem('theme');
     window.location.href = '../index.php';
   }
 }
@@ -280,6 +347,11 @@ function initializeCharts() {
     return;
   }
 
+  // Get colors based on current theme
+  const isDark = document.body.classList.contains('dark');
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const textColor = isDark ? '#ffffff' : '#333333';
+
   // Violation Types Pie Chart
   const violationTypesCtx = document.getElementById('violationTypesChart');
   if (violationTypesCtx) {
@@ -295,7 +367,7 @@ function initializeCharts() {
             '#FD7238'
           ],
           borderWidth: 2,
-          borderColor: '#ffffff'
+          borderColor: isDark ? '#2d3748' : '#ffffff'
         }]
       },
       options: {
@@ -309,7 +381,8 @@ function initializeCharts() {
               usePointStyle: true,
               font: {
                 size: 12
-              }
+              },
+              color: textColor
             }
           }
         }
@@ -349,12 +422,18 @@ function initializeCharts() {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(0,0,0,0.1)'
+              color: gridColor
+            },
+            ticks: {
+              color: textColor
             }
           },
           x: {
             grid: {
               display: false
+            },
+            ticks: {
+              color: textColor
             }
           }
         }
@@ -373,12 +452,12 @@ function initializeCharts() {
           label: 'Violations',
           data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 28, 24, 20],
           borderColor: '#FFD700',
-          backgroundColor: 'rgba(255, 215, 0, 0.1)',
+          backgroundColor: isDark ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.1)',
           tension: 0.4,
           fill: true,
           borderWidth: 3,
           pointBackgroundColor: '#FFD700',
-          pointBorderColor: '#ffffff',
+          pointBorderColor: isDark ? '#2d3748' : '#ffffff',
           pointBorderWidth: 2,
           pointRadius: 6,
           pointHoverRadius: 8
@@ -396,12 +475,18 @@ function initializeCharts() {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(0,0,0,0.1)'
+              color: gridColor
+            },
+            ticks: {
+              color: textColor
             }
           },
           x: {
             grid: {
-              color: 'rgba(0,0,0,0.1)'
+              color: gridColor
+            },
+            ticks: {
+              color: textColor
             }
           }
         }
@@ -437,7 +522,7 @@ function loadContent(page) {
       mainContent.innerHTML = this.responseText;
 
       // Initialize charts and announcements if dashboard content is loaded
-      if (page.toLowerCase() === 'dashcontent') {
+      if (page.toLowerCase().includes('dashcontent')) {
         setTimeout(() => {
           initializeCharts();
           initializeAnnouncements();
@@ -481,44 +566,62 @@ function loadContent(page) {
   xhr.send();
 }
 
-
 // Toggle sidebar
-menuBar.addEventListener('click', function () {
-  sidebar.classList.toggle('hide');
-});
+if (menuBar) {
+  menuBar.addEventListener('click', function () {
+    sidebar.classList.toggle('hide');
+  });
+}
 
 // Search button functionality for mobile
-searchButton.addEventListener('click', function (e) {
-  if (window.innerWidth < 576) {
-    e.preventDefault();
-    searchForm.classList.toggle('show');
-    searchButtonIcon.classList.toggle('bx-x', searchForm.classList.contains('show'));
-    searchButtonIcon.classList.toggle('bx-search', !searchForm.classList.contains('show'));
-  }
-});
+if (searchButton) {
+  searchButton.addEventListener('click', function (e) {
+    if (window.innerWidth < 576) {
+      e.preventDefault();
+      searchForm.classList.toggle('show');
+      searchButtonIcon.classList.toggle('bx-x', searchForm.classList.contains('show'));
+      searchButtonIcon.classList.toggle('bx-search', !searchForm.classList.contains('show'));
+    }
+  });
+}
 
-// Theme switcher: dark mode
-switchMode.addEventListener('change', function () {
-  if (this.checked) {
-    document.body.classList.add('dark');
-  } else {
-    document.body.classList.remove('dark');
+// Theme switcher: dark mode (compatible with login.js)
+if (switchMode) {
+  switchMode.addEventListener('change', function () {
+    toggleTheme(); // Use the unified theme toggle function
+  });
+}
+
+// Listen for system theme changes (compatible with login.js)
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+mediaQuery.addEventListener('change', function (e) {
+  // Only update if user hasn't explicitly set a preference
+  if (!localStorage.getItem('theme')) {
+    darkMode = e.matches;
+    updateTheme();
+    if (switchMode) {
+      switchMode.checked = darkMode;
+    }
   }
 });
 
 // Responsive adjustments on load
-if (window.innerWidth < 768) {
+if (window.innerWidth < 768 && sidebar) {
   sidebar.classList.add('hide');
 }
-if (window.innerWidth > 576) {
+if (window.innerWidth > 576 && searchButtonIcon) {
   searchButtonIcon.classList.replace('bx-x', 'bx-search');
-  searchForm.classList.remove('show');
+  if (searchForm) {
+    searchForm.classList.remove('show');
+  }
 }
 
 // Responsive adjustments on resize
 window.addEventListener('resize', function () {
-  if (this.innerWidth > 576) {
+  if (this.innerWidth > 576 && searchButtonIcon) {
     searchButtonIcon.classList.replace('bx-x', 'bx-search');
-    searchForm.classList.remove('show');
+    if (searchForm) {
+      searchForm.classList.remove('show');
+    }
   }
 });

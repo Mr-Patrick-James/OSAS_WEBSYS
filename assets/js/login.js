@@ -31,7 +31,7 @@ function updateTheme() {
 function updateThemeColor() {
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', darkMode ? '#121212' : '#4a2d6d');
+        themeColorMeta.setAttribute('content', darkMode ? '#121212' : '#ffffff');
     }
 }
 

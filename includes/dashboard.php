@@ -6,13 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
   <title>E-OSAS SYSTEM</title>
-  <link rel="stylesheet" href="../assets/styles/dashboard.css">
-  <link rel="stylesheet" href="../assets/styles/department.css">
-  <link rel="stylesheet" href="../assets/styles/students.css">
+  <link rel="stylesheet" href="../assets/styles/Dashboard.css">
+  <link rel="stylesheet" href="../assets/styles/Dashcontent.css">
+  <link rel="stylesheet" href="../assets/styles/Department.css">
   <link rel="stylesheet" href="../assets/styles/section.css">
+  <link rel="stylesheet" href="../assets/styles/Students.css">
   <link rel="stylesheet" href="../assets/styles/violation.css">
-  <link rel="stylesheet" href="../assets/styles/report.css">
-  <link rel="stylesheet" href="../assets/styles/settings.css">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 

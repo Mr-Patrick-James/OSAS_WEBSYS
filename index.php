@@ -213,7 +213,7 @@ if (isset($_GET['error'])) {
                         <label for="password">Password</label>
                         <div class="password-input-wrapper">
                             <input id="password" name="password" type="password" placeholder="Enter your password" required>
-                            <button type="button" class="toggle-password" id="passwordToggle">Fz
+                            <button type="button" class="toggle-password" id="passwordToggle">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
