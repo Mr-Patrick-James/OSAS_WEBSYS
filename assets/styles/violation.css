@@ -1,50 +1,94 @@
+/* Violation.css - UPDATED WITH PROPER DARK MODE */
+
+/* Add this border variable at the top */
+:root {
+  /* Keep your existing variables */
+  --border: #DDDDDD; /* Add this line */
+
+}
+
+body.dark {
+  /* Keep your existing variables */
+  --border: #444444; /* Add this line for dark mode */
+
+}
+
 /* ========================================= */
-/*    VIOLATIONS PAGE – CLEAN & MODERN      */
+/*         BASE STYLES FOR PAGE             */
 /* ========================================= */
 
 #Violations-page {
   padding: 24px;
   min-height: calc(100vh - 56px);
   font-family: var(--poppins);
+  background: var(--grey);
+  color: var(--dark);
 }
 
-/* Header & Breadcrumb */
+/* ========================================= */
+/*            POLISHED HEADER SECTION        */
+/* ========================================= */
+
 .Violations-head-title {
+  background: var(--light);
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 24px;
 }
 
-.Violations-head-title .Violations-left h1 {
-  font-size: 2.2rem;
+.Violations-left {
+  flex: 1;
+}
+
+.Violations-head-title h1 {
+  font-size: 2.4rem;
   font-weight: 700;
   color: var(--dark);
   margin: 0 0 8px 0;
+  background: linear-gradient(135deg, var(--dark) 0%, var(--dark-grey) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.Violations-subtitle {
+  font-size: 1rem;
+  color: var(--dark-grey);
+  margin: 0 0 16px 0;
 }
 
 .Violations-breadcrumb {
   display: flex;
   align-items: center;
   gap: 12px;
+  font-size: 14px;
+  color: var(--dark-grey);
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: 14.5px;
-  color: var(--dark-grey);
 }
 
 .Violations-breadcrumb a {
   color: var(--dark-grey);
   text-decoration: none;
   transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.Violations-breadcrumb a:hover,
-.Violations-breadcrumb a.active {
+.Violations-breadcrumb a:hover {
   color: var(--gold);
+}
+
+.Violations-breadcrumb .active {
+  color: var(--dark);
   font-weight: 600;
 }
 
@@ -53,243 +97,848 @@
   color: var(--dark-grey);
 }
 
-/* Header Actions */
+/* ========================================= */
+/*          HEADER ACTION BUTTONS           */
+/* ========================================= */
+
 .Violations-header-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* Buttons */
-.Violations-btn {
-  background: linear-gradient(135deg, #ffb347, #ffcc33);
-  color: #2c2c2c;
-  border: none;
-  padding: 11px 20px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-}
-
-.Violations-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-}
-
-.Violations-btn-print {
-  background: linear-gradient(135deg, #ffb347, #ffcc33);
-}
-
-.Violations-btn-print:hover {
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
-}
-
-/* Filter Container */
-.Violations-filter-container {
-  margin-bottom: 24px;
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap;
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
+  flex-shrink: 0;
 }
 
-.Violations-filter-container label {
-  font-weight: 600;
-  color: var(--dark);
+.Violations-button-group {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.Violations-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  font-family: var(--poppins);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
 
-.Violations-filter-container select {
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--grey);
+.Violations-btn.outline {
   background: var(--light);
   color: var(--dark);
-  font-size: 14px;
-  cursor: pointer;
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.Violations-btn.outline.small {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  border-width: 1.5px;
+}
+
+.Violations-btn.primary {
+  background: linear-gradient(135deg, var(--gold) 0%, #FFA500 100%);
+  color: var(--dark);
+  font-weight: 600;
+  padding: 11px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25);
+}
+
+.Violations-btn i {
+  font-size: 18px;
+  transition: transform 0.25s ease;
+  color: currentColor;
+}
+
+.Violations-btn.primary i {
+  font-size: 19px;
+}
+
+.Violations-btn.outline.small i {
+  font-size: 17px;
+}
+
+.Violations-btn.outline:hover {
+  background: var(--light);
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.1);
+}
+
+.Violations-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 215, 0, 0.35);
+  background: linear-gradient(135deg, #FFCC00 0%, #FF9900 100%);
+}
+
+.Violations-btn:hover i {
+  transform: scale(1.1);
+}
+
+.Violations-btn:active {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s ease;
+}
+
+.Violations-btn.primary:active {
+  box-shadow: 0 2px 6px rgba(255, 215, 0, 0.25);
+  background: linear-gradient(135deg, #E6B800 0%, #E68A00 100%);
+}
+
+.Violations-btn.outline:active {
+  background: var(--grey);
+}
+
+.Violations-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+}
+
+/* ========================================= */
+/*              STATS CARDS                 */
+/* ========================================= */
+
+.Violations-stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.Violations-stat-card {
+  background: var(--light);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  min-width: 160px;
+  border-left: 5px solid var(--gold);
 }
 
-.Violations-filter-container select:focus {
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2);
+.Violations-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
-/* Table */
-.Violations-table-container {
+.Violations-stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--gold), #ffcc33);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--dark);
+}
+
+.Violations-stat-content {
+  flex: 1;
+}
+
+.Violations-stat-title {
+  font-size: 0.9rem;
+  color: var(--dark-grey);
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.Violations-stat-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.Violations-stat-change,
+.Violations-stat-percentage {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.Violations-stat-change.positive {
+  color: #2e7d32;
+}
+
+.Violations-stat-change.negative {
+  color: var(--red);
+}
+
+.Violations-stat-percentage {
+  color: var(--dark-grey);
+}
+
+/* ========================================= */
+/*           MAIN CONTENT CARD              */
+/* ========================================= */
+
+.Violations-content-card {
   background: var(--light);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  overflow-x: auto;
+  margin-bottom: 24px;
 }
 
-.Violations-table-container:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+/* Table Header */
+.Violations-table-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.Violations-header-left {
+  flex: 1;
+}
+
+.Violations-table-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin: 0 0 6px 0;
+}
+
+.Violations-table-subtitle {
+  font-size: 0.95rem;
+  color: var(--dark-grey);
+  margin: 0;
+}
+
+.Violations-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.Violations-search-box {
+  position: relative;
+  width: 260px;
+}
+
+.Violations-search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-grey);
+  font-size: 18px;
+}
+
+.Violations-search-box input {
+  width: 100%;
+  padding: 12px 16px 12px 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--light);
+  color: var(--dark);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.Violations-search-box input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+}
+
+.Violations-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.Violations-filter-select {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  color: var(--dark);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.Violations-filter-select:focus {
+  border-color: var(--gold);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+}
+
+.Violations-filter-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  color: var(--dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.Violations-filter-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+/* ========================================= */
+/*                TABLE STYLES              */
+/* ========================================= */
+
+.Violations-table-container {
+  overflow-x: auto;
+  padding: 0 32px;
 }
 
 .Violations-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1400px;
 }
 
 .Violations-table thead {
-  background: var(--light);
-  border-bottom: 2px solid var(--grey);
+  border-bottom: 2px solid var(--border);
 }
 
 .Violations-table th {
-  padding: 18px 16px;
+  padding: 20px 16px;
   text-align: left;
   font-weight: 600;
   font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--dark);
+  letter-spacing: 0.5px;
+  color: var(--dark-grey);
+  white-space: nowrap;
+}
+
+.Violations-table th.Violations-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.Violations-table-header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .Violations-table tbody tr {
-  border-bottom: 1px solid var(--grey);
+  border-bottom: 1px solid var(--border);
   transition: all 0.3s ease;
 }
 
 .Violations-table tbody tr:hover {
-  background: var(--grey);
+  background: rgba(255, 215, 0, 0.03);
 }
 
 .Violations-table td {
-  padding: 16px;
+  padding: 20px 16px;
   color: var(--dark);
   font-size: 15px;
   vertical-align: middle;
 }
 
-/* Student Image in Table */
-.Violations-table .violation-student-image {
+/* Case ID */
+.violation-case-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* Student Info Cell */
+.violation-student-cell {
+  width: 200px;
+}
+
+.violation-student-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.violation-student-image {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--grey);
+  overflow: hidden;
+  border: 2px solid var(--gold);
 }
 
-/* Status Styles */
-.Violations-table .violation-status {
-  padding: 6px 14px;
-  border-radius: 20px;
+.student-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.violation-student-name {
+  flex: 1;
+}
+
+.violation-student-name strong {
+  display: block;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Student ID */
+.violation-student-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Violation Type Badges */
+.violation-type-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+  display: inline-block;
 }
 
-.Violations-table .violation-status.permitted {
+.violation-type-badge.uniform {
+  background: rgba(156, 39, 176, 0.15);
+  color: #7b1fa2;
+}
+
+.violation-type-badge.id {
+  background: rgba(33, 150, 243, 0.15);
+  color: #1565c0;
+}
+
+.violation-type-badge.footwear {
   background: rgba(76, 175, 80, 0.15);
   color: #2e7d32;
 }
 
-.Violations-table .violation-status.warning {
+.violation-type-badge.behavior {
   background: rgba(255, 152, 0, 0.15);
   color: #ef6c00;
 }
 
-.Violations-table .violation-status.disciplinary {
+/* Violation Level Badges */
+.violation-level-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.violation-level-badge.permitted {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.violation-level-badge.warning {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ef6c00;
+}
+
+.violation-level-badge.disciplinary {
   background: rgba(244, 67, 54, 0.15);
   color: #c62828;
 }
 
-/* Action Buttons */
+/* Department Badges */
+.dept-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+
+.dept-badge.bsis {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.dept-badge.wft {
+  background: rgba(33, 150, 243, 0.15);
+  color: #1565c0;
+}
+
+.dept-badge.btvted {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ef6c00;
+}
+
+.dept-badge.chs {
+  background: rgba(156, 39, 176, 0.15);
+  color: #7b1fa2;
+}
+
+/* Section */
+.violation-section {
+  font-weight: 500;
+}
+
+/* Violation Date */
+.violation-date {
+  color: var(--dark-grey);
+  font-size: 14px;
+}
+
+/* Status Badges */
+.Violations-status-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.Violations-status-badge.permitted {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.Violations-status-badge.warning {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ef6c00;
+}
+
+.Violations-status-badge.disciplinary {
+  background: rgba(244, 67, 54, 0.15);
+  color: #c62828;
+}
+
+.Violations-status-badge.resolved {
+  background: rgba(33, 150, 243, 0.15);
+  color: #1565c0;
+}
+
+/* ========================================= */
+/*            ACTION BUTTONS                */
+/* ========================================= */
+
+.Violations-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .Violations-action-btn {
-  background: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   border: none;
-  padding: 8px;
-  border-radius: 10px;
+  background: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
+  transition: all 0.3s ease;
+  color: var(--dark-grey);
+}
+
+.Violations-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.Violations-action-btn.view:hover {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+}
+
+.Violations-action-btn.edit:hover {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+}
+
+.Violations-action-btn.resolve:hover {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.Violations-action-btn.escalate:hover {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.Violations-action-btn.reopen:hover {
+  background: rgba(96, 125, 139, 0.15);
+  color: #607d8b;
+}
+
+.Violations-action-btn.print:hover {
+  background: rgba(96, 125, 139, 0.15);
+  color: #607d8b;
+}
+
+/* ========================================= */
+/*              TABLE FOOTER                */
+/* ========================================= */
+
+.Violations-table-footer {
+  padding: 20px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.Violations-footer-info {
+  font-size: 14px;
+  color: var(--dark-grey);
+}
+
+.Violations-footer-info span {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.Violations-pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.Violations-pagination-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  color: var(--dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
-.Violations-action-btn.edit { color: var(--gold); }
-.Violations-action-btn.edit:hover { background: rgba(255, 215, 0, 0.15); }
+.Violations-pagination-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255, 215, 0, 0.05);
+}
 
-.Violations-action-btn.delete { color: var(--red); }
-.Violations-action-btn.delete:hover { background: rgba(219, 80, 74, 0.15); }
+.Violations-pagination-btn.active {
+  background: linear-gradient(135deg, var(--gold), #ffcc33);
+  color: var(--dark);
+  border-color: transparent;
+}
 
-.Violations-action-btn.view { color: #4ecdc4; }
-.Violations-action-btn.view:hover { background: rgba(78, 205, 196, 0.15); }
+.Violations-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-/* Modal Styles */
+/* ========================================= */
+/*           MODAL STYLES                   */
+/* ========================================= */
+
 .Violations-modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
   z-index: 2000;
-  align-items: center;
-  justify-content: center;
 }
 
 .Violations-modal.active {
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.Violations-modal-content {
+.Violations-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.Violations-modal-container {
+  position: relative;
   background: var(--light);
   width: 90%;
-  max-width: 800px;
-  border-radius: 20px;
+  max-width: 700px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: ViolationsModalIn 0.4s ease-out;
-  position: relative;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.4s ease-out;
+  z-index: 2001;
   max-height: 90vh;
   overflow-y: auto;
 }
 
-@keyframes ViolationsModalIn {
-  from { opacity: 0; transform: translateY(-40px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-#violationModalTitle {
+.Violations-modal-header {
+  padding: 28px 32px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: var(--light);
+  z-index: 1;
+}
+
+.Violations-modal-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.Violations-close-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--grey);
+  color: var(--dark-grey);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+
+.Violations-close-btn:hover {
+  background: var(--red);
+  color: white;
+  transform: rotate(90deg);
+}
+
+/* ========================================= */
+/*       RECORD MODAL SPECIFIC STYLES       */
+/* ========================================= */
+
+#ViolationRecordForm {
+  padding: 32px;
+}
+
+/* Student Search */
+.student-search-wrapper {
+  position: relative;
+  display: flex;
+  gap: 12px;
+}
+
+.student-search-wrapper i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-grey);
+  font-size: 20px;
+}
+
+.student-search-wrapper input {
+  flex: 1;
+  padding: 14px 16px 14px 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: var(--light);
   color: var(--dark);
-  padding: 24px 28px 20px;
-  margin: 0;
-  font-size: 1.7rem;
-  font-weight: 700;
-  border-bottom: 1px solid var(--grey);
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.student-search-wrapper input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+}
+
+.Violations-search-btn {
+  padding: 14px 24px;
+  border-radius: 12px;
+  background: var(--grey);
+  border: 1px solid var(--border);
+  color: var(--dark);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.Violations-search-btn:hover {
+  background: var(--dark-grey);
+  color: var(--light);
+  border-color: var(--dark-grey);
 }
 
 /* Student Info Card */
 .violation-student-info-card {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
   background: var(--grey);
-  border-radius: 12px;
-  margin: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  display: flex;
   align-items: center;
+  gap: 20px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.violation-student-info-card.selected {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.05);
 }
 
 .violation-student-image {
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+}
+
+.violation-student-image img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 3px solid var(--light);
 }
 
 .violation-student-details {
@@ -299,219 +948,598 @@
 .violation-detail-row {
   display: flex;
   margin-bottom: 8px;
-  align-items: center;
 }
 
 .violation-detail-label {
+  width: 120px;
   font-weight: 600;
-  color: var(--dark);
-  min-width: 100px;
+  color: var(--dark-grey);
   font-size: 14px;
 }
 
 .violation-detail-value {
   color: var(--dark);
-  font-size: 15px;
+  font-weight: 500;
+  flex: 1;
 }
 
 /* Violation Type Section */
-.violation-type-section {
-  padding: 0 20px;
-  margin-bottom: 20px;
-}
-
-.violation-type-section h3 {
-  color: var(--dark);
-  margin-bottom: 15px;
+.violation-type-section h3,
+.violation-level-section h3 {
   font-size: 1.2rem;
+  color: var(--dark);
+  margin: 0 0 20px 0;
 }
 
 .violation-types {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
-  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
 .violation-type-card {
-  flex: 1;
-  min-width: 150px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
 }
 
 .violation-type-card input[type="radio"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .violation-type-card label {
-  display: block;
-  padding: 15px;
-  background: var(--grey);
-  border: 2px solid var(--grey);
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  color: var(--dark-grey);
-}
-
-.violation-type-card input[type="radio"]:checked + label {
-  border-color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
-  color: #ff6b6b;
-}
-
-.violation-type-card label:hover {
-  border-color: #ff6b6b;
-}
-
-/* Violation Level Table */
-.violation-levels {
-  padding: 0 20px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-}
-
-.violation-level-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--light);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.violation-level-table th {
-  background: var(--grey);
-  padding: 12px 8px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--dark);
-  border: 1px solid var(--grey);
-}
-
-.violation-level-table td {
-  padding: 12px 8px;
-  text-align: center;
-  border: 1px solid var(--grey);
-  font-size: 13px;
-  color: var(--dark);
-}
-
-.violation-level-table tr[data-violation] {
-  display: none;
-}
-
-.violation-level-table tr[data-violation].active {
-  display: table-row;
-}
-
-.violation-level-table input[type="radio"] {
-  transform: scale(1.2);
-}
-
-/* Violation Notes */
-.violation-notes {
-  padding: 0 20px;
-  margin-bottom: 20px;
-}
-
-.violation-notes label {
-  display: block;
-  font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 8px;
-}
-
-.violation-notes textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--grey);
-  border-radius: 8px;
-  background: var(--light);
-  color: var(--dark);
-  font-family: inherit;
-  resize: vertical;
-  transition: all 0.3s ease;
-}
-
-.violation-notes textarea:focus {
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2);
-}
-
-/* Modal Actions */
-.violation-modal-actions {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  justify-content: flex-end;
-  padding: 20px;
-  border-top: 1px solid var(--grey);
-}
-
-.violation-modal-actions .Violations-btn {
-  min-width: 140px;
-}
-
-.violation-btn-cancel {
-  background: var(--grey) !important;
-  color: var(--dark-grey) !important;
-  box-shadow: none !important;
-}
-
-.violation-btn-cancel:hover {
-  background: var(--dark-grey) !important;
-  color: var(--light) !important;
-}
-
-.violation-btn-submit {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
-}
-
-/* Close Button */
-.Violations-close-btn {
-  position: absolute;
-  top: 18px;
-  right: 24px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: var(--dark-grey);
   cursor: pointer;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+}
+
+.violation-type-card i {
+  font-size: 32px;
+  color: var(--dark-grey);
+  transition: all 0.3s ease;
+}
+
+.violation-type-card span {
+  font-weight: 600;
+  color: var(--dark);
+  font-size: 14px;
+}
+
+.violation-type-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.violation-type-card:hover i {
+  color: var(--gold);
+}
+
+.violation-type-card.active {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.violation-type-card.active i {
+  color: var(--gold);
+}
+
+/* Violation Level Section */
+.violation-level-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.violation-level-option {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.violation-level-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.violation-level-option label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.level-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--dark);
+}
+
+.level-desc {
+  font-size: 12px;
+  color: var(--dark-grey);
+}
+
+/* Level-specific styles */
+.level-permitted .level-title { color: #2e7d32; }
+.level-warning .level-title { color: #ef6c00; }
+.level-disciplinary .level-title { color: #c62828; }
+
+.violation-level-option:hover {
+  border-color: currentColor;
+  transform: translateY(-2px);
+}
+
+.violation-level-option.active {
+  border-color: currentColor;
+  background: rgba(currentColor, 0.05);
+}
+
+.violation-level-option.active.level-permitted { border-color: #2e7d32; background: rgba(46, 125, 50, 0.05); }
+.violation-level-option.active.level-warning { border-color: #ef6c00; background: rgba(239, 108, 0, 0.05); }
+.violation-level-option.active.level-disciplinary { border-color: #c62828; background: rgba(198, 40, 40, 0.05); }
+
+/* Violation Details Section */
+.violation-details-section {
+  margin: 24px 0;
+}
+
+.Violations-form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.Violations-form-row .Violations-form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.Violations-form-group {
+  margin-bottom: 20px;
+}
+
+.Violations-form-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--dark);
+  font-size: 15px;
+}
+
+.Violations-form-group input,
+.Violations-form-group select,
+.Violations-form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--light);
+  color: var(--dark);
+  transition: all 0.3s ease;
+  font-family: var(--lato);
+}
+
+.Violations-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.Violations-form-group input:focus,
+.Violations-form-group select:focus,
+.Violations-form-group textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
+}
+
+/* Violation Attachments */
+.violation-attachments {
+  margin: 24px 0;
+}
+
+.violation-attachments h4 {
+  font-size: 1.1rem;
+  color: var(--dark);
+  margin: 0 0 16px 0;
+}
+
+.attachment-upload {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.attachment-upload:hover {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.02);
+}
+
+.attachment-upload input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.attachment-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.attachment-label i {
+  font-size: 40px;
+  color: var(--dark-grey);
+}
+
+.attachment-label span {
+  color: var(--dark-grey);
+  font-size: 14px;
+}
+
+/* Form Actions */
+.Violations-form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.Violations-btn-outline,
+.Violations-btn-primary {
+  flex: 1;
+  padding: 15px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   transition: all 0.3s ease;
-  z-index: 1;
+  border: none;
 }
 
-.Violations-close-btn:hover {
+.Violations-btn-outline {
+  background: transparent;
+  border: 2px solid var(--border);
+  color: var(--dark);
+}
+
+.Violations-btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.Violations-btn-primary {
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+  color: var(--dark);
+  box-shadow: 0 4px 15px rgba(255, 179, 71, 0.3);
+}
+
+.Violations-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 179, 71, 0.4);
+}
+
+/* ========================================= */
+/*       DETAILS MODAL SPECIFIC STYLES      */
+/* ========================================= */
+
+.violation-details-content {
+  padding: 0 32px 32px;
+}
+
+/* Case Header */
+.case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.case-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.case-status-badge {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.case-status-badge.warning {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ef6c00;
+}
+
+/* Detailed Student Info */
+.violation-student-info-card.detailed {
   background: var(--grey);
-  color: var(--red);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
-/* Print Styles */
-@media print {
-  #Violations-page {
-    padding: 0;
+.violation-student-info-card.detailed .violation-student-image {
+  width: 100px;
+  height: 100px;
+}
+
+.violation-student-info-card.detailed .violation-student-details h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.5rem;
+  color: var(--dark);
+}
+
+.student-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.student-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.student-section {
+  color: var(--dark-grey);
+  font-size: 14px;
+}
+
+.student-contact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--dark-grey);
+  font-size: 14px;
+}
+
+.student-contact i {
+  margin-right: 4px;
+}
+
+/* Details Grid */
+.violation-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+  padding: 24px;
+  background: var(--grey);
+  border-radius: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--dark-grey);
+  font-size: 13px;
+}
+
+.detail-value {
+  color: var(--dark);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* Notes Section */
+.violation-notes-section {
+  margin: 24px 0;
+}
+
+.violation-notes-section h4 {
+  font-size: 1.1rem;
+  color: var(--dark);
+  margin: 0 0 16px 0;
+}
+
+.notes-content {
+  background: var(--grey);
+  border-radius: 12px;
+  padding: 20px;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+/* History Timeline */
+.violation-history {
+  margin: 32px 0;
+}
+
+.violation-history h4 {
+  font-size: 1.1rem;
+  color: var(--dark);
+  margin: 0 0 20px 0;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -31px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 3px solid var(--light);
+}
+
+.timeline-content {
+  background: var(--grey);
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid var(--gold);
+}
+
+.timeline-date {
+  display: block;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.timeline-title {
+  display: block;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.timeline-desc {
+  display: block;
+  font-size: 13px;
+  color: var(--dark-grey);
+}
+
+/* Details Actions */
+.violation-details-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+.violation-details-actions .Violations-action-btn {
+  flex: 1;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 8px;
+}
+
+/* ========================================= */
+/*             EMPTY STATE STYLES           */
+/* ========================================= */
+
+.Violations-empty-state {
+  text-align: center;
+  padding: 80px 24px;
+  background: var(--light);
+  border-radius: 20px;
+  margin: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.Violations-empty-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--grey), var(--dark-grey));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 48px;
+  color: var(--dark-grey);
+}
+
+.Violations-empty-state h3 {
+  font-size: 1.8rem;
+  color: var(--dark);
+  margin: 0 0 12px 0;
+}
+
+.Violations-empty-state p {
+  color: var(--dark-grey);
+  margin: 0 0 32px 0;
+  font-size: 1rem;
+}
+
+/* ========================================= */
+/*             RESPONSIVE DESIGN            */
+/* ========================================= */
+
+@media (max-width: 1200px) {
+  .Violations-table-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .Violations-header-actions,
-  .Violations-filter-container,
-  .Violations-action-btn {
-    display: none !important;
+  .Violations-header-right {
+    width: 100%;
   }
   
-  .Violations-table-container {
-    box-shadow: none;
-    border: 1px solid #ddd;
+  .Violations-search-box {
+    flex: 1;
+  }
+  
+  .Violations-filter-group {
+    flex-wrap: wrap;
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .Violations-head-title {
     flex-direction: column;
@@ -520,56 +1548,46 @@
   
   .Violations-header-actions {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
   
-  .Violations-filter-container {
+  .Violations-form-row {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    gap: 16px;
   }
   
-  .Violations-filter-container select {
-    width: 100%;
+  .violation-details-grid {
+    grid-template-columns: 1fr;
   }
   
-  .violation-student-info-card {
-    flex-direction: column;
-    text-align: center;
+  .violation-details-actions {
+    flex-wrap: wrap;
   }
   
-  .violation-detail-row {
-    justify-content: center;
-  }
-  
-  .violation-types {
-    flex-direction: column;
-  }
-  
-  .violation-modal-actions {
-    flex-direction: column;
-  }
-  
-  .violation-modal-actions .Violations-btn {
-    width: 100%;
+  .violation-details-actions .Violations-action-btn {
+    min-width: calc(50% - 6px);
   }
 }
 
 @media (max-width: 480px) {
-  #Violations-page {
-    padding: 16px;
-  }
-  
-  .Violations-head-title .Violations-left h1 {
-    font-size: 1.8rem;
-  }
-  
-  .Violations-table-container {
-    border-radius: 12px;
-  }
-  
-  .Violations-modal-content {
+  .Violations-modal-container {
     width: 95%;
-    margin: 20px;
+    max-height: 85vh;
+  }
+  
+  .Violations-form-actions {
+    flex-direction: column;
+  }
+  
+  .violation-types {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .violation-level-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .violation-details-actions .Violations-action-btn {
+    min-width: 100%;
   }
 }

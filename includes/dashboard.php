@@ -7,12 +7,6 @@
   <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
   <title>E-OSAS SYSTEM</title>
   <link rel="stylesheet" href="../assets/styles/Dashboard.css">
-  <link rel="stylesheet" href="../assets/styles/Dashcontent.css">
-  <link rel="stylesheet" href="../assets/styles/Department.css">
-  <link rel="stylesheet" href="../assets/styles/section.css">
-  <link rel="stylesheet" href="../assets/styles/Students.css">
-  <link rel="stylesheet" href="../assets/styles/violation.css">
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -112,12 +106,9 @@
   <!-- CONTENT -->
 
   <script src="../assets/js/dashboard.js"></script>
-  <script src="../assets/js/department.js"></script>
-  <script src="../assets/js/student.js"></script>
-  <script src="../assets/js/section.js"></script>
-  <script src="../assets/js/violation.js"></script>
-
-  
+  <script src="../assets/js/utils/notification.js"></script>
+  <script src="../assets/js/modules/dashboardModule.js"></script>
+  <script src="../assets/js/utils/theme.js"></script>
 </body>
 
 </html>
