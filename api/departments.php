@@ -107,10 +107,19 @@ function getDepartments($conn) {
     $filter = $_GET['filter'] ?? 'all';
     $search = $_GET['search'] ?? '';
     
-    $query = "SELECT d.*, 
-              (SELECT COUNT(*) FROM students WHERE department = d.department_code) as student_count
-              FROM departments d
-              WHERE 1=1";
+    // Check if students table exists for student count
+    $studentsTableExists = $conn->query("SHOW TABLES LIKE 'students'")->num_rows > 0;
+    
+    if ($studentsTableExists) {
+        $query = "SELECT d.*, 
+                  (SELECT COUNT(*) FROM students WHERE department = d.department_code) as student_count
+                  FROM departments d
+                  WHERE 1=1";
+    } else {
+        $query = "SELECT d.*, 0 as student_count
+                  FROM departments d
+                  WHERE 1=1";
+    }
     
     $params = [];
     $types = "";
@@ -290,7 +299,7 @@ function updateDepartment($conn) {
     $update->close();
 }
 
-// Delete department
+// Delete department (now archives instead of hard delete)
 function deleteDepartment($conn) {
     $deptId = intval($_GET['id'] ?? $_POST['id'] ?? 0);
     
@@ -299,59 +308,22 @@ function deleteDepartment($conn) {
         exit;
     }
     
-    // Check if department has sections
-    $check = $conn->prepare("SELECT COUNT(*) as count FROM sections WHERE department_id = ?");
-    $check->bind_param("i", $deptId);
-    $check->execute();
-    $result = $check->get_result();
-    $row = $result->fetch_assoc();
-    $check->close();
-    
-    if ($row['count'] > 0) {
-        echo json_encode(['status' => 'error', 'message' => 'Cannot delete department with assigned sections.']);
-        exit;
-    }
-    
-    // Check if department has students (using department_code)
-    $deptCodeQuery = $conn->prepare("SELECT department_code FROM departments WHERE id = ?");
-    $deptCodeQuery->bind_param("i", $deptId);
-    $deptCodeQuery->execute();
-    $deptResult = $deptCodeQuery->get_result();
-    if ($deptResult->num_rows > 0) {
-        $deptRow = $deptResult->fetch_assoc();
-        $deptCode = $deptRow['department_code'];
-        
-        $studentCheck = $conn->prepare("SELECT COUNT(*) as count FROM students WHERE department = ?");
-        $studentCheck->bind_param("s", $deptCode);
-        $studentCheck->execute();
-        $studentResult = $studentCheck->get_result();
-        $studentRow = $studentResult->fetch_assoc();
-        $studentCheck->close();
-        
-        if ($studentRow['count'] > 0) {
-            echo json_encode(['status' => 'error', 'message' => 'Cannot delete department with assigned students.']);
-            $deptCodeQuery->close();
-            exit;
-        }
-    }
-    $deptCodeQuery->close();
-    
-    // Delete department
-    $delete = $conn->prepare("DELETE FROM departments WHERE id = ?");
-    if (!$delete) {
+    // Archive department instead of hard delete
+    $update = $conn->prepare("UPDATE departments SET status = 'archived', updated_at = NOW() WHERE id = ?");
+    if (!$update) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $conn->error]);
         exit;
     }
     
-    $delete->bind_param("i", $deptId);
+    $update->bind_param("i", $deptId);
     
-    if ($delete->execute()) {
-        echo json_encode(['status' => 'success', 'message' => 'Department deleted successfully!']);
+    if ($update->execute()) {
+        echo json_encode(['status' => 'success', 'message' => 'Department archived successfully!']);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to delete department: ' . $conn->error]);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to archive department: ' . $conn->error]);
     }
     
-    $delete->close();
+    $update->close();
 }
 
 // Archive department

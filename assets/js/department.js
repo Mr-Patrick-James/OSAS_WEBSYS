@@ -25,69 +25,9 @@ function initDepartmentModule() {
     console.warn('⚠️ #departmentModal not found. Modal functionality disabled.');
   }
 
-  // --- Demo data (updated for new structure) ---
-  let departments = [
-    { 
-      id: 'DEPT-001', 
-      name: 'Computer Science', 
-      code: 'CS',
-      hod: 'Dr. Maria Santos',
-      studentCount: 342,
-      date: 'Jan 15, 2020', 
-      status: 'active',
-      description: 'Computer Science and Information Technology'
-    },
-    { 
-      id: 'DEPT-002', 
-      name: 'Business Administration', 
-      code: 'BA',
-      hod: 'Dr. Robert Chen',
-      studentCount: 285,
-      date: 'Mar 22, 2019', 
-      status: 'active',
-      description: 'Business and Management Studies'
-    },
-    { 
-      id: 'DEPT-003', 
-      name: 'Nursing', 
-      code: 'NUR',
-      hod: 'Dr. Anna Rodriguez',
-      studentCount: 412,
-      date: 'Aug 10, 2018', 
-      status: 'archived',
-      description: 'Nursing and Healthcare'
-    },
-    { 
-      id: 'DEPT-004', 
-      name: 'Bachelor of Science in Information System', 
-      code: 'BSIS',
-      hod: 'Dr. John Smith',
-      studentCount: 256,
-      date: '2023-06-12', 
-      status: 'active',
-      description: 'Information Systems and Technology'
-    },
-    { 
-      id: 'DEPT-005', 
-      name: 'Welding and Fabrication Technology', 
-      code: 'WFT',
-      hod: 'Engr. Michael Johnson',
-      studentCount: 189,
-      date: '2023-06-18', 
-      status: 'active',
-      description: 'Technical and Vocational Education'
-    },
-    { 
-      id: 'DEPT-006', 
-      name: 'Bachelor of Technical-Vocational Education and Training', 
-      code: 'BTVTEd',
-      hod: 'Dr. Sarah Williams',
-      studentCount: 167,
-      date: '2023-07-02', 
-      status: 'active',
-      description: 'Technical-Vocational Education'
-    }
-  ];
+  // --- Department data (loaded from database) ---
+  let departments = [];
+  let currentView = 'active'; // 'active' or 'archived'
 
   // Get department icon based on code
   function getDeptIcon(code) {
@@ -153,13 +93,11 @@ function initDepartmentModule() {
             <button class="action-btn edit" data-id="${d.id}" title="Edit">
               <i class='bx bx-edit'></i>
             </button>
-            ${d.status === 'active' ? 
-              `<button class="action-btn archive" data-id="${d.id}" title="Archive">
-                <i class='bx bx-archive'></i>
-              </button>` : 
+            ${d.status === 'archived' ? 
               `<button class="action-btn restore" data-id="${d.id}" title="Restore">
                 <i class='bx bx-reset'></i>
-              </button>`
+              </button>` : 
+              ''
             }
             <button class="action-btn delete" data-id="${d.id}" title="Delete">
               <i class='bx bx-trash'></i>
@@ -174,19 +112,10 @@ function initDepartmentModule() {
     updateCounts(filteredDepts);
   }
 
-  // Update statistics
+  // Update statistics (now loaded from database)
   function updateStats() {
-    const total = departments.length;
-    const active = departments.filter(d => d.status === 'active').length;
-    const archived = departments.filter(d => d.status === 'archived').length;
-    
-    const totalEl = document.getElementById('totalDepartments');
-    const activeEl = document.getElementById('activeDepartments');
-    const archivedEl = document.getElementById('archivedDepartments');
-    
-    if (totalEl) totalEl.textContent = total;
-    if (activeEl) activeEl.textContent = active;
-    if (archivedEl) archivedEl.textContent = archived;
+    // Stats are loaded from database via loadStats()
+    // This function is kept for compatibility but stats are updated via API
   }
 
   // Update showing/total counts
@@ -198,8 +127,85 @@ function initDepartmentModule() {
     if (totalCountEl) totalCountEl.textContent = departments.length;
   }
 
-  // Initial render - keep the sample data visible initially
-  renderDepartments();
+  // --- Load departments from database ---
+  async function loadDepartments(filter = 'active') {
+    try {
+      // Determine correct API path based on context
+      const apiPath = window.location.pathname.includes('admin_page') 
+        ? '../../api/departments.php' 
+        : '../api/departments.php';
+      
+      const url = `${apiPath}?action=get&filter=${filter}`;
+      console.log('Fetching from:', url); // Debug log
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const text = await response.text();
+      console.log('Raw API Response:', text); // Debug log
+      
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        console.error('Response was:', text);
+        throw new Error('Invalid JSON response from server');
+      }
+      
+      console.log('Parsed API Response:', result); // Debug log
+      
+      if (result.status === 'success') {
+        departments = result.data.map(dept => ({
+          id: dept.department_id,
+          name: dept.name,
+          code: dept.code,
+          hod: dept.hod,
+          studentCount: dept.student_count,
+          date: dept.date,
+          status: dept.status,
+          description: dept.description,
+          dbId: dept.id // Store database ID for API calls
+        }));
+        renderDepartments();
+        loadStats();
+      } else {
+        console.error('Error loading departments:', result.message);
+        alert('Error loading departments: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      console.error('Full error details:', error.message, error.stack);
+      alert('Error fetching departments. Please check your connection and console for details.');
+    }
+  }
+
+  // --- Load statistics from database ---
+  async function loadStats() {
+    try {
+      const response = await fetch('../api/departments.php?action=stats');
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        const stats = result.data;
+        const totalEl = document.getElementById('totalDepartments');
+        const activeEl = document.getElementById('activeDepartments');
+        const archivedEl = document.getElementById('archivedDepartments');
+        
+        if (totalEl) totalEl.textContent = stats.total;
+        if (activeEl) activeEl.textContent = stats.active;
+        if (archivedEl) archivedEl.textContent = stats.archived;
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  }
+
+  // Initial load - fetch from database
+  loadDepartments('active');
 
   // --- Modal functions ---
   function openModal(editId = null) {
@@ -215,16 +221,18 @@ function initDepartmentModule() {
       if (dept) {
         document.getElementById('deptName').value = dept.name;
         document.getElementById('deptCode').value = dept.code;
-        document.getElementById('hodName').value = dept.hod;
+        document.getElementById('hodName').value = dept.hod === 'N/A' ? '' : dept.hod;
         document.getElementById('deptDescription').value = dept.description || '';
         document.getElementById('deptStatus').value = dept.status;
       }
       modal.dataset.editingId = editId;
+      modal.dataset.editingDbId = dept ? dept.dbId : null;
     } else {
       // Add mode
       modalTitle.textContent = 'Add New Department';
       if (form) form.reset();
       delete modal.dataset.editingId;
+      delete modal.dataset.editingDbId;
     }
     
     modal.classList.add('active');
@@ -244,7 +252,6 @@ function initDepartmentModule() {
   // --- Actions (event delegation) ---
   tableBody.addEventListener('click', (e) => {
     const editBtn = e.target.closest('.action-btn.edit');
-    const archiveBtn = e.target.closest('.action-btn.archive');
     const restoreBtn = e.target.closest('.action-btn.restore');
     const deleteBtn = e.target.closest('.action-btn.delete');
 
@@ -253,30 +260,19 @@ function initDepartmentModule() {
       openModal(id);
     }
 
-    if (archiveBtn) {
-      const id = archiveBtn.dataset.id;
-      const dept = departments.find(d => d.id === id);
-      if (dept && confirm(`Archive department "${dept.name}"?`)) {
-        dept.status = 'archived';
-        renderDepartments();
-      }
-    }
-
     if (restoreBtn) {
       const id = restoreBtn.dataset.id;
       const dept = departments.find(d => d.id === id);
       if (dept && confirm(`Restore department "${dept.name}"?`)) {
-        dept.status = 'active';
-        renderDepartments();
+        restoreDepartment(dept.dbId);
       }
     }
 
     if (deleteBtn) {
       const id = deleteBtn.dataset.id;
       const dept = departments.find(d => d.id === id);
-      if (dept && confirm(`Delete department "${dept.name}"? This cannot be undone.`)) {
-        departments = departments.filter(d => d.id !== id);
-        renderDepartments();
+      if (dept && confirm(`Archive department "${dept.name}"? This will move it to archived.`)) {
+        deleteDepartment(dept.dbId);
       }
     }
   });
@@ -331,39 +327,27 @@ function initDepartmentModule() {
           return;
         }
 
-        const editingId = modal.dataset.editingId;
+        const editingDbId = modal.dataset.editingDbId;
         
-        if (editingId) {
+        if (editingDbId) {
           // Update existing department
-          const dept = departments.find(d => d.id === editingId);
-          if (dept) {
-            dept.name = deptName;
-            dept.code = deptCode;
-            dept.hod = hodName;
-            dept.description = deptDescription;
-            dept.status = deptStatus;
-          }
+          updateDepartment(editingDbId, {
+            deptName,
+            deptCode,
+            hodName,
+            deptDescription,
+            deptStatus
+          });
         } else {
           // Add new department
-          const newId = `DEPT-${String(departments.length + 1).padStart(3, '0')}`;
-          departments.push({
-            id: newId,
-            name: deptName,
-            code: deptCode,
-            hod: hodName,
-            studentCount: Math.floor(Math.random() * 400) + 50,
-            date: new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            }),
-            status: deptStatus,
-            description: deptDescription
+          addDepartment({
+            deptName,
+            deptCode,
+            hodName,
+            deptDescription,
+            deptStatus
           });
         }
-
-        renderDepartments();
-        closeModal();
       });
     }
   } else {
@@ -372,16 +356,204 @@ function initDepartmentModule() {
 
   // --- Search functionality ---
   if (searchInput) {
+    let searchTimeout;
     searchInput.addEventListener('input', () => {
-      renderDepartments();
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+          loadDepartmentsWithSearch(currentView, searchTerm);
+        } else {
+          loadDepartments(currentView);
+        }
+      }, 300); // Debounce search
     });
   }
+
+  // --- Load departments with search ---
+  async function loadDepartmentsWithSearch(filter = 'active', search = '') {
+    try {
+      const url = `../api/departments.php?action=get&filter=${filter}&search=${encodeURIComponent(search)}`;
+      const response = await fetch(url);
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        departments = result.data.map(dept => ({
+          id: dept.department_id,
+          name: dept.name,
+          code: dept.code,
+          hod: dept.hod,
+          studentCount: dept.student_count,
+          date: dept.date,
+          status: dept.status,
+          description: dept.description,
+          dbId: dept.id
+        }));
+        renderDepartments();
+      } else {
+        console.error('Error loading departments:', result.message);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  }
+
+  // --- Archived button functionality ---
+  const btnArchived = document.getElementById('btnArchived');
 
   // --- Filter functionality ---
   if (filterSelect) {
     filterSelect.addEventListener('change', () => {
-      renderDepartments();
+      const filterValue = filterSelect.value;
+      if (filterValue === 'archived') {
+        currentView = 'archived';
+        loadDepartments('archived');
+        if (btnArchived) btnArchived.classList.add('active');
+      } else if (filterValue === 'active') {
+        currentView = 'active';
+        loadDepartments('active');
+        if (btnArchived) btnArchived.classList.remove('active');
+      } else {
+        currentView = 'all';
+        loadDepartments('all');
+        if (btnArchived) btnArchived.classList.remove('active');
+      }
     });
+  }
+
+  if (btnArchived) {
+    btnArchived.addEventListener('click', () => {
+      if (currentView === 'archived') {
+        // Switch back to active view
+        currentView = 'active';
+        if (filterSelect) filterSelect.value = 'active';
+        loadDepartments('active');
+        btnArchived.classList.remove('active');
+      } else {
+        // Switch to archived view
+        currentView = 'archived';
+        if (filterSelect) filterSelect.value = 'archived';
+        loadDepartments('archived');
+        btnArchived.classList.add('active');
+      }
+    });
+  }
+
+  // --- API Functions ---
+  async function addDepartment(data) {
+    try {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => formData.append(key, data[key]));
+
+      const response = await fetch('../api/departments.php?action=add', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        alert(result.message);
+        closeModal();
+        loadDepartments(currentView);
+        loadStats();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error adding department:', error);
+      alert('Error adding department. Please try again.');
+    }
+  }
+
+  async function updateDepartment(dbId, data) {
+    try {
+      const formData = new FormData();
+      formData.append('deptId', dbId);
+      Object.keys(data).forEach(key => formData.append(key, data[key]));
+
+      const response = await fetch('../api/departments.php?action=update', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        alert(result.message);
+        closeModal();
+        loadDepartments(currentView);
+        loadStats();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error updating department:', error);
+      alert('Error updating department. Please try again.');
+    }
+  }
+
+  async function deleteDepartment(dbId) {
+    try {
+      const response = await fetch(`../api/departments.php?action=delete&id=${dbId}`, {
+        method: 'GET'
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        alert(result.message);
+        loadDepartments(currentView);
+        loadStats();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error deleting department:', error);
+      alert('Error deleting department. Please try again.');
+    }
+  }
+
+  async function archiveDepartment(dbId) {
+    try {
+      const response = await fetch(`../api/departments.php?action=archive&id=${dbId}`, {
+        method: 'GET'
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        alert(result.message);
+        loadDepartments(currentView);
+        loadStats();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error archiving department:', error);
+      alert('Error archiving department. Please try again.');
+    }
+  }
+
+  async function restoreDepartment(dbId) {
+    try {
+      const response = await fetch(`../api/departments.php?action=restore&id=${dbId}`, {
+        method: 'GET'
+      });
+
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        alert(result.message);
+        loadDepartments(currentView);
+        loadStats();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error restoring department:', error);
+      alert('Error restoring department. Please try again.');
+    }
   }
 
   // --- Sort functionality ---

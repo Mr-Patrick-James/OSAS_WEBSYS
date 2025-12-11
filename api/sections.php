@@ -70,11 +70,21 @@ function getSections($conn) {
     $filter = $_GET['filter'] ?? 'all';
     $search = $_GET['search'] ?? '';
     
-    $query = "SELECT s.*, d.department_name, 
-              (SELECT COUNT(*) FROM students WHERE section_id = s.id) as student_count
-              FROM sections s
-              LEFT JOIN departments d ON s.department_id = d.id
-              WHERE 1=1";
+    // Check if students table exists for student count
+    $studentsTableExists = $conn->query("SHOW TABLES LIKE 'students'")->num_rows > 0;
+    
+    if ($studentsTableExists) {
+        $query = "SELECT s.*, d.department_name, 
+                  (SELECT COUNT(*) FROM students WHERE section_id = s.id) as student_count
+                  FROM sections s
+                  LEFT JOIN departments d ON s.department_id = d.id
+                  WHERE 1=1";
+    } else {
+        $query = "SELECT s.*, d.department_name, 0 as student_count
+                  FROM sections s
+                  LEFT JOIN departments d ON s.department_id = d.id
+                  WHERE 1=1";
+    }
     
     $params = [];
     $types = "";
@@ -106,7 +116,12 @@ function getSections($conn) {
         $stmt->bind_param($types, ...$params);
     }
     
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $stmt->error]);
+        $stmt->close();
+        exit;
+    }
+    
     $result = $stmt->get_result();
     
     $sections = [];
@@ -255,7 +270,7 @@ function updateSection($conn) {
     $update->close();
 }
 
-// Delete section
+// Delete section (now archives instead of hard delete)
 function deleteSection($conn) {
     $sectionId = intval($_GET['id'] ?? $_POST['id'] ?? 0);
     
@@ -264,35 +279,22 @@ function deleteSection($conn) {
         exit;
     }
     
-    // Check if section has students
-    $check = $conn->prepare("SELECT COUNT(*) as count FROM students WHERE section_id = ?");
-    $check->bind_param("i", $sectionId);
-    $check->execute();
-    $result = $check->get_result();
-    $row = $result->fetch_assoc();
-    $check->close();
-    
-    if ($row['count'] > 0) {
-        echo json_encode(['status' => 'error', 'message' => 'Cannot delete section with assigned students.']);
-        exit;
-    }
-    
-    // Delete section
-    $delete = $conn->prepare("DELETE FROM sections WHERE id = ?");
-    if (!$delete) {
+    // Archive section instead of hard delete
+    $update = $conn->prepare("UPDATE sections SET status = 'archived', updated_at = NOW() WHERE id = ?");
+    if (!$update) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $conn->error]);
         exit;
     }
     
-    $delete->bind_param("i", $sectionId);
+    $update->bind_param("i", $sectionId);
     
-    if ($delete->execute()) {
-        echo json_encode(['status' => 'success', 'message' => 'Section deleted successfully!']);
+    if ($update->execute()) {
+        echo json_encode(['status' => 'success', 'message' => 'Section archived successfully!']);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to delete section: ' . $conn->error]);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to archive section: ' . $conn->error]);
     }
     
-    $delete->close();
+    $update->close();
 }
 
 // Archive section

@@ -26,8 +26,16 @@ function initStudentsModule() {
             console.warn('⚠️ #StudentsModal not found');
         }
 
-        // --- Demo data ---
-        let students = [
+        // Students data (will be loaded from database)
+        let students = [];
+        let allStudents = []; // Store all students for stats
+        let currentView = 'active'; // 'active' or 'archived'
+
+        // API base URL (update when API is created)
+        const apiBase = '../api/students.php';
+
+        // --- Demo data (temporary - will be replaced with API) ---
+        let demoStudents = [
             { 
                 id: 1,
                 studentId: '2023-001',
@@ -86,6 +94,29 @@ function initStudentsModule() {
             }
         ];
 
+        // --- Load students from database (placeholder for API) ---
+        async function fetchStudents() {
+            // TODO: Implement API call when students API is created
+            // For now, use demo data
+            allStudents = demoStudents;
+            
+            // Filter by current view
+            if (currentView === 'archived') {
+                students = demoStudents.filter(s => s.status === 'archived');
+            } else {
+                students = demoStudents.filter(s => s.status !== 'archived');
+            }
+            
+            renderStudents();
+            updateStats();
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating student:', error);
+                alert('Error updating student. Please try again.');
+            }
+        }
+
         // --- Render function ---
         function renderStudents() {
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
@@ -97,7 +128,15 @@ function initStudentsModule() {
                                     s.studentId.toLowerCase().includes(searchTerm) ||
                                     s.email.toLowerCase().includes(searchTerm) ||
                                     s.department.toLowerCase().includes(searchTerm);
-                const matchesFilter = filterValue === 'all' || s.status === filterValue;
+                
+                // Filter by status, but exclude archived from normal view
+                let matchesFilter = true;
+                if (currentView === 'archived') {
+                    matchesFilter = s.status === 'archived';
+                } else {
+                    matchesFilter = s.status !== 'archived' && (filterValue === 'all' || s.status === filterValue);
+                }
+                
                 return matchesSearch && matchesFilter;
             });
 
@@ -107,84 +146,88 @@ function initStudentsModule() {
                 emptyState.style.display = filteredStudents.length === 0 ? 'flex' : 'none';
             }
 
-            tableBody.innerHTML = filteredStudents.map(s => {
-                const fullName = `${s.firstName} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName}`;
-                const deptClass = getDepartmentClass(s.department);
-                
-                return `
-                <tr data-id="${s.id}">
-                    <td class="student-row-id">${s.id}</td>
-                    <td class="student-image-cell">
-                        <div class="student-image-wrapper">
-                            <img src="${s.avatar}" alt="${fullName}" class="student-avatar">
-                        </div>
-                    </td>
-                    <td class="student-id">${s.studentId}</td>
-                    <td class="student-name">
-                        <div class="student-name-wrapper">
-                            <strong>${fullName}</strong>
-                            <small>${s.email}</small>
-                        </div>
-                    </td>
-                    <td class="student-dept">
-                        <span class="dept-badge ${deptClass}">${s.department}</span>
-                    </td>
-                    <td class="student-section">${s.section}</td>
-                    <td class="student-contact">${s.contact}</td>
-                    <td>
-                        <span class="Students-status-badge ${s.status}">${formatStatus(s.status)}</span>
-                    </td>
-                    <td>
-                        <div class="Students-action-buttons">
-                            <button class="Students-action-btn view" data-id="${s.id}" title="View Profile">
-                                <i class='bx bx-user'></i>
-                            </button>
-                            <button class="Students-action-btn edit" data-id="${s.id}" title="Edit">
-                                <i class='bx bx-edit'></i>
-                            </button>
-                            ${s.status === 'inactive' ? 
-                                `<button class="Students-action-btn activate" data-id="${s.id}" title="Activate">
-                                    <i class='bx bx-user-check'></i>
-                                </button>` : 
-                                `<button class="Students-action-btn deactivate" data-id="${s.id}" title="Deactivate">
-                                    <i class='bx bx-user-x'></i>
-                                </button>`
-                            }
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+            if (filteredStudents.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                            <i classy='bx bx-inbox' style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                            <p>No students found</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = filteredStudents.map(s => {
+                    const fullName = `${s.firstName} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName}`;
+                    const deptClass = getDepartmentClass(s.department);
+                    const avatarUrl = s.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
+                    
+                    return `
+                    <tr data-id="${s.id}">
+                        <td class="student-row-id">${s.id}</td>
+                        <td class="student-image-cell">
+                            <div class="student-image-wrapper">
+                                <img src="${avatarUrl}" alt="${escapeHtml(fullName)}" class="student-avatar" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40'">
+                            </div>
+                        </td>
+                        <td class="student-id">${escapeHtml(s.studentId)}</td>
+                        <td class="student-name">
+                            <div class="student-name-wrapper">
+                                <strong>${escapeHtml(fullName)}</strong>
+                                <small>${escapeHtml(s.email)}</small>
+                            </div>
+                        </td>
+                        <td class="student-dept">
+                            <span class="dept-badge ${deptClass}">${escapeHtml(s.department)}</span>
+                        </td>
+                        <td class="student-section">${escapeHtml(s.section)}</td>
+                        <td class="student-contact">${escapeHtml(s.contact)}</td>
+                        <td>
+                            <span class="Students-status-badge ${s.status}">${formatStatus(s.status)}</span>
+                        </td>
+                        <td>
+                            <div class="Students-action-buttons">
+                                <button class="Students-action-btn view" data-id="${s.id}" title="View Profile">
+                                    <i class='bx bx-user'></i>
+                                </button>
+                                <button class="Students-action-btn edit" data-id="${s.id}" title="Edit">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                ${s.status === 'archived' ? 
+                                    `<button class="Students-action-btn restore" data-id="${s.id}" title="Restore">
+                                        <i class='bx bx-reset'></i>
+                                    </button>` : 
+                                    s.status === 'inactive' ? 
+                                    `<button class="Students-action-btn activate" data-id="${s.id}" title="Activate">
+                                        <i class='bx bx-user-check'></i>
+                                    </button>` : 
+                                    `<button class="Students-action-btn deactivate" data-id="${s.id}" title="Deactivate">
+                                        <i class='bx bx-user-x'></i>
+                                    </button>`
+                                }
+                                <button class="Students-action-btn delete" data-id="${s.id}" title="${s.status === 'archived' ? 'Delete Permanently' : 'Archive'}">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            }
 
             updateStats();
             updateCounts(filteredStudents);
         }
 
-        function getDepartmentClass(dept) {
-            const classes = {
-                'BSIT': 'bsit',
-                'BSCS': 'bscs',
-                'BSBA': 'business',
-                'BSN': 'nursing',
-                'BEED': 'education',
-                'BSED': 'education'
-            };
-            return classes[dept] || 'default';
-        }
-
-        function formatStatus(status) {
-            const statusMap = {
-                'active': 'Active',
-                'inactive': 'Inactive',
-                'graduating': 'Graduating'
-            };
-            return statusMap[status] || status;
-        }
-
-        function updateStats() {
-            const total = students.length;
-            const active = students.filter(s => s.status === 'active').length;
-            const inactive = students.filter(s => s.status === 'inactive').length;
-            const graduating = students.filter(s => s.status === 'graduating').length;
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            // Use allStudents for stats, not filtered students
+            const total = allStudents.length;
+            const active = allStudents.filter(s => s.status === 'active').length;
+            const inactive = allStudents.filter(s => s.status === 'inactive').length;
+            const graduating = allStudents.filter(s => s.status === 'graduating').length;
+            const archived = allStudents.filter(s => s.status === 'archived').length;
             
             const totalEl = document.getElementById('totalStudents');
             const activeEl = document.getElementById('activeStudents');
@@ -195,6 +238,38 @@ function initStudentsModule() {
             if (activeEl) activeEl.textContent = active;
             if (inactiveEl) inactiveEl.textContent = inactive;
             if (graduatingEl) graduatingEl.textContent = graduating;
+        function getDepartmentClass(dept) {
+            const classes = {
+                'BSIT': 'bsit',
+                'BSCS': 'bscs',
+                'BSBA': 'business',
+                'BSN': 'nursing',
+                'BEED': 'education',
+            if (totalCountEl) totalCountEl.textContent = students.length;
+                'CS': 'bsit',
+                'BA': 'business',
+                'NUR': 'nursing',
+                'BSIS': 'bsit',
+                'WFT': 'default',
+                'BTVTEd': 'education'
+            };
+            return classes[dept] || 'default';
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'active': 'Active',
+                'inactive': 'Inactive',
+                'graduating': 'Graduating',
+                'archived': 'Archived'
+            };
+            return statusMap[status] || status;
+        }
+
+        function updateStats() {
+            // Stats are loaded from database via loadStats()
+            // This function is kept for compatibility but stats are updated via API
+            loadStats();
         }
 
         function updateCounts(filteredStudents) {
@@ -202,7 +277,7 @@ function initStudentsModule() {
             const totalCountEl = document.getElementById('totalStudentsCount');
             
             if (showingEl) showingEl.textContent = filteredStudents.length;
-            if (totalCountEl) totalCountEl.textContent = students.length;
+            if (totalCountEl) totalCountEl.textContent = allStudents.length;
         }
 
         // --- Modal functions ---
@@ -249,71 +324,101 @@ function initStudentsModule() {
                 }
                 delete modal.dataset.editingId;
             }
-            
-            modal.classList.add('active');
+                const id = parseInt(viewBtn.dataset.id);
+                const student = students.find(s => s.id === id);
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             if (!modal) return;
             
-            modal.classList.remove('active');
+                const id = parseInt(editBtn.dataset.id);
             document.body.style.overflow = 'auto';
             const form = document.getElementById('StudentsForm');
             if (form) form.reset();
             // Reset image preview
-            const previewImg = document.querySelector('.Students-preview-img');
-            const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
+                const id = parseInt(activateBtn.dataset.id);
+                const student = students.find(s => s.id === id);
             if (previewImg && previewPlaceholder) {
-                previewImg.style.display = 'none';
                 previewPlaceholder.style.display = 'flex';
-            }
+                    renderStudents();
             delete modal.dataset.editingId;
         }
 
         // --- Event handlers ---
-        function handleTableClick(e) {
-            const viewBtn = e.target.closest('.Students-action-btn.view');
+                const id = parseInt(deactivateBtn.dataset.id);
+                const student = students.find(s => s.id === id);
             const editBtn = e.target.closest('.Students-action-btn.edit');
-            const activateBtn = e.target.closest('.Students-action-btn.activate');
             const deactivateBtn = e.target.closest('.Students-action-btn.deactivate');
+                    renderStudents();
+            const deleteBtn = e.target.closest('.Students-action-btn.delete');
 
             if (viewBtn) {
-                const id = parseInt(viewBtn.dataset.id);
+                const id = viewBtn.dataset.id;
+                const id = parseInt(restoreBtn.dataset.id);
                 const student = students.find(s => s.id === id);
-                if (student) {
                     alert(`Viewing ${student.firstName} ${student.lastName}\nStudent ID: ${student.studentId}\nEmail: ${student.email}\nDepartment: ${student.department}\nSection: ${student.section}`);
-                }
+                    // TODO: Call restore API
+                    student.status = 'active';
+                    fetchStudents();
             }
 
             if (editBtn) {
-                const id = parseInt(editBtn.dataset.id);
-                openModal(id);
-            }
-
-            if (activateBtn) {
-                const id = parseInt(activateBtn.dataset.id);
+                const id = editBtn.dataset.id;
+                const id = parseInt(deleteBtn.dataset.id);
                 const student = students.find(s => s.id === id);
-                if (student && confirm(`Activate student "${student.firstName} ${student.lastName}"?`)) {
-                    student.status = 'active';
-                    renderStudents();
-                }
-            }
 
-            if (deactivateBtn) {
-                const id = parseInt(deactivateBtn.dataset.id);
-                const student = students.find(s => s.id === id);
+                    // TODO: Call delete/archive API
+                    student.status = 'archived';
+                    fetchStudents();
+                const id = activateBtn.dataset.id;
+
+                const student = students.find(s => s.id == id);
+                const student = students.find(s => s.id == id);
                 if (student && confirm(`Deactivate student "${student.firstName} ${student.lastName}"?`)) {
+                    // TODO: Call deactivate API
                     student.status = 'inactive';
-                    renderStudents();
+                    fetchStudents();
                 }
+            }
+
+            if (restoreBtn) {
+                const id = restoreBtn.dataset.id;
+                const student = students.find(s => s.id == id);
+                if (student && confirm(`Restore student "${student.firstName} ${student.lastName}"?`)) {
+                    restoreStudent(student.id);
+                }
+            }
+
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                const student = students.find(s => s.id == id);
+                if (student && confirm(`Archive student "${student.firstName} ${student.lastName}"? This will move it to archived.`)) {
+                    deleteStudent(student.id);
+                }
+
             }
         }
 
+        // Utility functions
+        function showError(message) {
+            alert(message); // You can replace this with a better notification system
+        }
+
+        function showSuccess(message) {
+            alert(message); // You can replace this with a better notification system
+        }
+
         // --- Initialize ---
-        function initialize() {
-            // Initial render
-            renderStudents();
+        async function initialize() {
+            // Set default view to active (hide archived by default)
+            currentView = 'active';
+            if (filterSelect) {
+                filterSelect.value = 'active';
+            }
+
+            // Initial load - only active students
+            await fetchStudents();
 
             // Event listeners for table
             tableBody.addEventListener('click', handleTableClick);
@@ -356,38 +461,6 @@ function initStudentsModule() {
                 studentImageInput.addEventListener('change', function() {
                     const file = this.files[0];
                     if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            previewImg.src = e.target.result;
-                            previewImg.style.display = 'block';
-                            previewPlaceholder.style.display = 'none';
-                        }
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            // Form submission
-            if (studentsForm) {
-                studentsForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
-                    const studentId = document.getElementById('studentId').value.trim();
-                    const studentStatus = document.getElementById('studentStatus').value;
-                    const firstName = document.getElementById('firstName').value.trim();
-                    const middleName = document.getElementById('middleName').value.trim();
-                    const lastName = document.getElementById('lastName').value.trim();
-                    const studentEmail = document.getElementById('studentEmail').value.trim();
-                    const studentContact = document.getElementById('studentContact').value.trim();
-                    const studentDept = document.getElementById('studentDept').value;
-                    const studentSection = document.getElementById('studentSection').value;
-                    const studentAddress = document.getElementById('studentAddress').value.trim();
-                    
-                    if (!studentId || !firstName || !lastName || !studentEmail || !studentContact || !studentDept || !studentSection) {
-                        alert('Please fill in all required fields.');
-                        return;
-                    }
-
                     const editingId = modal.dataset.editingId;
                     
                     if (editingId) {
@@ -432,10 +505,42 @@ function initStudentsModule() {
                             address: studentAddress,
                             avatar: avatarUrl
                         });
-                    }
+                    
 
                     renderStudents();
                     closeModal();
+                    if (!studentId || !firstName || !lastName || !studentEmail || !studentContact || !studentDept || !studentSection) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    const editingDbId = modal.dataset.editingDbId;
+                    
+                    // Get avatar
+                    const previewImg = document.querySelector('.Students-preview-img');
+                    let avatar = '';
+                    if (previewImg && previewImg.style.display !== 'none') {
+                        avatar = previewImg.src;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('studentIdCode', studentId);
+                    formData.append('firstName', firstName);
+                    formData.append('middleName', middleName);
+                    formData.append('lastName', lastName);
+                    formData.append('studentEmail', studentEmail);
+                    formData.append('studentContact', studentContact);
+                    formData.append('studentAddress', studentAddress);
+                    formData.append('studentDept', studentDept);
+                    formData.append('studentSection', studentSection);
+                    formData.append('studentStatus', studentStatus);
+                    formData.append('studentAvatar', avatar);
+                    
+                    if (editingDbId) {
+                        await updateStudent(editingDbId, formData);
+                    } else {
+                        await addStudent(formData);
+                    }
                 });
             }
 
@@ -444,9 +549,44 @@ function initStudentsModule() {
                 searchInput.addEventListener('input', renderStudents);
             }
 
-            // Filter functionality
+            // Filter functionality - hide archived by default
             if (filterSelect) {
-                filterSelect.addEventListener('change', renderStudents);
+                filterSelect.addEventListener('change', () => {
+                    if (filterSelect.value === 'archived') {
+                        currentView = 'archived';
+                    } else {
+                        currentView = 'active';
+                    }
+                    fetchStudents();
+                    // Update archived button state
+                    const btnArchived = document.getElementById('btnArchivedStudents');
+                    if (btnArchived) {
+                        if (currentView === 'archived') {
+                            btnArchived.classList.add('active');
+                        } else {
+                            btnArchived.classList.remove('active');
+                        }
+                    }
+                });
+            }
+
+            // Archived button functionality
+            const btnArchived = document.getElementById('btnArchivedStudents');
+            if (btnArchived) {
+                btnArchived.addEventListener('click', () => {
+                    if (currentView === 'archived') {
+                        // Switch back to active view
+                        currentView = 'active';
+                        if (filterSelect) filterSelect.value = 'active';
+                        btnArchived.classList.remove('active');
+                    } else {
+                        // Switch to archived view
+                        currentView = 'archived';
+                        if (filterSelect) filterSelect.value = 'archived';
+                        btnArchived.classList.add('active');
+                    }
+                    fetchStudents();
+                });
             }
 
             // Print functionality
@@ -577,36 +717,3 @@ function initStudentsModule() {
                             return a.section.localeCompare(b.section);
                         case 'status':
                             return a.status.localeCompare(b.status);
-                        case 'id':
-                        default:
-                            return a.id - b.id;
-                    }
-                });
-                renderStudents();
-            }
-
-            function getRandomColor() {
-                const colors = ['ffd700', '4361ee', '10b981', 'f59e0b', 'ef4444', '8b5cf6', '06b6d4'];
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-
-            console.log('✅ Students module initialized successfully!');
-        }
-
-        // Start initialization
-        initialize();
-
-    } catch (error) {
-        console.error('❌ Error initializing students module:', error);
-    }
-}
-
-// Make function globally available
-window.initStudentsModule = initStudentsModule;
-
-// Auto-initialize if loaded directly
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStudentsModule);
-} else {
-    setTimeout(initStudentsModule, 100);
-}

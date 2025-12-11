@@ -40,6 +40,10 @@ if ($deptResult && $deptResult->num_rows > 0) {
 
       <div class="sections-header-actions">
         <div class="sections-button-group">
+          <button id="btnArchivedSections" class="sections-btn outline small" title="View Archived Sections">
+            <i class='bx bx-archive'></i>
+            <span>Archived</span>
+          </button>
           <button id="btnImportSections" class="sections-btn outline small">
             <i class='bx bx-upload'></i>
             <span>Import</span>

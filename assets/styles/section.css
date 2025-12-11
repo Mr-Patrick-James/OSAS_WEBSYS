@@ -200,6 +200,20 @@ body.dark {
   background: var(--grey);
 }
 
+.sections-btn.outline.active {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.sections-btn.outline.active:hover {
+  background: #FFCC00;
+  border-color: #FFCC00;
+  color: var(--dark);
+}
+
 .sections-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);

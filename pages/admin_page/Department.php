@@ -1,3 +1,7 @@
+<?php
+include '../../config/db_connect.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,6 +35,10 @@
 
       <div class="header-actions">
         <div class="button-group">
+          <button class="action-btn outline small" id="btnArchived" title="View Archived Departments">
+            <i class='bx bx-archive'></i>
+            <span>Archived</span>
+          </button>
           <button class="action-btn outline small" id="btnImport">
             <i class='bx bx-upload'></i>
             <span>Import</span>

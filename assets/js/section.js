@@ -33,10 +33,14 @@ function initSectionsModule() {
         // API base URL
         const apiBase = '../api/sections.php';
 
+        // Track current view mode
+        let currentView = 'active'; // 'active' or 'archived'
+
         // --- API Functions ---
         async function fetchSections() {
             try {
-                const filter = filterSelect ? filterSelect.value : 'all';
+                // Determine filter based on current view
+                const filter = currentView === 'archived' ? 'archived' : 'active';
                 const search = searchInput ? searchInput.value : '';
                 
                 let url = `${apiBase}?action=get&filter=${filter}`;
@@ -44,8 +48,27 @@ function initSectionsModule() {
                     url += `&search=${encodeURIComponent(search)}`;
                 }
 
+                console.log('Fetching sections from:', url); // Debug log
+
                 const response = await fetch(url);
-                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                console.log('Raw API Response:', text); // Debug log
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('JSON Parse Error:', parseError);
+                    console.error('Response was:', text);
+                    throw new Error('Invalid JSON response from server');
+                }
+
+                console.log('Parsed API Response:', data); // Debug log
 
                 if (data.status === 'success') {
                     sections = data.data;
@@ -58,7 +81,8 @@ function initSectionsModule() {
                 }
             } catch (error) {
                 console.error('Error fetching sections:', error);
-                showError('Failed to load sections. Please refresh the page.');
+                console.error('Full error details:', error.message, error.stack);
+                showError('Failed to load sections. Please check your connection and console for details.');
             }
         }
 
@@ -128,11 +152,11 @@ function initSectionsModule() {
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    showSuccess(data.message || 'Section deleted successfully!');
+                    showSuccess(data.message || 'Section archived successfully!');
                     await fetchSections();
                     await fetchStats();
                 } else {
-                    showError(data.message || 'Failed to delete section');
+                    showError(data.message || 'Failed to archive section');
                 }
             } catch (error) {
                 console.error('Error deleting section:', error);
@@ -251,13 +275,11 @@ function initSectionsModule() {
                             <button class="sections-action-btn edit" data-id="${s.id}" title="Edit">
                                 <i class='bx bx-edit'></i>
                             </button>
-                            ${s.status === 'active' ? 
-                                `<button class="sections-action-btn archive" data-id="${s.id}" title="Archive">
-                                    <i class='bx bx-archive'></i>
-                                </button>` : 
+                            ${s.status === 'archived' ? 
                                 `<button class="sections-action-btn restore" data-id="${s.id}" title="Restore">
                                     <i class='bx bx-reset'></i>
-                                </button>`
+                                </button>` : 
+                                ''
                             }
                             <button class="sections-action-btn delete" data-id="${s.id}" title="Delete">
                                 <i class='bx bx-trash'></i>
@@ -333,21 +355,12 @@ function initSectionsModule() {
         // --- Event handlers ---
         function handleTableClick(e) {
             const editBtn = e.target.closest('.sections-action-btn.edit');
-            const archiveBtn = e.target.closest('.sections-action-btn.archive');
             const restoreBtn = e.target.closest('.sections-action-btn.restore');
             const deleteBtn = e.target.closest('.sections-action-btn.delete');
 
             if (editBtn) {
                 const id = editBtn.dataset.id;
                 openModal(id);
-            }
-
-            if (archiveBtn) {
-                const id = archiveBtn.dataset.id;
-                const section = sections.find(s => s.id == id);
-                if (section && confirm(`Archive section "${section.name}"?`)) {
-                    archiveSection(id);
-                }
             }
 
             if (restoreBtn) {
@@ -361,7 +374,7 @@ function initSectionsModule() {
             if (deleteBtn) {
                 const id = deleteBtn.dataset.id;
                 const section = sections.find(s => s.id == id);
-                if (section && confirm(`Delete section "${section.name}"? This cannot be undone.`)) {
+                if (section && confirm(`Archive section "${section.name}"? This will move it to archived.`)) {
                     deleteSection(id);
                 }
             }
@@ -387,7 +400,13 @@ function initSectionsModule() {
             // Load departments for dropdown
             await loadDepartments();
 
-            // Initial load
+            // Set default view to active (hide archived by default)
+            currentView = 'active';
+            if (filterSelect) {
+                filterSelect.value = 'active';
+            }
+
+            // Initial load - only active sections
             await fetchSections();
 
             // Event listeners for table
@@ -458,9 +477,46 @@ function initSectionsModule() {
                 });
             }
 
-            // Filter functionality
+            // Filter functionality - hide archived by default
             if (filterSelect) {
+                // Set default to active
+                filterSelect.value = 'active';
+                currentView = 'active';
+                
                 filterSelect.addEventListener('change', () => {
+                    if (filterSelect.value === 'archived') {
+                        currentView = 'archived';
+                    } else {
+                        currentView = 'active';
+                    }
+                    fetchSections();
+                    // Update archived button state
+                    const btnArchived = document.getElementById('btnArchivedSections');
+                    if (btnArchived) {
+                        if (currentView === 'archived') {
+                            btnArchived.classList.add('active');
+                        } else {
+                            btnArchived.classList.remove('active');
+                        }
+                    }
+                });
+            }
+
+            // Archived button functionality
+            const btnArchived = document.getElementById('btnArchivedSections');
+            if (btnArchived) {
+                btnArchived.addEventListener('click', () => {
+                    if (currentView === 'archived') {
+                        // Switch back to active view
+                        currentView = 'active';
+                        if (filterSelect) filterSelect.value = 'active';
+                        btnArchived.classList.remove('active');
+                    } else {
+                        // Switch to archived view
+                        currentView = 'archived';
+                        if (filterSelect) filterSelect.value = 'archived';
+                        btnArchived.classList.add('active');
+                    }
                     fetchSections();
                 });
             }

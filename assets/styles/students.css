@@ -202,6 +202,20 @@ body.dark {
   background: var(--grey);
 }
 
+.Students-btn.outline.active {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.Students-btn.outline.active:hover {
+  background: #FFCC00;
+  border-color: #FFCC00;
+  color: var(--dark);
+}
+
 .Students-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
@@ -459,6 +473,24 @@ body.dark {
   vertical-align: middle;
 }
 
+/* Ensure all table cells are properly aligned */
+.Students-table tbody td {
+  white-space: nowrap;
+}
+
+.Students-table tbody td.student-name,
+.Students-table tbody td.student-dept,
+.Students-table tbody td.student-section {
+  white-space: normal;
+}
+
+/* Student Row ID */
+.student-row-id {
+  font-weight: 600;
+  color: var(--dark-grey);
+  font-size: 14px;
+}
+
 /* Student ID */
 .student-id {
   font-family: 'Courier New', monospace;
@@ -499,6 +531,29 @@ body.dark {
 .student-name-wrapper small {
   font-size: 12px;
   color: var(--dark-grey);
+}
+
+/* Student Section */
+.student-section {
+  font-weight: 500;
+  color: var(--dark);
+}
+
+/* Student Contact */
+.student-contact {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--dark);
+}
+
+/* Student Status Cell */
+.student-status-cell {
+  text-align: center;
+}
+
+/* Student Actions Cell */
+.student-actions-cell {
+  text-align: center;
 }
 
 /* Department Badges */
