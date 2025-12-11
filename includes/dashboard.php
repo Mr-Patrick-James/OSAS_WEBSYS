@@ -109,6 +109,14 @@
   <script src="../assets/js/utils/notification.js"></script>
   <script src="../assets/js/modules/dashboardModule.js"></script>
   <script src="../assets/js/utils/theme.js"></script>
+
+
+  
+  <script src="../assets/js/department.js"></script>
+  <script src="../assets/js/section.js"></script>
+  <script src="../assets/js/student.js"></script>
+  <script src="../assets/js/violation.js"></script>
+  <script src="../assets/js/reports.js"></script>
 </body>
 
 </html>

@@ -1,3 +1,16 @@
+<?php
+require_once '../../config/db_connect.php';
+
+// Fetch departments for dropdown
+$deptQuery = "SELECT id, department_name, department_code FROM departments WHERE status = 'active' ORDER BY department_name ASC";
+$deptResult = $conn->query($deptQuery);
+$departments = [];
+if ($deptResult && $deptResult->num_rows > 0) {
+    while ($row = $deptResult->fetch_assoc()) {
+        $departments[] = $row;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -144,105 +157,7 @@
             </tr>
           </thead>
           <tbody id="sectionsTableBody">
-            <!-- JS will populate rows -->
-            <tr>
-              <td class="section-id">SEC-001</td>
-              <td class="section-name">
-                <div class="section-name-wrapper">
-                  <div class="section-icon">
-                    <i class='bx bx-group'></i>
-                  </div>
-                  <div>
-                    <strong>Section A</strong>
-                    <small class="section-year">2023-2024</small>
-                  </div>
-                </div>
-              </td>
-              <td class="department-name">Computer Science</td>
-              <td class="student-count">45</td>
-              <td class="date-created">Jan 15, 2023</td>
-              <td>
-                <span class="sections-status-badge active">Active</span>
-              </td>
-              <td>
-                <div class="sections-action-buttons">
-                  <button class="sections-action-btn edit" title="Edit">
-                    <i class='bx bx-edit'></i>
-                  </button>
-                  <button class="sections-action-btn archive" title="Archive">
-                    <i class='bx bx-archive'></i>
-                  </button>
-                  <button class="sections-action-btn delete" title="Delete">
-                    <i class='bx bx-trash'></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td class="section-id">SEC-002</td>
-              <td class="section-name">
-                <div class="section-name-wrapper">
-                  <div class="section-icon">
-                    <i class='bx bx-group'></i>
-                  </div>
-                  <div>
-                    <strong>Section B</strong>
-                    <small class="section-year">2023-2024</small>
-                  </div>
-                </div>
-              </td>
-              <td class="department-name">Business Administration</td>
-              <td class="student-count">38</td>
-              <td class="date-created">Jan 15, 2023</td>
-              <td>
-                <span class="sections-status-badge active">Active</span>
-              </td>
-              <td>
-                <div class="sections-action-buttons">
-                  <button class="sections-action-btn edit" title="Edit">
-                    <i class='bx bx-edit'></i>
-                  </button>
-                  <button class="sections-action-btn archive" title="Archive">
-                    <i class='bx bx-archive'></i>
-                  </button>
-                  <button class="sections-action-btn delete" title="Delete">
-                    <i class='bx bx-trash'></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td class="section-id">SEC-003</td>
-              <td class="section-name">
-                <div class="section-name-wrapper">
-                  <div class="section-icon">
-                    <i class='bx bx-group'></i>
-                  </div>
-                  <div>
-                    <strong>Section C</strong>
-                    <small class="section-year">2022-2023</small>
-                  </div>
-                </div>
-              </td>
-              <td class="department-name">Nursing</td>
-              <td class="student-count">42</td>
-              <td class="date-created">Aug 10, 2022</td>
-              <td>
-                <span class="sections-status-badge archived">Archived</span>
-              </td>
-              <td>
-                <div class="sections-action-buttons">
-                  <button class="sections-action-btn restore" title="Restore">
-                    <i class='bx bx-reset'></i>
-                  </button>
-                  <button class="sections-action-btn delete" title="Delete">
-                    <i class='bx bx-trash'></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
+            <!-- JS will populate rows from database -->
           </tbody>
         </table>
       </div>
@@ -292,9 +207,11 @@
             <label for="sectionDepartment">Department</label>
             <select id="sectionDepartment" name="sectionDepartment" required>
               <option value="">Select Department</option>
-              <option value="CS">Computer Science</option>
-              <option value="BA">Business Administration</option>
-              <option value="NUR">Nursing</option>
+              <?php foreach ($departments as $dept): ?>
+                <option value="<?php echo htmlspecialchars($dept['id']); ?>">
+                  <?php echo htmlspecialchars($dept['department_name']); ?>
+                </option>
+              <?php endforeach; ?>
             </select>
           </div>
 
@@ -331,154 +248,7 @@
       </button>
     </div>
   </main>
-
-  <script>
-    // Enhanced JavaScript with all features
-    document.addEventListener('DOMContentLoaded', function() {
-      // Print functionality
-      const printBtn = document.getElementById('btnPrintSection');
-      if (printBtn) {
-        printBtn.addEventListener('click', function() {
-          const printArea = document.getElementById('sectionsPrintArea');
-          const tableTitle = document.querySelector('.sections-table-title').textContent;
-          const tableSubtitle = document.querySelector('.sections-table-subtitle').textContent;
-
-          const printContent = `
-        <html>
-          <head>
-            <title>Sections Report - OSAS System</title>
-            <style>
-              body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-              th { background-color: #f8f9fa; font-weight: 600; }
-              h1 { color: #333; margin-bottom: 10px; }
-              .report-header { margin-bottom: 30px; }
-              .report-date { color: #666; margin-bottom: 20px; }
-              .status-badge { 
-                padding: 4px 12px; 
-                border-radius: 20px; 
-                font-size: 12px; 
-                font-weight: 600; 
-              }
-              .active { background: #e8f5e9; color: #2e7d32; }
-              .archived { background: #ffebee; color: #c62828; }
-            </style>
-          </head>
-          <body>
-            <div class="report-header">
-              <h1>${tableTitle}</h1>
-              <p style="color: #666;">${tableSubtitle}</p>
-              <div class="report-date">Generated on: ${new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</div>
-            </div>
-            ${printArea.innerHTML}
-          </body>
-        </html>
-      `;
-
-          const printWindow = window.open('', '_blank');
-          printWindow.document.write(printContent);
-          printWindow.document.close();
-          printWindow.print();
-        });
-      }
-
-      // Modal functionality
-      const modal = document.getElementById('sectionsModal');
-      const openModalBtn = document.getElementById('btnAddSection');
-      const closeModalBtn = document.getElementById('closeSectionsModal');
-      const cancelModalBtn = document.getElementById('cancelSectionsModal');
-      const modalOverlay = document.getElementById('sectionsModalOverlay');
-
-      if (openModalBtn) {
-        openModalBtn.addEventListener('click', () => {
-          modal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        });
-      }
-
-      const closeModal = () => {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-        document.getElementById('sectionsForm').reset();
-      };
-
-      if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-      if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
-      if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
-
-      // Search functionality
-      const searchInput = document.getElementById('searchSection');
-      if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-          const searchTerm = e.target.value.toLowerCase();
-          const rows = document.querySelectorAll('#sectionsTableBody tr');
-
-          rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-          });
-        });
-      }
-
-      // Sort functionality
-      const sortHeaders = document.querySelectorAll('.sections-sortable');
-      sortHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-          const sortBy = this.dataset.sort;
-          console.log('Sort by:', sortBy);
-          // Add sorting logic here
-        });
-      });
-
-      // Filter functionality
-      const filterSelect = document.getElementById('sectionFilterSelect');
-      if (filterSelect) {
-        filterSelect.addEventListener('change', function(e) {
-          const filterValue = e.target.value;
-          const rows = document.querySelectorAll('#sectionsTableBody tr');
-
-          rows.forEach(row => {
-            if (filterValue === 'all') {
-              row.style.display = '';
-            } else {
-              const statusBadge = row.querySelector('.sections-status-badge');
-              if (statusBadge) {
-                const status = statusBadge.classList.contains('active') ? 'active' : 'archived';
-                row.style.display = status === filterValue ? '' : 'none';
-              }
-            }
-          });
-        });
-      }
-
-      // Form submission
-      const form = document.getElementById('sectionsForm');
-      if (form) {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          // Add form submission logic here
-          console.log('Form submitted');
-          closeModal();
-        });
-      }
-
-      // Update stats (example)
-      function updateStats() {
-        document.getElementById('totalSections').textContent = '15';
-        document.getElementById('activeSections').textContent = '12';
-        document.getElementById('archivedSections').textContent = '3';
-      }
-
-      updateStats();
-    });
-  </script>
+  <script src="../assets/js/section.js"></script>
 </body>
 
 </html>

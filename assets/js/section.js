@@ -1,157 +1,565 @@
+// sections.js - Database-integrated version
 function initSectionsModule() {
-  console.log('🛠 Initializing Sections module...');
+    console.log('🛠 Sections module initializing...');
+    
+    try {
+        // Elements
+        const tableBody = document.getElementById('sectionsTableBody');
+        const btnAddSection = document.getElementById('btnAddSection');
+        const btnAddFirstSection = document.getElementById('btnAddFirstSection');
+        const modal = document.getElementById('sectionsModal');
+        const modalOverlay = document.getElementById('sectionsModalOverlay');
+        const closeBtn = document.getElementById('closeSectionsModal');
+        const cancelBtn = document.getElementById('cancelSectionsModal');
+        const sectionsForm = document.getElementById('sectionsForm');
+        const searchInput = document.getElementById('searchSection');
+        const filterSelect = document.getElementById('sectionFilterSelect');
+        const printBtn = document.getElementById('btnPrintSection');
 
-  // Elements
-  const tableBody = document.getElementById('sectionTableBody');
-  const btnAddSections = document.getElementById('btnAddSections');
-  const modal = document.getElementById('SectionsModal');   // optional
-  const closeBtn = document.getElementById('closeModal');   // optional
-
-  if (!tableBody) {
-    console.error('❗ #sectionTableBody not found. Table won’t render.');
-    return;
-  }
-
-  // --- Static demo data (replace with your real data) ---
-  let sections = [
-    { id: 1, name: "BSIS-1", date: "2023-06-10", status: "active" },
-    { id: 2, name: "WFT-2", date: "2023-06-15", status: "archived" },
-    { id: 3, name: "BTVTED-3", date: "2023-07-01", status: "active" },
-    { id: 4, name: "CHS-1", date: "2023-07-20", status: "archived" },
-    { id: 5, name: "BSIS-2", date: "2023-08-05", status: "active" }
-  ];
-
-  // --- Render helper ---
-  function renderSections(rows) {
-    tableBody.innerHTML = rows.map(s => `
-      <tr data-id="${s.id}">
-        <td>${s.id}</td>
-        <td>${s.name}</td>
-        <td>${s.date}</td>
-        <td><span class="status ${s.status}">${s.status}</span></td>
-        <td class="action-buttons">
-          <button class="action-btn edit" data-id="${s.id}" title="Edit">✏️</button>
-          <button class="action-btn delete" data-id="${s.id}" title="Delete">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  // Initial render
-  renderSections(sections);
-
-  // --- Actions: Edit / Delete (event delegation) ---
-  tableBody.addEventListener('click', (e) => {
-    const editBtn = e.target.closest('.action-btn.edit');
-    const delBtn = e.target.closest('.action-btn.delete');
-
-    if (editBtn) {
-      const id = Number(editBtn.dataset.id);
-      const item = sections.find(s => s.id === id);
-      if (!item) return;
-
-      // If you have a modal, open & prefill; otherwise fallback
-      if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        // Example: prefill fields if present
-        const nameInput = modal.querySelector('input[name="section_name"]');
-        const dateInput = modal.querySelector('input[name="section_date"]');
-        const statusSelect = modal.querySelector('select[name="section_status"]');
-        if (nameInput) nameInput.value = item.name;
-        if (dateInput) dateInput.value = item.date;
-        if (statusSelect) statusSelect.value = item.status;
-        // You can store the current editing ID on the modal for save:
-        modal.dataset.editingId = String(id);
-      } else {
-        alert(`Edit: ${item.name} (ID: ${id}) — hook up your modal fields here.`);
-      }
-    }
-
-    if (delBtn) {
-      const id = Number(delBtn.dataset.id);
-      const item = sections.find(s => s.id === id);
-      if (!item) return;
-
-      if (confirm(`Delete section "${item.name}"? This cannot be undone.`)) {
-        sections = sections.filter(s => s.id !== id);
-        renderSections(sections);
-      }
-    }
-  });
-
-  // --- Modal open/close (optional) ---
-  if (btnAddSections && modal && closeBtn) {
-    btnAddSections.addEventListener('click', () => {
-      // Clear modal fields for "Add"
-      const nameInput = modal.querySelector('input[name="section_name"]');
-      const dateInput = modal.querySelector('input[name="section_date"]');
-      const statusSelect = modal.querySelector('select[name="section_status"]');
-      if (nameInput) nameInput.value = '';
-      if (dateInput) dateInput.value = '';
-      if (statusSelect) statusSelect.value = 'active';
-      delete modal.dataset.editingId;
-
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
-
-    closeBtn.addEventListener('click', () => {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    });
-
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
-
-    // Example: Save handler (optional)
-    const saveBtn = modal.querySelector('#saveSection');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', () => {
-        const nameInput = modal.querySelector('input[name="section_name"]');
-        const dateInput = modal.querySelector('input[name="section_date"]');
-        const statusSelect = modal.querySelector('select[name="section_status"]');
-
-        const nameVal = nameInput?.value?.trim();
-        const dateVal = dateInput?.value?.trim();
-        const statusVal = statusSelect?.value || 'active';
-
-        if (!nameVal || !dateVal) {
-          alert('Please fill in Section Name and Date.');
-          return;
+        // Check for essential elements
+        if (!tableBody) {
+            console.error('❗ #sectionsTableBody not found');
+            return;
         }
 
-        const editingId = modal.dataset.editingId ? Number(modal.dataset.editingId) : null;
-
-        if (editingId) {
-          // Update existing
-          const idx = sections.findIndex(s => s.id === editingId);
-          if (idx !== -1) {
-            sections[idx] = { ...sections[idx], name: nameVal, date: dateVal, status: statusVal };
-          }
-        } else {
-          // Add new (auto ID)
-          const newId = sections.length ? Math.max(...sections.map(s => s.id)) + 1 : 1;
-          sections.push({ id: newId, name: nameVal, date: dateVal, status: statusVal });
+        if (!modal) {
+            console.warn('⚠️ #sectionsModal not found');
         }
 
-        renderSections(sections);
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      });
-    }
-  } else {
-    console.warn('ℹ️ Sections modal elements not found or not mounted (skipping modal wiring).');
-  }
+        // Sections data from database
+        let sections = [];
+        let allSections = []; // Store all sections for filtering
 
-  console.log('✅ Sections module ready!');
+        // API base URL
+        const apiBase = '../api/sections.php';
+
+        // --- API Functions ---
+        async function fetchSections() {
+            try {
+                const filter = filterSelect ? filterSelect.value : 'all';
+                const search = searchInput ? searchInput.value : '';
+                
+                let url = `${apiBase}?action=get&filter=${filter}`;
+                if (search) {
+                    url += `&search=${encodeURIComponent(search)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    sections = data.data;
+                    allSections = data.data; // Store all for stats
+                    renderSections();
+                    updateStats();
+                } else {
+                    console.error('Error fetching sections:', data.message);
+                    showError('Failed to load sections: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching sections:', error);
+                showError('Failed to load sections. Please refresh the page.');
+            }
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch(`${apiBase}?action=stats`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    updateStatsFromData(data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        async function addSection(formData) {
+            try {
+                const response = await fetch(`${apiBase}?action=add`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showSuccess(data.message || 'Section added successfully!');
+                    await fetchSections();
+                    await fetchStats();
+                    closeModal();
+                } else {
+                    showError(data.message || 'Failed to add section');
+                }
+            } catch (error) {
+                console.error('Error adding section:', error);
+                showError('Failed to add section. Please try again.');
+            }
+        }
+
+        async function updateSection(sectionId, formData) {
+            try {
+                formData.append('sectionId', sectionId);
+                const response = await fetch(`${apiBase}?action=update`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showSuccess(data.message || 'Section updated successfully!');
+                    await fetchSections();
+                    await fetchStats();
+                    closeModal();
+                } else {
+                    showError(data.message || 'Failed to update section');
+                }
+            } catch (error) {
+                console.error('Error updating section:', error);
+                showError('Failed to update section. Please try again.');
+            }
+        }
+
+        async function deleteSection(sectionId) {
+            try {
+                const response = await fetch(`${apiBase}?action=delete&id=${sectionId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showSuccess(data.message || 'Section deleted successfully!');
+                    await fetchSections();
+                    await fetchStats();
+                } else {
+                    showError(data.message || 'Failed to delete section');
+                }
+            } catch (error) {
+                console.error('Error deleting section:', error);
+                showError('Failed to delete section. Please try again.');
+            }
+        }
+
+        async function archiveSection(sectionId) {
+            try {
+                const response = await fetch(`${apiBase}?action=archive&id=${sectionId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showSuccess(data.message || 'Section archived successfully!');
+                    await fetchSections();
+                    await fetchStats();
+                } else {
+                    showError(data.message || 'Failed to archive section');
+                }
+            } catch (error) {
+                console.error('Error archiving section:', error);
+                showError('Failed to archive section. Please try again.');
+            }
+        }
+
+        async function restoreSection(sectionId) {
+            try {
+                const response = await fetch(`${apiBase}?action=restore&id=${sectionId}`, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    showSuccess(data.message || 'Section restored successfully!');
+                    await fetchSections();
+                    await fetchStats();
+                } else {
+                    showError(data.message || 'Failed to restore section');
+                }
+            } catch (error) {
+                console.error('Error restoring section:', error);
+                showError('Failed to restore section. Please try again.');
+            }
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch('../api/departments.php');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const select = document.getElementById('sectionDepartment');
+                    if (select) {
+                        // Clear existing options except the first one
+                        const firstOption = select.querySelector('option[value=""]');
+                        select.innerHTML = '';
+                        if (firstOption) {
+                            select.appendChild(firstOption);
+                        }
+                        
+                        // Add departments
+                        data.data.forEach(dept => {
+                            const option = document.createElement('option');
+                            option.value = dept.id;
+                            option.textContent = dept.name;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        // --- Render function ---
+        function renderSections() {
+            if (sections.length === 0) {
+                tableBody.innerHTML = '';
+                const emptyState = document.getElementById('sectionsEmptyState');
+                if (emptyState) {
+                    emptyState.style.display = 'flex';
+                }
+                updateCounts([]);
+                return;
+            }
+
+            const emptyState = document.getElementById('sectionsEmptyState');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+
+            tableBody.innerHTML = sections.map(s => `
+                <tr data-id="${s.id}">
+                    <td class="section-id">${s.section_id || 'SEC-' + String(s.id).padStart(3, '0')}</td>
+                    <td class="section-name">
+                        <div class="section-name-wrapper">
+                            <div class="section-icon">
+                                <i class='bx bx-group'></i>
+                            </div>
+                            <div>
+                                <strong>${escapeHtml(s.name)}</strong>
+                                <small class="section-year">${escapeHtml(s.academic_year || '')}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="department-name">${escapeHtml(s.department || 'N/A')}</td>
+                    <td class="student-count">${s.student_count || 0}</td>
+                    <td class="date-created">${s.date || ''}</td>
+                    <td>
+                        <span class="sections-status-badge ${s.status}">${s.status === 'active' ? 'Active' : 'Archived'}</span>
+                    </td>
+                    <td>
+                        <div class="sections-action-buttons">
+                            <button class="sections-action-btn edit" data-id="${s.id}" title="Edit">
+                                <i class='bx bx-edit'></i>
+                            </button>
+                            ${s.status === 'active' ? 
+                                `<button class="sections-action-btn archive" data-id="${s.id}" title="Archive">
+                                    <i class='bx bx-archive'></i>
+                                </button>` : 
+                                `<button class="sections-action-btn restore" data-id="${s.id}" title="Restore">
+                                    <i class='bx bx-reset'></i>
+                                </button>`
+                            }
+                            <button class="sections-action-btn delete" data-id="${s.id}" title="Delete">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateCounts(sections);
+        }
+
+        function updateStats() {
+            fetchStats();
+        }
+
+        function updateStatsFromData(stats) {
+            const totalEl = document.getElementById('totalSections');
+            const activeEl = document.getElementById('activeSections');
+            const archivedEl = document.getElementById('archivedSections');
+            
+            if (totalEl) totalEl.textContent = stats.total || 0;
+            if (activeEl) activeEl.textContent = stats.active || 0;
+            if (archivedEl) archivedEl.textContent = stats.archived || 0;
+        }
+
+        function updateCounts(filteredSections) {
+            const showingEl = document.getElementById('showingSectionsCount');
+            const totalCountEl = document.getElementById('totalSectionsCount');
+            
+            if (showingEl) showingEl.textContent = filteredSections.length;
+            if (totalCountEl) totalCountEl.textContent = allSections.length;
+        }
+
+        // --- Modal functions ---
+        function openModal(editId = null) {
+            if (!modal) return;
+            
+            const modalTitle = document.getElementById('sectionsModalTitle');
+            const form = document.getElementById('sectionsForm');
+            
+            if (editId) {
+                modalTitle.textContent = 'Edit Section';
+                const section = sections.find(s => s.id == editId);
+                if (section) {
+                    document.getElementById('sectionName').value = section.name || '';
+                    document.getElementById('sectionCode').value = section.code || '';
+                    document.getElementById('sectionDepartment').value = section.department_id || '';
+                    document.getElementById('academicYear').value = section.academic_year || '';
+                    document.getElementById('sectionStatus').value = section.status || 'active';
+                }
+                modal.dataset.editingId = editId;
+            } else {
+                modalTitle.textContent = 'Add New Section';
+                if (form) form.reset();
+                delete modal.dataset.editingId;
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            if (!modal) return;
+            
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            const form = document.getElementById('sectionsForm');
+            if (form) form.reset();
+            delete modal.dataset.editingId;
+        }
+
+        // --- Event handlers ---
+        function handleTableClick(e) {
+            const editBtn = e.target.closest('.sections-action-btn.edit');
+            const archiveBtn = e.target.closest('.sections-action-btn.archive');
+            const restoreBtn = e.target.closest('.sections-action-btn.restore');
+            const deleteBtn = e.target.closest('.sections-action-btn.delete');
+
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                openModal(id);
+            }
+
+            if (archiveBtn) {
+                const id = archiveBtn.dataset.id;
+                const section = sections.find(s => s.id == id);
+                if (section && confirm(`Archive section "${section.name}"?`)) {
+                    archiveSection(id);
+                }
+            }
+
+            if (restoreBtn) {
+                const id = restoreBtn.dataset.id;
+                const section = sections.find(s => s.id == id);
+                if (section && confirm(`Restore section "${section.name}"?`)) {
+                    restoreSection(id);
+                }
+            }
+
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                const section = sections.find(s => s.id == id);
+                if (section && confirm(`Delete section "${section.name}"? This cannot be undone.`)) {
+                    deleteSection(id);
+                }
+            }
+        }
+
+        // --- Utility functions ---
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showSuccess(message) {
+            alert(message); // You can replace this with a better notification system
+        }
+
+        function showError(message) {
+            alert(message); // You can replace this with a better notification system
+        }
+
+        // --- Initialize ---
+        async function initialize() {
+            // Load departments for dropdown
+            await loadDepartments();
+
+            // Initial load
+            await fetchSections();
+
+            // Event listeners for table
+            tableBody.addEventListener('click', handleTableClick);
+
+            // Add Section button
+            if (btnAddSection) {
+                btnAddSection.addEventListener('click', () => openModal());
+            }
+
+            // Add First Section button
+            if (btnAddFirstSection) {
+                btnAddFirstSection.addEventListener('click', () => openModal());
+            }
+
+            // Close modal
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+
+            // Escape key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+
+            // Form submission
+            if (sectionsForm) {
+                sectionsForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const sectionName = document.getElementById('sectionName').value.trim();
+                    const sectionCode = document.getElementById('sectionCode').value.trim();
+                    const sectionDepartment = document.getElementById('sectionDepartment').value;
+                    const academicYear = document.getElementById('academicYear').value.trim();
+                    const sectionStatus = document.getElementById('sectionStatus').value;
+                    
+                    if (!sectionName || !sectionCode || !sectionDepartment || !academicYear) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    const editingId = modal.dataset.editingId;
+                    const formData = new FormData();
+                    formData.append('sectionName', sectionName);
+                    formData.append('sectionCode', sectionCode);
+                    formData.append('sectionDepartment', sectionDepartment);
+                    formData.append('academicYear', academicYear);
+                    formData.append('sectionStatus', sectionStatus);
+                    
+                    if (editingId) {
+                        await updateSection(editingId, formData);
+                    } else {
+                        await addSection(formData);
+                    }
+                });
+            }
+
+            // Search functionality
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        fetchSections();
+                    }, 500); // Debounce search
+                });
+            }
+
+            // Filter functionality
+            if (filterSelect) {
+                filterSelect.addEventListener('change', () => {
+                    fetchSections();
+                });
+            }
+
+            // Print functionality
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+                    const printArea = document.getElementById('sectionsPrintArea');
+                    const tableTitle = document.querySelector('.sections-table-title')?.textContent || 'Section List';
+                    const tableSubtitle = document.querySelector('.sections-table-subtitle')?.textContent || 'All academic sections and their details';
+
+                    const printContent = `
+                <html>
+                  <head>
+                    <title>Sections Report - OSAS System</title>
+                    <style>
+                      body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
+                      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                      th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                      th { background-color: #f8f9fa; font-weight: 600; }
+                      h1 { color: #333; margin-bottom: 10px; }
+                      .report-header { margin-bottom: 30px; }
+                      .report-date { color: #666; margin-bottom: 20px; }
+                      .sections-status-badge { 
+                        padding: 4px 12px; 
+                        border-radius: 20px; 
+                        font-size: 12px; 
+                        font-weight: 600; 
+                      }
+                      .active { background: #e8f5e9; color: #2e7d32; }
+                      .archived { background: #ffebee; color: #c62828; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="report-header">
+                      <h1>${tableTitle}</h1>
+                      <p style="color: #666;">${tableSubtitle}</p>
+                      <div class="report-date">Generated on: ${new Date().toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</div>
+                    </div>
+                    ${printArea.innerHTML}
+                  </body>
+                </html>
+              `;
+
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    printWindow.print();
+                });
+            }
+
+            // Sort functionality
+            const sortHeaders = document.querySelectorAll('.sections-sortable');
+            sortHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const sortBy = this.dataset.sort;
+                    sortSections(sortBy);
+                });
+            });
+
+            function sortSections(sortBy) {
+                sections.sort((a, b) => {
+                    switch(sortBy) {
+                        case 'name':
+                            return a.name.localeCompare(b.name);
+                        case 'date':
+                            return new Date(b.date) - new Date(a.date);
+                        case 'id':
+                        default:
+                            return (a.section_id || '').localeCompare(b.section_id || '');
+                    }
+                });
+                renderSections();
+            }
+
+            console.log('✅ Sections module initialized successfully!');
+        }
+
+        // Start initialization
+        initialize();
+
+    } catch (error) {
+        console.error('❌ Error initializing sections module:', error);
+    }
 }
 
-// Boot
-document.addEventListener('DOMContentLoaded', () => {
-  initSectionsModule();
-});
+// Make function globally available
+window.initSectionsModule = initSectionsModule;
+
+// Auto-initialize if loaded directly
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSectionsModule);
+} else {
+    setTimeout(initSectionsModule, 100);
+}
+
