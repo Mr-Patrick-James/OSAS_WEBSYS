@@ -1,73 +1,170 @@
 <?php
 // api/students.php - API endpoint for Students CRUD operations
-session_start();
-require_once '../config/db_connect.php';
 
-// Set JSON response header and disable error display
-header('Content-Type: application/json');
-error_reporting(0); // Disable error reporting to prevent HTML output
+// Start output buffering to catch any errors/warnings
+ob_start();
+
+// Disable error display but keep error reporting for logging
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Set JSON response header FIRST
+header('Content-Type: application/json');
+
+// Start session
+@session_start();
+
+// Function to output JSON error and exit
+function outputError($message, $help = '') {
+    ob_clean();
+    echo json_encode([
+        'status' => 'error',
+        'message' => $message,
+        'data' => [],
+        'help' => $help
+    ]);
+    exit;
+}
+
+// Connect to database with error handling
+try {
+    $host = "localhost";
+    $user = "root";
+    $pass = "";
+    $dbname = "osas_sys_db";
+    
+    $conn = @new mysqli($host, $user, $pass, $dbname);
+    
+    // Check connection
+    if ($conn->connect_error) {
+        outputError(
+            'Database connection failed: ' . $conn->connect_error,
+            'Please check your database configuration. Make sure the database "osas_sys_db" exists and credentials are correct.'
+        );
+    }
+} catch (Exception $e) {
+    outputError(
+        'Database connection error: ' . $e->getMessage(),
+        'Please check your database configuration in config/db_connect.php'
+    );
+}
+
+// Clear any output that might have been generated
+ob_clean();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
 // Handle different actions
-switch ($action) {
-    case 'get':
-        getStudents($conn);
-        break;
-    case 'add':
-        addStudent($conn);
-        break;
-    case 'update':
-        updateStudent($conn);
-        break;
-    case 'delete':
-        deleteStudent($conn);
-        break;
-    case 'restore':
-        restoreStudent($conn);
-        break;
-    case 'stats':
-        getStats($conn);
-        break;
-    default:
-        if ($method === 'GET') {
+try {
+    switch ($action) {
+        case 'get':
             getStudents($conn);
-        } elseif ($method === 'POST') {
+            break;
+        case 'add':
             addStudent($conn);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
-        }
-        break;
+            break;
+        case 'update':
+            updateStudent($conn);
+            break;
+        case 'delete':
+            deleteStudent($conn);
+            break;
+        case 'restore':
+            restoreStudent($conn);
+            break;
+        case 'stats':
+            getStats($conn);
+            break;
+        default:
+            if ($method === 'GET') {
+                getStudents($conn);
+            } elseif ($method === 'POST') {
+                addStudent($conn);
+            } else {
+                outputError('Invalid request');
+            }
+            break;
+    }
+} catch (Exception $e) {
+    outputError(
+        'Server error: ' . $e->getMessage(),
+        'Please check the server logs for more details.'
+    );
 }
 
 // Get all students
 function getStudents($conn) {
-    // Check if tables exist
-    $tablesCheck = $conn->query("SHOW TABLES LIKE 'students'");
-    if ($tablesCheck->num_rows === 0) {
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Students table does not exist. Please run the database setup SQL files first.',
-            'data' => []
-        ]);
-        exit;
+    global $outputError;
+    
+    // Check database connection first
+    if (isset($conn->connect_error) && $conn->connect_error) {
+        outputError(
+            'Database connection failed: ' . $conn->connect_error,
+            'Please check your database configuration in config/db_connect.php'
+        );
     }
+    
+    // Check if required tables exist
+    $tablesCheck = @$conn->query("SHOW TABLES LIKE 'students'");
+    if ($tablesCheck === false) {
+        outputError(
+            'Database error: ' . $conn->error,
+            'Please check your database connection and ensure the database exists'
+        );
+    }
+    
+    if ($tablesCheck->num_rows === 0) {
+        outputError(
+            'Students table does not exist. Please run the database setup SQL file: database/setup_complete.sql',
+            'Run the SQL file: database/setup_complete.sql in phpMyAdmin or use: mysql -u root -p osas_sys_db < database/setup_complete.sql'
+        );
+    }
+    
+    // Check if sections table exists (for JOIN) - non-critical, just check silently
+    $sectionsCheck = @$conn->query("SHOW TABLES LIKE 'sections'");
+    $sectionsExist = ($sectionsCheck !== false && $sectionsCheck->num_rows > 0);
+    
+    // Check if departments table exists (for JOIN) - non-critical, just check silently
+    $deptCheck = @$conn->query("SHOW TABLES LIKE 'departments'");
+    $deptExist = ($deptCheck !== false && $deptCheck->num_rows > 0);
     
     $filter = $_GET['filter'] ?? 'all';
     $search = $_GET['search'] ?? '';
     
-    $query = "SELECT s.id, s.student_id, s.first_name, s.middle_name, s.last_name, 
-                     s.email, s.contact_number, s.address, s.department, s.section_id, 
-                     s.avatar, s.status, s.created_at, s.updated_at,
-                     COALESCE(sec.section_name, 'N/A') as section_name, 
-                     COALESCE(sec.section_code, 'N/A') as section_code, 
-                     COALESCE(d.department_name, s.department) as department_name
-              FROM students s
-              LEFT JOIN sections sec ON s.section_id = sec.id
-              LEFT JOIN departments d ON s.department = d.department_code
-              WHERE 1=1";
+    // Build query based on which tables exist
+    if ($sectionsExist && $deptExist) {
+        $query = "SELECT s.id, s.student_id, s.first_name, s.middle_name, s.last_name, 
+                         s.email, s.contact_number, s.address, s.department, s.section_id, 
+                         s.avatar, s.status, s.created_at, s.updated_at,
+                         COALESCE(sec.section_name, 'N/A') as section_name, 
+                         COALESCE(sec.section_code, 'N/A') as section_code, 
+                         COALESCE(d.department_name, s.department) as department_name
+                  FROM students s
+                  LEFT JOIN sections sec ON s.section_id = sec.id
+                  LEFT JOIN departments d ON s.department = d.department_code
+                  WHERE 1=1";
+    } elseif ($sectionsExist) {
+        $query = "SELECT s.id, s.student_id, s.first_name, s.middle_name, s.last_name, 
+                         s.email, s.contact_number, s.address, s.department, s.section_id, 
+                         s.avatar, s.status, s.created_at, s.updated_at,
+                         COALESCE(sec.section_name, 'N/A') as section_name, 
+                         COALESCE(sec.section_code, 'N/A') as section_code, 
+                         s.department as department_name
+                  FROM students s
+                  LEFT JOIN sections sec ON s.section_id = sec.id
+                  WHERE 1=1";
+    } else {
+        $query = "SELECT s.id, s.student_id, s.first_name, s.middle_name, s.last_name, 
+                         s.email, s.contact_number, s.address, s.department, s.section_id, 
+                         s.avatar, s.status, s.created_at, s.updated_at,
+                         'N/A' as section_name, 
+                         'N/A' as section_code, 
+                         s.department as department_name
+                  FROM students s
+                  WHERE 1=1";
+    }
     
     $params = [];
     $types = "";
@@ -86,74 +183,135 @@ function getStudents($conn) {
     }
     
     if (!empty($search)) {
-        $query .= " AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.middle_name LIKE ? OR s.student_id LIKE ? OR s.email LIKE ? OR s.department LIKE ? OR d.department_name LIKE ? OR sec.section_code LIKE ? OR sec.section_name LIKE ?)";
-        $searchTerm = "%$search%";
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $types .= "sssssssss";
+        if ($sectionsExist && $deptExist) {
+            $query .= " AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.middle_name LIKE ? OR s.student_id LIKE ? OR s.email LIKE ? OR s.department LIKE ? OR d.department_name LIKE ? OR sec.section_code LIKE ? OR sec.section_name LIKE ?)";
+            $searchTerm = "%$search%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $types .= "sssssssss";
+        } elseif ($sectionsExist) {
+            $query .= " AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.middle_name LIKE ? OR s.student_id LIKE ? OR s.email LIKE ? OR s.department LIKE ? OR sec.section_code LIKE ? OR sec.section_name LIKE ?)";
+            $searchTerm = "%$search%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $types .= "ssssssss";
+        } else {
+            $query .= " AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.middle_name LIKE ? OR s.student_id LIKE ? OR s.email LIKE ? OR s.department LIKE ?)";
+            $searchTerm = "%$search%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $types .= "ssssss";
+        }
     }
     
     $query .= " ORDER BY s.created_at DESC";
     
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $conn->error]);
-        exit;
-    }
-    
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-    
-    if (!$stmt->execute()) {
-        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $stmt->error]);
-        $stmt->close();
-        exit;
-    }
-    
-    $result = $stmt->get_result();
-    
-    // Debug: Check if we got any results
-    $numRows = $result->num_rows;
-    
-    $students = [];
-    while ($row = $result->fetch_assoc()) {
-        // Safely get values with defaults
-        $firstName = $row['first_name'] ?? '';
-        $middleName = $row['middle_name'] ?? '';
-        $lastName = $row['last_name'] ?? '';
-        $fullName = trim($firstName . ' ' . ($middleName ? $middleName . ' ' : '') . $lastName);
-        
-        // Generate avatar URL if not exists
-        $avatar = $row['avatar'] ?? '';
-        if (empty($avatar)) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=ffd700&color=333&size=40';
+    try {
+        $stmt = $conn->prepare($query);
+        if (!$stmt) {
+            throw new Exception('Prepare failed: ' . $conn->error);
         }
         
-        $students[] = [
-            'id' => $row['id'] ?? 0,
-            'studentId' => $row['student_id'] ?? '',
-            'firstName' => $firstName,
-            'middleName' => $middleName,
-            'lastName' => $lastName,
-            'email' => $row['email'] ?? '',
-            'contact' => $row['contact_number'] ?: 'N/A',
-            'address' => $row['address'] ?: '',
-            'department' => $row['department_name'] ?? ($row['department'] ?? 'N/A'),
-            'section' => $row['section_code'] ?? 'N/A',
-            'section_id' => $row['section_id'] ?? null,
-            'status' => $row['status'] ?? 'active',
-            'avatar' => $avatar,
-            'date' => isset($row['created_at']) ? date('M d, Y', strtotime($row['created_at'])) : date('M d, Y')
-        ];
+        if (!empty($params)) {
+            if (!$stmt->bind_param($types, ...$params)) {
+                throw new Exception('Bind param failed: ' . $stmt->error);
+            }
+        }
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Execute failed: ' . $stmt->error);
+        }
+    } catch (Exception $e) {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        outputError(
+            'Database query error: ' . $e->getMessage(),
+            'Please check if all required tables exist. Run the database setup SQL file: database/setup_complete.sql'
+        );
     }
+    
+    try {
+        $result = $stmt->get_result();
+        
+        // Debug: Check if we got any results
+        $numRows = $result ? $result->num_rows : 0;
+        
+        $students = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                // Safely get values with defaults
+                $firstName = $row['first_name'] ?? '';
+                $middleName = $row['middle_name'] ?? '';
+                $lastName = $row['last_name'] ?? '';
+                $fullName = trim($firstName . ' ' . ($middleName ? $middleName . ' ' : '') . $lastName);
+                
+                // Generate avatar URL if not exists
+                $avatar = $row['avatar'] ?? '';
+                if (empty($avatar) || trim($avatar) === '') {
+                    $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($fullName) . '&background=ffd700&color=333&size=40';
+                } else {
+                    // If it's not a full URL (http/https) or data URL, it's a relative path
+                    if (!filter_var($avatar, FILTER_VALIDATE_URL) && strpos($avatar, 'data:') !== 0) {
+                        // Ensure it's in the correct format for storage (relative path)
+                        // The JavaScript will convert it to display URL
+                        // Just make sure it starts with 'assets/img/students/'
+                        if (strpos($avatar, 'assets/img/students/') === false) {
+                            if (strpos($avatar, '../assets/img/students/') === 0) {
+                                // Remove the ../ prefix for storage
+                                $avatar = substr($avatar, 3);
+                            } else {
+                                // Add the path prefix
+                                $avatar = 'assets/img/students/' . basename($avatar);
+                            }
+                        }
+                    }
+                }
+                
+                $students[] = [
+                    'id' => $row['id'] ?? 0,
+                    'studentId' => $row['student_id'] ?? '',
+                    'firstName' => $firstName,
+                    'middleName' => $middleName,
+                    'lastName' => $lastName,
+                    'email' => $row['email'] ?? '',
+                    'contact' => $row['contact_number'] ?: 'N/A',
+                    'address' => $row['address'] ?: '',
+                    'department' => $row['department_name'] ?? ($row['department'] ?? 'N/A'),
+                    'section' => $row['section_code'] ?? 'N/A',
+                    'section_id' => $row['section_id'] ?? null,
+                    'status' => $row['status'] ?? 'active',
+                    'avatar' => $avatar,
+                    'date' => isset($row['created_at']) ? date('M d, Y', strtotime($row['created_at'])) : date('M d, Y')
+                ];
+            }
+        }
+    } catch (Exception $e) {
+        $stmt->close();
+        outputError(
+            'Error processing results: ' . $e->getMessage(),
+            'Please check the database structure and try again.'
+        );
+    }
+    
+    $stmt->close();
     
     // Return response
     $response = [
@@ -171,8 +329,11 @@ function getStudents($conn) {
         ];
     }
     
+    // Ensure no output before JSON
+    ob_clean();
     echo json_encode($response);
-    $stmt->close();
+    ob_end_flush();
+    exit;
 }
 
 // Add new student
@@ -182,7 +343,8 @@ function addStudent($conn) {
         exit;
     }
     
-    $studentId = htmlspecialchars(trim($_POST['studentId'] ?? ''));
+    // Get studentId from studentIdCode (sent by form) or studentId (fallback)
+    $studentId = htmlspecialchars(trim($_POST['studentIdCode'] ?? $_POST['studentId'] ?? ''));
     $firstName = htmlspecialchars(trim($_POST['firstName'] ?? ''));
     $middleName = htmlspecialchars(trim($_POST['middleName'] ?? ''));
     $lastName = htmlspecialchars(trim($_POST['lastName'] ?? ''));
@@ -263,6 +425,10 @@ function updateStudent($conn) {
     }
     
     $id = intval($_POST['studentId'] ?? $_GET['id'] ?? 0);
+    // If studentId is not in POST, try to get it from the form data
+    if ($id === 0 && isset($_POST['studentId'])) {
+        $id = intval($_POST['studentId']);
+    }
     $studentId = htmlspecialchars(trim($_POST['studentIdCode'] ?? ''));
     $firstName = htmlspecialchars(trim($_POST['firstName'] ?? ''));
     $middleName = htmlspecialchars(trim($_POST['middleName'] ?? ''));

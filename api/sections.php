@@ -20,6 +20,9 @@ switch ($action) {
     case 'get':
         getSections($conn);
         break;
+    case 'getByDepartment':
+        getSectionsByDepartment($conn);
+        break;
     case 'add':
         addSection($conn);
         break;
@@ -137,6 +140,66 @@ function getSections($conn) {
             'academic_year' => $row['academic_year'],
             'date' => date('M d, Y', strtotime($row['created_at'])),
             'status' => $row['status']
+        ];
+    }
+    
+    echo json_encode(['status' => 'success', 'data' => $sections]);
+    $stmt->close();
+}
+
+// Get sections by department code
+function getSectionsByDepartment($conn) {
+    $deptCode = $_GET['department_code'] ?? '';
+    
+    if (empty($deptCode)) {
+        echo json_encode(['status' => 'error', 'message' => 'Department code is required', 'data' => []]);
+        exit;
+    }
+    
+    // First get department ID from department code
+    $deptQuery = $conn->prepare("SELECT id FROM departments WHERE department_code = ? AND status = 'active'");
+    if (!$deptQuery) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $conn->error, 'data' => []]);
+        exit;
+    }
+    
+    $deptQuery->bind_param("s", $deptCode);
+    $deptQuery->execute();
+    $deptResult = $deptQuery->get_result();
+    
+    if ($deptResult->num_rows === 0) {
+        echo json_encode(['status' => 'success', 'message' => 'No department found', 'data' => []]);
+        $deptQuery->close();
+        exit;
+    }
+    
+    $deptRow = $deptResult->fetch_assoc();
+    $departmentId = $deptRow['id'];
+    $deptQuery->close();
+    
+    // Get sections for this department
+    $query = "SELECT s.id, s.section_code, s.section_name, s.department_id, s.status 
+              FROM sections s 
+              WHERE s.department_id = ? AND s.status = 'active' 
+              ORDER BY s.section_code ASC";
+    
+    $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $conn->error, 'data' => []]);
+        exit;
+    }
+    
+    $stmt->bind_param("i", $departmentId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $sections = [];
+    while ($row = $result->fetch_assoc()) {
+        $sections[] = [
+            'id' => $row['id'],
+            'section_code' => $row['section_code'],
+            'section_name' => $row['section_name'],
+            'department_id' => $row['department_id']
         ];
     }
     

@@ -1,4 +1,4 @@
-// students.js - Complete working version
+// student.js - Complete working version with API integration
 function initStudentsModule() {
     console.log('🛠 Students module initializing...');
     
@@ -15,6 +15,8 @@ function initStudentsModule() {
         const searchInput = document.getElementById('searchStudent');
         const filterSelect = document.getElementById('StudentsFilterSelect');
         const printBtn = document.getElementById('btnPrintStudents');
+        const studentDeptSelect = document.getElementById('studentDept');
+        const studentSectionSelect = document.getElementById('studentSection');
 
         // Check for essential elements
         if (!tableBody) {
@@ -30,90 +32,301 @@ function initStudentsModule() {
         let students = [];
         let allStudents = []; // Store all students for stats
         let currentView = 'active'; // 'active' or 'archived'
+        let editingStudentId = null;
 
-        // API base URL (update when API is created)
-        const apiBase = '../api/students.php';
+        // API base URL - adjust path based on current location
+        // If we're in pages/admin_page/, we need to go up two levels
+        const apiBase = window.location.pathname.includes('admin_page') 
+            ? '../../api/students.php' 
+            : '../api/students.php';
+        
+        console.log('API Base URL:', apiBase); // Debug log
 
-        // --- Demo data (temporary - will be replaced with API) ---
-        let demoStudents = [
-            { 
-                id: 1,
-                studentId: '2023-001',
-                firstName: 'John',
-                middleName: 'Michael',
-                lastName: 'Doe',
-                email: 'john.doe@example.com',
-                contact: '+63 912 345 6789',
-                department: 'BSIT',
-                section: 'BSIT-3A',
-                status: 'active',
-                address: '123 Main St, City',
-                avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=ffd700&color=333&size=40'
-            },
-            { 
-                id: 2,
-                studentId: '2023-002',
-                firstName: 'Maria',
-                middleName: 'Clara',
-                lastName: 'Santos',
-                email: 'maria.santos@example.com',
-                contact: '+63 923 456 7890',
-                department: 'BSN',
-                section: 'NUR-2B',
-                status: 'active',
-                address: '456 Oak Ave, City',
-                avatar: 'https://ui-avatars.com/api/?name=Maria+Santos&background=4361ee&color=fff&size=40'
-            },
-            { 
-                id: 3,
-                studentId: '2023-003',
-                firstName: 'Robert',
-                middleName: 'James',
-                lastName: 'Chen',
-                email: 'robert.chen@example.com',
-                contact: '+63 934 567 8901',
-                department: 'BSBA',
-                section: 'BA-4A',
-                status: 'graduating',
-                address: '789 Pine Rd, City',
-                avatar: 'https://ui-avatars.com/api/?name=Robert+Chen&background=10b981&color=fff&size=40'
-            },
-            { 
-                id: 4,
-                studentId: '2023-004',
-                firstName: 'Anna',
-                middleName: 'Marie',
-                lastName: 'Rodriguez',
-                email: 'anna.rodriguez@example.com',
-                contact: '+63 945 678 9012',
-                department: 'BEED',
-                section: 'BEED-3C',
-                status: 'inactive',
-                address: '321 Elm St, City',
-                avatar: 'https://ui-avatars.com/api/?name=Anna+Rodriguez&background=f59e0b&color=fff&size=40'
-            }
-        ];
-
-        // --- Load students from database (placeholder for API) ---
+        // --- API Functions ---
         async function fetchStudents() {
-            // TODO: Implement API call when students API is created
-            // For now, use demo data
-            allStudents = demoStudents;
-            
-            // Filter by current view
-            if (currentView === 'archived') {
-                students = demoStudents.filter(s => s.status === 'archived');
-            } else {
-                students = demoStudents.filter(s => s.status !== 'archived');
+            try {
+                const filter = filterSelect ? filterSelect.value : 'all';
+                const search = searchInput ? searchInput.value : '';
+                
+                let url = `${apiBase}?action=get&filter=${filter}`;
+                if (search) {
+                    url += `&search=${encodeURIComponent(search)}`;
+                }
+                
+                console.log('Fetching students from:', url); // Debug log
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                console.log('Raw API Response:', text); // Debug log
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('JSON Parse Error:', parseError);
+                    console.error('Response was:', text);
+                    throw new Error('Invalid JSON response from server. The students table may not exist. Please run the database setup SQL files.');
+                }
+                
+                console.log('Parsed API Response:', result); // Debug log
+                
+                if (result.status === 'success') {
+                    allStudents = result.data || [];
+                    
+                    // Filter by current view
+                    if (currentView === 'archived') {
+                        students = allStudents.filter(s => s.status === 'archived');
+                    } else {
+                        students = allStudents.filter(s => s.status !== 'archived');
+                    }
+                    
+                    renderStudents();
+                    await loadStats();
+                } else {
+                    console.error('Error fetching students:', result.message);
+                    showError(result.message || 'Failed to load students');
+                }
+            } catch (error) {
+                console.error('Error fetching students:', error);
+                console.error('Full error details:', error.message, error.stack);
+                showError('Error loading students: ' + error.message + '. Please check if the students table exists in the database.');
             }
-            
-            renderStudents();
-            updateStats();
-                    alert('Error: ' + result.message);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${apiBase}?action=stats`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('JSON Parse Error in stats:', parseError);
+                    return; // Silently fail for stats
+                }
+                
+                if (result.status === 'success') {
+                    const stats = result.data;
+                    const totalEl = document.getElementById('totalStudents');
+                    const activeEl = document.getElementById('activeStudents');
+                    const inactiveEl = document.getElementById('inactiveStudents');
+                    const graduatingEl = document.getElementById('graduatingStudents');
+                    
+                    if (totalEl) totalEl.textContent = stats.total || 0;
+                    if (activeEl) activeEl.textContent = stats.active || 0;
+                    if (inactiveEl) inactiveEl.textContent = stats.inactive || 0;
+                    if (graduatingEl) graduatingEl.textContent = stats.graduating || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Don't show error for stats, just log it
+            }
+        }
+
+        async function addStudent(formData) {
+            try {
+                formData.append('action', 'add');
+                const response = await fetch(`${apiBase}?action=add`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess(result.message || 'Student added successfully!');
+                    await fetchStudents();
+                    closeModal();
+                } else {
+                    showError(result.message || 'Failed to add student');
+                }
+            } catch (error) {
+                console.error('Error adding student:', error);
+                showError('Error adding student. Please try again.');
+            }
+        }
+
+        async function updateStudent(studentId, formData) {
+            try {
+                formData.append('action', 'update');
+                formData.append('studentId', studentId);
+                
+                const response = await fetch(`${apiBase}?action=update`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess(result.message || 'Student updated successfully!');
+                    await fetchStudents();
+                    closeModal();
+                } else {
+                    showError(result.message || 'Failed to update student');
                 }
             } catch (error) {
                 console.error('Error updating student:', error);
-                alert('Error updating student. Please try again.');
+                showError('Error updating student. Please try again.');
+            }
+        }
+
+        async function deleteStudent(studentId) {
+            try {
+                const response = await fetch(`${apiBase}?action=delete&id=${studentId}`, {
+                    method: 'GET'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess(result.message || 'Student archived successfully!');
+                    await fetchStudents();
+                } else {
+                    showError(result.message || 'Failed to archive student');
+                }
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                showError('Error archiving student. Please try again.');
+            }
+        }
+
+        async function restoreStudent(studentId) {
+            try {
+                const response = await fetch(`${apiBase}?action=restore&id=${studentId}`, {
+                    method: 'GET'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess(result.message || 'Student restored successfully!');
+                    await fetchStudents();
+                } else {
+                    showError(result.message || 'Failed to restore student');
+                }
+            } catch (error) {
+                console.error('Error restoring student:', error);
+                showError('Error restoring student. Please try again.');
+            }
+        }
+
+        async function activateStudent(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'update');
+                formData.append('studentId', studentId);
+                formData.append('studentStatus', 'active');
+                
+                // Get current student data first
+                const student = allStudents.find(s => s.id === studentId);
+                if (student) {
+                    formData.append('studentIdCode', student.studentId);
+                    formData.append('firstName', student.firstName);
+                    formData.append('lastName', student.lastName);
+                    formData.append('studentEmail', student.email);
+                    formData.append('studentContact', student.contact || '');
+                    formData.append('studentDept', student.department || '');
+                    formData.append('studentSection', student.section_id || '');
+                    formData.append('studentStatus', 'active');
+                }
+                
+                const response = await fetch(`${apiBase}?action=update`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess('Student activated successfully!');
+                    await fetchStudents();
+                } else {
+                    showError(result.message || 'Failed to activate student');
+                }
+            } catch (error) {
+                console.error('Error activating student:', error);
+                showError('Error activating student. Please try again.');
+            }
+        }
+
+        async function deactivateStudent(studentId) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'update');
+                formData.append('studentId', studentId);
+                formData.append('studentStatus', 'inactive');
+                
+                // Get current student data first
+                const student = allStudents.find(s => s.id === studentId);
+                if (student) {
+                    formData.append('studentIdCode', student.studentId);
+                    formData.append('firstName', student.firstName);
+                    formData.append('lastName', student.lastName);
+                    formData.append('studentEmail', student.email);
+                    formData.append('studentContact', student.contact || '');
+                    formData.append('studentDept', student.department || '');
+                    formData.append('studentSection', student.section_id || '');
+                    formData.append('studentStatus', 'inactive');
+                }
+                
+                const response = await fetch(`${apiBase}?action=update`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showSuccess('Student deactivated successfully!');
+                    await fetchStudents();
+                } else {
+                    showError(result.message || 'Failed to deactivate student');
+                }
+            } catch (error) {
+                console.error('Error deactivating student:', error);
+                showError('Error deactivating student. Please try again.');
+            }
+        }
+
+        async function loadSectionsByDepartment(departmentCode) {
+            if (!departmentCode || !studentSectionSelect) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`../api/sections.php?action=getByDepartment&department_code=${encodeURIComponent(departmentCode)}`);
+                const result = await response.json();
+                
+                // Clear existing options
+                studentSectionSelect.innerHTML = '<option value="">Select Section</option>';
+                
+                if (result.status === 'success' && result.data && result.data.length > 0) {
+                    result.data.forEach(section => {
+                        const option = document.createElement('option');
+                        option.value = section.id;
+                        option.textContent = `${section.section_code} - ${section.section_name}`;
+                        studentSectionSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No sections available';
+                    studentSectionSelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error loading sections:', error);
+                studentSectionSelect.innerHTML = '<option value="">Error loading sections</option>';
             }
         }
 
@@ -123,11 +336,12 @@ function initStudentsModule() {
             const filterValue = filterSelect ? filterSelect.value : 'all';
             
             const filteredStudents = students.filter(s => {
-                const fullName = `${s.firstName} ${s.middleName || ''} ${s.lastName}`.toLowerCase();
+                const fullName = `${s.firstName || ''} ${s.middleName || ''} ${s.lastName || ''}`.toLowerCase();
                 const matchesSearch = fullName.includes(searchTerm) || 
-                                    s.studentId.toLowerCase().includes(searchTerm) ||
-                                    s.email.toLowerCase().includes(searchTerm) ||
-                                    s.department.toLowerCase().includes(searchTerm);
+                                    (s.studentId || '').toLowerCase().includes(searchTerm) ||
+                                    (s.email || '').toLowerCase().includes(searchTerm) ||
+                                    (s.department || '').toLowerCase().includes(searchTerm) ||
+                                    (s.section || '').toLowerCase().includes(searchTerm);
                 
                 // Filter by status, but exclude archived from normal view
                 let matchesFilter = true;
@@ -150,14 +364,14 @@ function initStudentsModule() {
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
-                            <i classy='bx bx-inbox' style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
+                            <i class='bx bx-inbox' style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
                             <p>No students found</p>
                         </td>
                     </tr>
                 `;
             } else {
                 tableBody.innerHTML = filteredStudents.map(s => {
-                    const fullName = `${s.firstName} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName}`;
+                    const fullName = `${s.firstName || ''} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName || ''}`;
                     const deptClass = getDepartmentClass(s.department);
                     const avatarUrl = s.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
                     
@@ -169,20 +383,20 @@ function initStudentsModule() {
                                 <img src="${avatarUrl}" alt="${escapeHtml(fullName)}" class="student-avatar" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40'">
                             </div>
                         </td>
-                        <td class="student-id">${escapeHtml(s.studentId)}</td>
+                        <td class="student-id">${escapeHtml(s.studentId || '')}</td>
                         <td class="student-name">
                             <div class="student-name-wrapper">
                                 <strong>${escapeHtml(fullName)}</strong>
-                                <small>${escapeHtml(s.email)}</small>
+                                <small>${escapeHtml(s.email || '')}</small>
                             </div>
                         </td>
                         <td class="student-dept">
-                            <span class="dept-badge ${deptClass}">${escapeHtml(s.department)}</span>
+                            <span class="dept-badge ${deptClass}">${escapeHtml(s.department || 'N/A')}</span>
                         </td>
-                        <td class="student-section">${escapeHtml(s.section)}</td>
-                        <td class="student-contact">${escapeHtml(s.contact)}</td>
+                        <td class="student-section">${escapeHtml(s.section || 'N/A')}</td>
+                        <td class="student-contact">${escapeHtml(s.contact || 'N/A')}</td>
                         <td>
-                            <span class="Students-status-badge ${s.status}">${formatStatus(s.status)}</span>
+                            <span class="Students-status-badge ${s.status || 'active'}">${formatStatus(s.status || 'active')}</span>
                         </td>
                         <td>
                             <div class="Students-action-buttons">
@@ -214,7 +428,6 @@ function initStudentsModule() {
                 }).join('');
             }
 
-            updateStats();
             updateCounts(filteredStudents);
         }
 
@@ -222,22 +435,9 @@ function initStudentsModule() {
             if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
-            // Use allStudents for stats, not filtered students
-            const total = allStudents.length;
-            const active = allStudents.filter(s => s.status === 'active').length;
-            const inactive = allStudents.filter(s => s.status === 'inactive').length;
-            const graduating = allStudents.filter(s => s.status === 'graduating').length;
-            const archived = allStudents.filter(s => s.status === 'archived').length;
-            
-            const totalEl = document.getElementById('totalStudents');
-            const activeEl = document.getElementById('activeStudents');
-            const inactiveEl = document.getElementById('inactiveStudents');
-            const graduatingEl = document.getElementById('graduatingStudents');
-            
-            if (totalEl) totalEl.textContent = total;
-            if (activeEl) activeEl.textContent = active;
-            if (inactiveEl) inactiveEl.textContent = inactive;
-            if (graduatingEl) graduatingEl.textContent = graduating;
+            return div.innerHTML;
+        }
+
         function getDepartmentClass(dept) {
             const classes = {
                 'BSIT': 'bsit',
@@ -245,7 +445,7 @@ function initStudentsModule() {
                 'BSBA': 'business',
                 'BSN': 'nursing',
                 'BEED': 'education',
-            if (totalCountEl) totalCountEl.textContent = students.length;
+                'BSED': 'education',
                 'CS': 'bsit',
                 'BA': 'business',
                 'NUR': 'nursing',
@@ -266,12 +466,6 @@ function initStudentsModule() {
             return statusMap[status] || status;
         }
 
-        function updateStats() {
-            // Stats are loaded from database via loadStats()
-            // This function is kept for compatibility but stats are updated via API
-            loadStats();
-        }
-
         function updateCounts(filteredStudents) {
             const showingEl = document.getElementById('showingStudentsCount');
             const totalCountEl = document.getElementById('totalStudentsCount');
@@ -287,31 +481,42 @@ function initStudentsModule() {
             const modalTitle = document.getElementById('StudentsModalTitle');
             const form = document.getElementById('StudentsForm');
             
+            editingStudentId = editId;
+            
             if (editId) {
                 modalTitle.textContent = 'Edit Student';
-                const student = students.find(s => s.id === editId);
+                const student = allStudents.find(s => s.id === editId);
                 if (student) {
-                    document.getElementById('studentId').value = student.studentId;
-                    document.getElementById('studentStatus').value = student.status;
-                    document.getElementById('firstName').value = student.firstName;
+                    document.getElementById('studentId').value = student.studentId || '';
+                    document.getElementById('studentStatus').value = student.status || 'active';
+                    document.getElementById('firstName').value = student.firstName || '';
                     document.getElementById('middleName').value = student.middleName || '';
-                    document.getElementById('lastName').value = student.lastName;
-                    document.getElementById('studentEmail').value = student.email;
-                    document.getElementById('studentContact').value = student.contact;
-                    document.getElementById('studentDept').value = student.department;
-                    document.getElementById('studentSection').value = student.section;
+                    document.getElementById('lastName').value = student.lastName || '';
+                    document.getElementById('studentEmail').value = student.email || '';
+                    document.getElementById('studentContact').value = student.contact || '';
+                    document.getElementById('studentDept').value = student.department || '';
                     document.getElementById('studentAddress').value = student.address || '';
+                    
+                    // Load sections for the department
+                    if (student.department) {
+                        loadSectionsByDepartment(student.department).then(() => {
+                            if (student.section_id) {
+                                document.getElementById('studentSection').value = student.section_id;
+                            }
+                        });
+                    }
                     
                     // Set image preview if avatar exists
                     if (student.avatar && student.avatar !== '') {
                         const previewImg = document.querySelector('.Students-preview-img');
                         const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
-                        previewImg.src = student.avatar;
-                        previewImg.style.display = 'block';
-                        previewPlaceholder.style.display = 'none';
+                        if (previewImg && previewPlaceholder) {
+                            previewImg.src = student.avatar;
+                            previewImg.style.display = 'block';
+                            previewPlaceholder.style.display = 'none';
+                        }
                     }
                 }
-                modal.dataset.editingId = editId;
             } else {
                 modalTitle.textContent = 'Add New Student';
                 if (form) form.reset();
@@ -322,81 +527,87 @@ function initStudentsModule() {
                     previewImg.style.display = 'none';
                     previewPlaceholder.style.display = 'flex';
                 }
-                delete modal.dataset.editingId;
+                // Reset section dropdown
+                if (studentSectionSelect) {
+                    studentSectionSelect.innerHTML = '<option value="">Select Department First</option>';
+                }
             }
-                const id = parseInt(viewBtn.dataset.id);
-                const student = students.find(s => s.id === id);
+            
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             if (!modal) return;
             
-                const id = parseInt(editBtn.dataset.id);
+            modal.classList.remove('active');
             document.body.style.overflow = 'auto';
             const form = document.getElementById('StudentsForm');
             if (form) form.reset();
             // Reset image preview
-                const id = parseInt(activateBtn.dataset.id);
-                const student = students.find(s => s.id === id);
+            const previewImg = document.querySelector('.Students-preview-img');
+            const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
             if (previewImg && previewPlaceholder) {
+                previewImg.style.display = 'none';
                 previewPlaceholder.style.display = 'flex';
-                    renderStudents();
-            delete modal.dataset.editingId;
+            }
+            editingStudentId = null;
         }
 
         // --- Event handlers ---
-                const id = parseInt(deactivateBtn.dataset.id);
-                const student = students.find(s => s.id === id);
+        function handleTableClick(e) {
+            const viewBtn = e.target.closest('.Students-action-btn.view');
             const editBtn = e.target.closest('.Students-action-btn.edit');
+            const activateBtn = e.target.closest('.Students-action-btn.activate');
             const deactivateBtn = e.target.closest('.Students-action-btn.deactivate');
-                    renderStudents();
+            const restoreBtn = e.target.closest('.Students-action-btn.restore');
             const deleteBtn = e.target.closest('.Students-action-btn.delete');
 
             if (viewBtn) {
-                const id = viewBtn.dataset.id;
-                const id = parseInt(restoreBtn.dataset.id);
-                const student = students.find(s => s.id === id);
-                    alert(`Viewing ${student.firstName} ${student.lastName}\nStudent ID: ${student.studentId}\nEmail: ${student.email}\nDepartment: ${student.department}\nSection: ${student.section}`);
-                    // TODO: Call restore API
-                    student.status = 'active';
-                    fetchStudents();
+                const id = parseInt(viewBtn.dataset.id);
+                const student = allStudents.find(s => s.id === id);
+                if (student) {
+                    const fullName = `${student.firstName} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName}`;
+                    alert(`Viewing ${fullName}\nStudent ID: ${student.studentId}\nEmail: ${student.email}\nDepartment: ${student.department}\nSection: ${student.section}`);
+                }
             }
 
             if (editBtn) {
-                const id = editBtn.dataset.id;
-                const id = parseInt(deleteBtn.dataset.id);
-                const student = students.find(s => s.id === id);
+                const id = parseInt(editBtn.dataset.id);
+                openModal(id);
+            }
 
-                    // TODO: Call delete/archive API
-                    student.status = 'archived';
-                    fetchStudents();
-                const id = activateBtn.dataset.id;
+            if (activateBtn) {
+                const id = parseInt(activateBtn.dataset.id);
+                const student = allStudents.find(s => s.id === id);
+                if (student && confirm(`Activate student "${student.firstName} ${student.lastName}"?`)) {
+                    activateStudent(id);
+                }
+            }
 
-                const student = students.find(s => s.id == id);
-                const student = students.find(s => s.id == id);
+            if (deactivateBtn) {
+                const id = parseInt(deactivateBtn.dataset.id);
+                const student = allStudents.find(s => s.id === id);
                 if (student && confirm(`Deactivate student "${student.firstName} ${student.lastName}"?`)) {
-                    // TODO: Call deactivate API
-                    student.status = 'inactive';
-                    fetchStudents();
+                    deactivateStudent(id);
                 }
             }
 
             if (restoreBtn) {
-                const id = restoreBtn.dataset.id;
-                const student = students.find(s => s.id == id);
+                const id = parseInt(restoreBtn.dataset.id);
+                const student = allStudents.find(s => s.id === id);
                 if (student && confirm(`Restore student "${student.firstName} ${student.lastName}"?`)) {
-                    restoreStudent(student.id);
+                    restoreStudent(id);
                 }
             }
 
             if (deleteBtn) {
-                const id = deleteBtn.dataset.id;
-                const student = students.find(s => s.id == id);
-                if (student && confirm(`Archive student "${student.firstName} ${student.lastName}"? This will move it to archived.`)) {
-                    deleteStudent(student.id);
+                const id = parseInt(deleteBtn.dataset.id);
+                const student = allStudents.find(s => s.id === id);
+                const action = student && student.status === 'archived' ? 'delete permanently' : 'archive';
+                if (student && confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} student "${student.firstName} ${student.lastName}"?`)) {
+                    deleteStudent(id);
                 }
-
             }
         }
 
@@ -453,7 +664,7 @@ function initStudentsModule() {
 
             if (uploadImageBtn) {
                 uploadImageBtn.addEventListener('click', () => {
-                    studentImageInput.click();
+                    if (studentImageInput) studentImageInput.click();
                 });
             }
 
@@ -461,61 +672,52 @@ function initStudentsModule() {
                 studentImageInput.addEventListener('change', function() {
                     const file = this.files[0];
                     if (file) {
-                    const editingId = modal.dataset.editingId;
-                    
-                    if (editingId) {
-                        const student = students.find(s => s.id === parseInt(editingId));
-                        if (student) {
-                            student.studentId = studentId;
-                            student.status = studentStatus;
-                            student.firstName = firstName;
-                            student.middleName = middleName || null;
-                            student.lastName = lastName;
-                            student.email = studentEmail;
-                            student.contact = studentContact;
-                            student.department = studentDept;
-                            student.section = studentSection;
-                            student.address = studentAddress;
-                            
-                            // Update avatar if new image uploaded
-                            const previewImg = document.querySelector('.Students-preview-img');
-                            if (previewImg && previewImg.style.display !== 'none') {
-                                student.avatar = previewImg.src;
-                            }
-                        }
-                    } else {
-                        const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
-                        
-                        // Generate avatar based on name
-                        const nameForAvatar = `${firstName} ${lastName}`;
-                        const avatarColor = getRandomColor();
-                        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameForAvatar)}&background=${avatarColor}&color=fff&size=40`;
-                        
-                        students.push({
-                            id: newId,
-                            studentId: studentId,
-                            status: studentStatus,
-                            firstName: firstName,
-                            middleName: middleName || null,
-                            lastName: lastName,
-                            email: studentEmail,
-                            contact: studentContact,
-                            department: studentDept,
-                            section: studentSection,
-                            address: studentAddress,
-                            avatar: avatarUrl
-                        });
-                    
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewImg.style.display = 'block';
+                            previewPlaceholder.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
 
-                    renderStudents();
-                    closeModal();
+            // Department change - load sections
+            if (studentDeptSelect) {
+                studentDeptSelect.addEventListener('change', function() {
+                    const deptCode = this.value;
+                    if (deptCode) {
+                        loadSectionsByDepartment(deptCode);
+                    } else {
+                        if (studentSectionSelect) {
+                            studentSectionSelect.innerHTML = '<option value="">Select Department First</option>';
+                        }
+                    }
+                });
+            }
+
+            // Form submission
+            if (studentsForm) {
+                studentsForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const studentId = document.getElementById('studentId').value.trim();
+                    const firstName = document.getElementById('firstName').value.trim();
+                    const lastName = document.getElementById('lastName').value.trim();
+                    const middleName = document.getElementById('middleName').value.trim();
+                    const studentEmail = document.getElementById('studentEmail').value.trim();
+                    const studentContact = document.getElementById('studentContact').value.trim();
+                    const studentAddress = document.getElementById('studentAddress').value.trim();
+                    const studentDept = document.getElementById('studentDept').value;
+                    const studentSection = document.getElementById('studentSection').value;
+                    const studentStatus = document.getElementById('studentStatus').value;
+                    
                     if (!studentId || !firstName || !lastName || !studentEmail || !studentContact || !studentDept || !studentSection) {
                         alert('Please fill in all required fields.');
                         return;
                     }
 
-                    const editingDbId = modal.dataset.editingDbId;
-                    
                     // Get avatar
                     const previewImg = document.querySelector('.Students-preview-img');
                     let avatar = '';
@@ -524,6 +726,9 @@ function initStudentsModule() {
                     }
                     
                     const formData = new FormData();
+                    if (editingStudentId) {
+                        formData.append('studentId', editingStudentId);
+                    }
                     formData.append('studentIdCode', studentId);
                     formData.append('firstName', firstName);
                     formData.append('middleName', middleName);
@@ -536,8 +741,8 @@ function initStudentsModule() {
                     formData.append('studentStatus', studentStatus);
                     formData.append('studentAvatar', avatar);
                     
-                    if (editingDbId) {
-                        await updateStudent(editingDbId, formData);
+                    if (editingStudentId) {
+                        await updateStudent(editingStudentId, formData);
                     } else {
                         await addStudent(formData);
                     }
@@ -551,6 +756,10 @@ function initStudentsModule() {
 
             // Filter functionality - hide archived by default
             if (filterSelect) {
+                // Set default to active
+                filterSelect.value = 'active';
+                currentView = 'active';
+                
                 filterSelect.addEventListener('change', () => {
                     if (filterSelect.value === 'archived') {
                         currentView = 'archived';
@@ -592,8 +801,8 @@ function initStudentsModule() {
             // Print functionality
             if (printBtn) {
                 printBtn.addEventListener('click', function() {
-                    const tableTitle = document.querySelector('.Students-table-title').textContent;
-                    const tableSubtitle = document.querySelector('.Students-table-subtitle').textContent;
+                    const tableTitle = document.querySelector('.Students-table-title')?.textContent || 'Student List';
+                    const tableSubtitle = document.querySelector('.Students-table-subtitle')?.textContent || 'All student records and their details';
 
                     // Generate HTML table for printing
                     let printTableHTML = `
@@ -614,14 +823,13 @@ function initStudentsModule() {
 
                     students.forEach(student => {
                         const fullName = `${student.firstName} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName}`;
-                        const deptClass = getDepartmentClass(student.department);
                         
                         printTableHTML += `
                             <tr>
                                 <td>${student.id}</td>
                                 <td>${student.studentId}</td>
                                 <td>${fullName}<br><small>${student.email}</small></td>
-                                <td><span class="dept-badge ${deptClass}">${student.department}</span></td>
+                                <td>${student.department}</td>
                                 <td>${student.section}</td>
                                 <td>${student.contact}</td>
                                 <td><span class="status-badge ${student.status}">${formatStatus(student.status)}</span></td>
@@ -655,18 +863,6 @@ function initStudentsModule() {
                                     .active { background: #e8f5e9; color: #2e7d32; }
                                     .inactive { background: #ffebee; color: #c62828; }
                                     .graduating { background: #e3f2fd; color: #1565c0; }
-                                    .dept-badge { 
-                                        padding: 4px 8px; 
-                                        border-radius: 4px; 
-                                        font-size: 11px; 
-                                        font-weight: 600; 
-                                    }
-                                    .bsit { background: #e8f5e9; color: #2e7d32; }
-                                    .bscs { background: #e8eaf6; color: #3949ab; }
-                                    .business { background: #fff3e0; color: #ef6c00; }
-                                    .nursing { background: #f3e5f5; color: #7b1fa2; }
-                                    .education { background: #e1f5fe; color: #0277bd; }
-                                    .default { background: #f5f5f5; color: #666; }
                                 </style>
                             </head>
                             <body>
@@ -710,10 +906,27 @@ function initStudentsModule() {
                             const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
                             return nameA.localeCompare(nameB);
                         case 'studentId':
-                            return a.studentId.localeCompare(b.studentId);
+                            return (a.studentId || '').localeCompare(b.studentId || '');
                         case 'department':
-                            return a.department.localeCompare(b.department);
+                            return (a.department || '').localeCompare(b.department || '');
                         case 'section':
-                            return a.section.localeCompare(b.section);
+                            return (a.section || '').localeCompare(b.section || '');
                         case 'status':
-                            return a.status.localeCompare(b.status);
+                            return (a.status || '').localeCompare(b.status || '');
+                        case 'id':
+                            return (a.id || 0) - (b.id || 0);
+                        default:
+                            return 0;
+                    }
+                });
+                renderStudents();
+            }
+        }
+
+        // Start initialization
+        initialize();
+        
+    } catch (error) {
+        console.error('❌ Error initializing Students module:', error);
+    }
+}

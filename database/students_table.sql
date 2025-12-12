@@ -17,10 +17,11 @@ CREATE TABLE IF NOT EXISTS `students` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `student_id` (`student_id`),
   KEY `section_id` (`section_id`),
   KEY `status` (`status`),
   KEY `department` (`department`),
   CONSTRAINT `students_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Note: student_id and email already have indexes created by UNIQUE constraint
 
