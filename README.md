@@ -249,7 +249,7 @@ Customization is required to adapt it for other schools or organizations.
 Developed by: **Mr-Patrick-James / OSAS Teams**
 
 **Contributors:**
-* Romasanta Patrick James Vital (s) Cdenians
+* Romasanta Patrick James Vital & Moreno Jumyr Manalo (s) Cdenians
 
 ---
 
