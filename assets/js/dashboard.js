@@ -1,11 +1,11 @@
 // DOM Elements
 const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
-const menuBar = document.querySelector('#content nav .nav-menu-btn');
+const menuBar = document.querySelector('#content nav .bx.bx-menu');
 const sidebar = document.getElementById('sidebar');
-const searchButton = document.querySelector('#content nav .nav-search-form .form-input .search-btn');
-const searchButtonIcon = document.querySelector('#content nav .nav-search-form .form-input .search-btn .bx');
-const searchForm = document.querySelector('#content nav .nav-search-form');
-// Theme toggle is handled by onclick="toggleTheme()" in HTML
+const searchButton = document.querySelector('#content nav form .form-input button');
+const searchButtonIcon = document.querySelector('#content nav form .form-input button .bx');
+const searchForm = document.querySelector('#content nav form');
+const switchMode = document.getElementById('switch-mode');
 const mainContent = document.getElementById('main-content');
 
 // Global state
@@ -355,8 +355,12 @@ function initializeEventListeners() {
         });
     }
 
-    // Theme toggle is handled by onclick="toggleTheme()" in HTML
-    // No additional event listener needed
+    // Theme switcher: dark mode (compatible with login.js)
+    if (switchMode) {
+        switchMode.addEventListener('change', function () {
+            toggleTheme();
+        });
+    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', function (e) {
