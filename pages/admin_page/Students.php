@@ -26,6 +26,10 @@
 
     <div class="Students-header-actions">
       <div class="Students-button-group">
+      <button id="btnArchiveStudents" class="Students-btn outline small">
+          <i class='bx bx-archive'></i>
+          <span>Archive</span>
+        </button>
         <button id="btnImportStudents" class="Students-btn outline small">
           <i class='bx bx-upload'></i>
           <span>Import</span>
@@ -211,7 +215,8 @@
         </button>
       </div>
 
-      <form id="StudentsForm">
+      <div class="Students-modal-body">
+        <form id="StudentsForm">
         <div class="Students-form-row">
           <div class="Students-form-group">
             <label for="studentId">Student ID</label>
@@ -314,6 +319,7 @@
           <button type="submit" class="Students-btn-primary">Save Student</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 

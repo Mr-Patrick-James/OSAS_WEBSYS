@@ -381,7 +381,8 @@
         </button>
       </div>
 
-      <form id="ViolationRecordForm">
+      <div class="Violations-modal-body">
+        <form id="ViolationRecordForm">
         <!-- Student Search Section -->
         <div class="Violations-form-group">
           <label for="studentSearch">Search Student</label>
@@ -564,6 +565,7 @@
           <button type="submit" class="Violations-btn-primary">Record Violation</button>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
@@ -578,7 +580,8 @@
         </button>
       </div>
 
-      <div class="violation-details-content">
+      <div class="Violations-modal-body">
+        <div class="violation-details-content">
         <!-- Case Header -->
         <div class="case-header">
           <span class="case-id">Case: VIOL-2024-001</span>
@@ -686,6 +689,7 @@
             <i class='bx bx-printer'></i> Print Report
           </button>
         </div>
+      </div>
       </div>
     </div>
   </div>

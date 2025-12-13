@@ -752,7 +752,8 @@ body.dark {
   animation: modalSlideIn 0.4s ease-out;
   z-index: 2001;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modalSlideIn {
@@ -772,8 +773,7 @@ body.dark {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   background: var(--light);
   z-index: 1;
 }
@@ -804,6 +804,41 @@ body.dark {
   background: var(--red);
   color: white;
   transform: rotate(90deg);
+}
+
+/* Modal Body - Scrollable Container */
+.Students-modal-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(90vh - 100px);
+}
+
+.Students-modal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.Students-modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  margin: 8px 4px;
+}
+
+.Students-modal-body::-webkit-scrollbar-thumb {
+  background: var(--dark-grey);
+  border-radius: 5px;
+  border: 2px solid var(--light);
+}
+
+.Students-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--dark);
+}
+
+/* Firefox scrollbar */
+.Students-modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dark-grey) rgba(0, 0, 0, 0.05);
 }
 
 /* ========================================= */
@@ -861,6 +896,26 @@ body.dark {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
+}
+
+/* View Mode Styles */
+#StudentsForm input:disabled,
+#StudentsForm select:disabled,
+#StudentsForm textarea:disabled {
+  background: var(--grey);
+  color: var(--dark);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+#StudentsForm input:disabled::placeholder,
+#StudentsForm textarea:disabled::placeholder {
+  color: var(--dark-grey);
+}
+
+#StudentsForm button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Image Upload Styles */

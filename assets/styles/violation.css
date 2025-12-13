@@ -794,7 +794,8 @@ body.dark {
   animation: modalSlideIn 0.4s ease-out;
   z-index: 2001;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modalSlideIn {
@@ -814,8 +815,7 @@ body.dark {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   background: var(--light);
   z-index: 1;
 }
@@ -846,6 +846,41 @@ body.dark {
   background: var(--red);
   color: white;
   transform: rotate(90deg);
+}
+
+/* Modal Body - Scrollable Container */
+.Violations-modal-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(90vh - 100px);
+}
+
+.Violations-modal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.Violations-modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  margin: 8px 4px;
+}
+
+.Violations-modal-body::-webkit-scrollbar-thumb {
+  background: var(--dark-grey);
+  border-radius: 5px;
+  border: 2px solid var(--light);
+}
+
+.Violations-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--dark);
+}
+
+/* Firefox scrollbar */
+.Violations-modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dark-grey) rgba(0, 0, 0, 0.05);
 }
 
 /* ========================================= */

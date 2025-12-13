@@ -475,18 +475,54 @@ function initStudentsModule() {
         }
 
         // --- Modal functions ---
-        function openModal(editId = null) {
+        function openModal(editId = null, viewMode = false) {
             if (!modal) return;
             
             const modalTitle = document.getElementById('StudentsModalTitle');
             const form = document.getElementById('StudentsForm');
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+            const cancelBtn = document.getElementById('cancelStudentsModal');
             
             editingStudentId = editId;
             
+            // Enable all form fields by default
+            const formInputs = form ? form.querySelectorAll('input, select, textarea, button') : [];
+            formInputs.forEach(input => {
+                input.disabled = false;
+                input.style.pointerEvents = 'auto';
+                input.style.opacity = '1';
+            });
+            
             if (editId) {
-                modalTitle.textContent = 'Edit Student';
                 const student = allStudents.find(s => s.id === editId);
                 if (student) {
+                    if (viewMode) {
+                        modalTitle.textContent = 'Student Information';
+                        // Disable all form fields for view mode
+                        formInputs.forEach(input => {
+                            if (input.type !== 'button' || input.id === 'cancelStudentsModal') {
+                                input.disabled = true;
+                                input.style.pointerEvents = 'none';
+                                input.style.opacity = '0.7';
+                                input.style.cursor = 'not-allowed';
+                            }
+                        });
+                        // Hide submit button, show only close button
+                        if (submitBtn) submitBtn.style.display = 'none';
+                        if (cancelBtn) {
+                            cancelBtn.textContent = 'Close';
+                            cancelBtn.style.display = 'block';
+                        }
+                    } else {
+                        modalTitle.textContent = 'Edit Student';
+                        if (submitBtn) submitBtn.style.display = 'block';
+                        if (cancelBtn) {
+                            cancelBtn.textContent = 'Cancel';
+                            cancelBtn.style.display = 'block';
+                        }
+                    }
+                    
+                    // Populate form fields
                     document.getElementById('studentId').value = student.studentId || '';
                     document.getElementById('studentStatus').value = student.status || 'active';
                     document.getElementById('firstName').value = student.firstName || '';
@@ -515,11 +551,50 @@ function initStudentsModule() {
                             previewImg.style.display = 'block';
                             previewPlaceholder.style.display = 'none';
                         }
+                    } else {
+                        // Show placeholder if no avatar
+                        const previewImg = document.querySelector('.Students-preview-img');
+                        const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
+                        if (previewImg && previewPlaceholder) {
+                            previewImg.style.display = 'none';
+                            previewPlaceholder.style.display = 'flex';
+                        }
+                    }
+                    
+                    // Disable image upload in view mode
+                    const uploadImageBtn = document.getElementById('uploadImageBtn');
+                    const studentImageInput = document.getElementById('studentImage');
+                    if (viewMode) {
+                        if (uploadImageBtn) {
+                            uploadImageBtn.style.display = 'none';
+                        }
+                        if (studentImageInput) {
+                            studentImageInput.disabled = true;
+                        }
+                    } else {
+                        if (uploadImageBtn) {
+                            uploadImageBtn.style.display = 'block';
+                        }
+                        if (studentImageInput) {
+                            studentImageInput.disabled = false;
+                        }
                     }
                 }
             } else {
                 modalTitle.textContent = 'Add New Student';
                 if (form) form.reset();
+                // Enable all fields for add mode
+                formInputs.forEach(input => {
+                    input.disabled = false;
+                    input.style.pointerEvents = 'auto';
+                    input.style.opacity = '1';
+                    input.style.cursor = 'auto';
+                });
+                if (submitBtn) submitBtn.style.display = 'block';
+                if (cancelBtn) {
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.style.display = 'block';
+                }
                 // Reset image preview
                 const previewImg = document.querySelector('.Students-preview-img');
                 const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
@@ -530,6 +605,11 @@ function initStudentsModule() {
                 // Reset section dropdown
                 if (studentSectionSelect) {
                     studentSectionSelect.innerHTML = '<option value="">Select Department First</option>';
+                }
+                // Show upload button
+                const uploadImageBtn = document.getElementById('uploadImageBtn');
+                if (uploadImageBtn) {
+                    uploadImageBtn.style.display = 'block';
                 }
             }
             
@@ -544,6 +624,31 @@ function initStudentsModule() {
             document.body.style.overflow = 'auto';
             const form = document.getElementById('StudentsForm');
             if (form) form.reset();
+            
+            // Re-enable all form fields
+            const formInputs = form ? form.querySelectorAll('input, select, textarea, button') : [];
+            formInputs.forEach(input => {
+                input.disabled = false;
+                input.style.pointerEvents = 'auto';
+                input.style.opacity = '1';
+                input.style.cursor = 'auto';
+            });
+            
+            // Show submit button and reset cancel button
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+            const cancelBtn = document.getElementById('cancelStudentsModal');
+            if (submitBtn) submitBtn.style.display = 'block';
+            if (cancelBtn) {
+                cancelBtn.textContent = 'Cancel';
+                cancelBtn.style.display = 'block';
+            }
+            
+            // Show upload button
+            const uploadImageBtn = document.getElementById('uploadImageBtn');
+            if (uploadImageBtn) {
+                uploadImageBtn.style.display = 'block';
+            }
+            
             // Reset image preview
             const previewImg = document.querySelector('.Students-preview-img');
             const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
@@ -551,6 +656,7 @@ function initStudentsModule() {
                 previewImg.style.display = 'none';
                 previewPlaceholder.style.display = 'flex';
             }
+            
             editingStudentId = null;
         }
 
@@ -565,11 +671,7 @@ function initStudentsModule() {
 
             if (viewBtn) {
                 const id = parseInt(viewBtn.dataset.id);
-                const student = allStudents.find(s => s.id === id);
-                if (student) {
-                    const fullName = `${student.firstName} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName}`;
-                    alert(`Viewing ${fullName}\nStudent ID: ${student.studentId}\nEmail: ${student.email}\nDepartment: ${student.department}\nSection: ${student.section}`);
-                }
+                openModal(id, true); // Open modal in view mode
             }
 
             if (editBtn) {
