@@ -219,16 +219,45 @@ function initViolationsModule() {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
         
-                const data = await response.json();
-                console.log('API Response:', data);
-        
+                const responseText = await response.text();
+                console.log('Raw API Response Text:', responseText.substring(0, 500));
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ Failed to parse JSON:', parseError);
+                    console.error('Response was:', responseText);
+                    throw new Error('Invalid JSON response from API. Response: ' + responseText.substring(0, 200));
+                }
+                
+                console.log('Parsed API Response:', data);
+                console.log('Response keys:', Object.keys(data));
+                console.log('Has violations key:', 'violations' in data);
+                console.log('Has data key:', 'data' in data);
+                console.log('Violations value:', data.violations);
+                console.log('Data value:', data.data);
+                
                 if (data.status === 'error') {
                     throw new Error(data.message || 'API returned error status');
                 }
-        
+                
                 // FIXED: Make sure we're accessing the correct property
                 violations = data.violations || data.data || [];
                 console.log(`✅ Loaded ${violations.length} violations`);
+                console.log('Violations array:', violations);
+                
+                if (violations.length === 0) {
+                    console.warn('⚠️ API returned success but no violations in array');
+                    console.warn('Response structure:', Object.keys(data));
+                    console.warn('Full response:', JSON.stringify(data, null, 2));
+                    
+                    // Check if it's actually an empty array or undefined
+                    if (data.violations === undefined && data.data === undefined) {
+                        console.error('❌ CRITICAL: Both violations and data keys are undefined!');
+                        console.error('This means the API response format is wrong.');
+                    }
+                }
         
                 // Process violations to fix image paths
                 violations = violations.map(v => {

@@ -1,3 +1,30 @@
+<?php
+// Start session and check authentication
+session_start();
+
+// Check if user is logged in - check cookies first (more reliable)
+if (isset($_COOKIE['user_id']) && isset($_COOKIE['role'])) {
+    // Restore session from cookies
+    $_SESSION['user_id'] = $_COOKIE['user_id'];
+    $_SESSION['username'] = $_COOKIE['username'] ?? '';
+    $_SESSION['role'] = $_COOKIE['role'];
+} elseif (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    // No session or cookies, redirect to login
+    header('Location: ../index.php');
+    exit;
+}
+
+// Check if user is regular user (required for user dashboard)
+if ($_SESSION['role'] !== 'user') {
+    // If user is admin, redirect to admin dashboard
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: dashboard.php');
+    } else {
+        header('Location: ../index.php');
+    }
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

@@ -1,8 +1,39 @@
 <?php
+// Check if user is already logged in
 session_start();
+
+// Get error message from URL if present
 $error = '';
 if (isset($_GET['error'])) {
     $error = $_GET['error'];
+}
+
+// Check cookies first (more reliable than session)
+if (isset($_COOKIE['user_id']) && isset($_COOKIE['role'])) {
+    // Restore session from cookies
+    $_SESSION['user_id'] = $_COOKIE['user_id'];
+    $_SESSION['username'] = $_COOKIE['username'] ?? '';
+    $_SESSION['role'] = $_COOKIE['role'];
+    
+    // Redirect to appropriate dashboard
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: includes/dashboard.php');
+        exit;
+    } elseif ($_SESSION['role'] === 'user') {
+        header('Location: includes/user_dashboard.php');
+        exit;
+    }
+}
+
+// Also check session (fallback)
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: includes/dashboard.php');
+        exit;
+    } elseif ($_SESSION['role'] === 'user') {
+        header('Location: includes/user_dashboard.php');
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>
