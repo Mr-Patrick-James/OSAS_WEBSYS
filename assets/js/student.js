@@ -40,6 +40,14 @@ function initStudentsModule() {
             ? '../../api/students.php' 
             : '../api/students.php';
         
+        const departmentsApiBase = window.location.pathname.includes('admin_page')
+            ? '../../api/departments.php'
+            : '../api/departments.php';
+            
+        const sectionsApiBase = window.location.pathname.includes('admin_page')
+            ? '../../api/sections.php'
+            : '../api/sections.php';
+        
         console.log('API Base URL:', apiBase); // Debug log
 
         // --- API Functions ---
@@ -299,14 +307,53 @@ function initStudentsModule() {
             }
         }
 
-        async function loadSectionsByDepartment(departmentCode) {
-            if (!departmentCode || !studentSectionSelect) {
+        async function loadDepartments() {
+            if (!studentDeptSelect) {
+                console.warn('studentDeptSelect element not found');
                 return;
             }
             
             try {
-                const response = await fetch(`../api/sections.php?action=getByDepartment&department_code=${encodeURIComponent(departmentCode)}`);
+                const response = await fetch(departmentsApiBase);
                 const result = await response.json();
+                console.log('Departments API response:', result);
+                
+                // Clear existing options except the first one
+                studentDeptSelect.innerHTML = '<option value="">Select Department</option>';
+                
+                if (result.status === 'success' && result.data && result.data.length > 0) {
+                    result.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.code; // Use department_code as value
+                        option.textContent = dept.name; // Use department_name as display text
+                        studentDeptSelect.appendChild(option);
+                    });
+                    console.log(`Loaded ${result.data.length} departments`);
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No departments available';
+                    studentDeptSelect.appendChild(option);
+                    console.warn('No departments found or API error:', result);
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                studentDeptSelect.innerHTML = '<option value="">Error loading departments</option>';
+            }
+        }
+
+        async function loadSectionsByDepartment(departmentCode) {
+            if (!departmentCode || !studentSectionSelect) {
+                console.warn('Missing departmentCode or studentSectionSelect');
+                return;
+            }
+            
+            try {
+                const url = `${sectionsApiBase}?action=getByDepartment&department_code=${encodeURIComponent(departmentCode)}`;
+                console.log('Loading sections from:', url);
+                const response = await fetch(url);
+                const result = await response.json();
+                console.log('Sections API response:', result);
                 
                 // Clear existing options
                 studentSectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -318,11 +365,13 @@ function initStudentsModule() {
                         option.textContent = `${section.section_code} - ${section.section_name}`;
                         studentSectionSelect.appendChild(option);
                     });
+                    console.log(`Loaded ${result.data.length} sections for department ${departmentCode}`);
                 } else {
                     const option = document.createElement('option');
                     option.value = '';
                     option.textContent = 'No sections available';
                     studentSectionSelect.appendChild(option);
+                    console.warn('No sections found for department:', departmentCode, result);
                 }
             } catch (error) {
                 console.error('Error loading sections:', error);
@@ -475,13 +524,16 @@ function initStudentsModule() {
         }
 
         // --- Modal functions ---
-        function openModal(editId = null) {
+        async function openModal(editId = null) {
             if (!modal) return;
             
             const modalTitle = document.getElementById('StudentsModalTitle');
             const form = document.getElementById('StudentsForm');
             
             editingStudentId = editId;
+            
+            // Load departments every time modal opens
+            await loadDepartments();
             
             if (editId) {
                 modalTitle.textContent = 'Edit Student';
@@ -499,11 +551,10 @@ function initStudentsModule() {
                     
                     // Load sections for the department
                     if (student.department) {
-                        loadSectionsByDepartment(student.department).then(() => {
-                            if (student.section_id) {
-                                document.getElementById('studentSection').value = student.section_id;
-                            }
-                        });
+                        await loadSectionsByDepartment(student.department);
+                        if (student.section_id) {
+                            document.getElementById('studentSection').value = student.section_id;
+                        }
                     }
                     
                     // Set image preview if avatar exists
