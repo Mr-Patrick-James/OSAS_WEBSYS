@@ -34,13 +34,44 @@ function initStudentsModule() {
         let currentView = 'active'; // 'active' or 'archived'
         let editingStudentId = null;
 
-        // API base URL - adjust path based on current location
-        // If we're in pages/admin_page/, we need to go up two levels
-        const apiBase = window.location.pathname.includes('admin_page') 
-            ? '../../api/students.php' 
-            : '../api/students.php';
+        // ========== DYNAMIC API PATH DETECTION ==========
+        // Detect the correct API path based on current page location
+        function getAPIBasePath() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
+            
+            // Try to extract the base project path from the URL
+            // e.g., /OSAS_WEBSYS/pages/admin_page/Students.php -> /OSAS_WEBSYS/
+            const pathMatch = currentPath.match(/^(\/[^\/]+)\//);
+            const projectBase = pathMatch ? pathMatch[1] : '';
+            console.log('📁 Project base:', projectBase);
+            
+            // Use absolute path from project root for reliability
+            if (projectBase) {
+                // We have a project folder (e.g., /OSAS_WEBSYS)
+                return projectBase + '/api/';
+            }
+            
+            // Fallback to relative paths
+            if (currentPath.includes('/pages/admin_page/')) {
+                return '../../api/';
+            } else if (currentPath.includes('/pages/')) {
+                return '../api/';
+            } else {
+                return 'api/';
+            }
+        }
         
-        console.log('API Base URL:', apiBase); // Debug log
+        const API_BASE = getAPIBasePath();
+        console.log('🔗 API Base Path:', API_BASE);
+        
+        const apiBase = API_BASE + 'students.php';
+        const departmentsApiBase = API_BASE + 'departments.php';
+        const sectionsApiBase = API_BASE + 'sections.php';
+        
+        console.log('📡 Students API:', apiBase);
+        console.log('📡 Departments API:', departmentsApiBase);
+        console.log('📡 Sections API:', sectionsApiBase);
 
         // --- API Functions ---
         async function fetchStudents() {
@@ -299,14 +330,53 @@ function initStudentsModule() {
             }
         }
 
-        async function loadSectionsByDepartment(departmentCode) {
-            if (!departmentCode || !studentSectionSelect) {
+        async function loadDepartments() {
+            if (!studentDeptSelect) {
+                console.warn('studentDeptSelect element not found');
                 return;
             }
             
             try {
-                const response = await fetch(`../api/sections.php?action=getByDepartment&department_code=${encodeURIComponent(departmentCode)}`);
+                const response = await fetch(departmentsApiBase);
                 const result = await response.json();
+                console.log('Departments API response:', result);
+                
+                // Clear existing options except the first one
+                studentDeptSelect.innerHTML = '<option value="">Select Department</option>';
+                
+                if (result.status === 'success' && result.data && result.data.length > 0) {
+                    result.data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.code; // Use department_code as value
+                        option.textContent = dept.name; // Use department_name as display text
+                        studentDeptSelect.appendChild(option);
+                    });
+                    console.log(`Loaded ${result.data.length} departments`);
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No departments available';
+                    studentDeptSelect.appendChild(option);
+                    console.warn('No departments found or API error:', result);
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                studentDeptSelect.innerHTML = '<option value="">Error loading departments</option>';
+            }
+        }
+
+        async function loadSectionsByDepartment(departmentCode) {
+            if (!departmentCode || !studentSectionSelect) {
+                console.warn('Missing departmentCode or studentSectionSelect');
+                return;
+            }
+            
+            try {
+                const url = `${sectionsApiBase}?action=getByDepartment&department_code=${encodeURIComponent(departmentCode)}`;
+                console.log('Loading sections from:', url);
+                const response = await fetch(url);
+                const result = await response.json();
+                console.log('Sections API response:', result);
                 
                 // Clear existing options
                 studentSectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -318,11 +388,13 @@ function initStudentsModule() {
                         option.textContent = `${section.section_code} - ${section.section_name}`;
                         studentSectionSelect.appendChild(option);
                     });
+                    console.log(`Loaded ${result.data.length} sections for department ${departmentCode}`);
                 } else {
                     const option = document.createElement('option');
                     option.value = '';
                     option.textContent = 'No sections available';
                     studentSectionSelect.appendChild(option);
+                    console.warn('No sections found for department:', departmentCode, result);
                 }
             } catch (error) {
                 console.error('Error loading sections:', error);
@@ -373,7 +445,23 @@ function initStudentsModule() {
                 tableBody.innerHTML = filteredStudents.map(s => {
                     const fullName = `${s.firstName || ''} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName || ''}`;
                     const deptClass = getDepartmentClass(s.department);
-                    const avatarUrl = s.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
+                    
+                    // Build avatar URL - handle relative paths
+                    let avatarUrl = '';
+                    if (s.avatar && s.avatar !== '') {
+                        // If it's already a full URL (http/https) or data URL, use it as is
+                        if (s.avatar.startsWith('http') || s.avatar.startsWith('data:')) {
+                            avatarUrl = s.avatar;
+                        } else {
+                            // It's a relative path like 'assets/img/students/filename.jpg'
+                            // Convert to proper relative URL from current page location
+                            const basePath = window.location.pathname.includes('admin_page') ? '../../' : '../';
+                            avatarUrl = basePath + s.avatar;
+                        }
+                    } else {
+                        // Use default avatar generator
+                        avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
+                    }
                     
                     return `
                     <tr data-id="${s.id}">
@@ -475,7 +563,7 @@ function initStudentsModule() {
         }
 
         // --- Modal functions ---
-        function openModal(editId = null, viewMode = false) {
+        function openModal(editId = null) {
             if (!modal) return;
             
             const modalTitle = document.getElementById('StudentsModalTitle');
@@ -484,14 +572,6 @@ function initStudentsModule() {
             const cancelBtn = document.getElementById('cancelStudentsModal');
             
             editingStudentId = editId;
-            
-            // Enable all form fields by default
-            const formInputs = form ? form.querySelectorAll('input, select, textarea, button') : [];
-            formInputs.forEach(input => {
-                input.disabled = false;
-                input.style.pointerEvents = 'auto';
-                input.style.opacity = '1';
-            });
             
             if (editId) {
                 const student = allStudents.find(s => s.id === editId);
@@ -535,11 +615,10 @@ function initStudentsModule() {
                     
                     // Load sections for the department
                     if (student.department) {
-                        loadSectionsByDepartment(student.department).then(() => {
-                            if (student.section_id) {
-                                document.getElementById('studentSection').value = student.section_id;
-                            }
-                        });
+                        await loadSectionsByDepartment(student.department);
+                        if (student.section_id) {
+                            document.getElementById('studentSection').value = student.section_id;
+                        }
                     }
                     
                     // Set image preview if avatar exists
@@ -547,7 +626,15 @@ function initStudentsModule() {
                         const previewImg = document.querySelector('.Students-preview-img');
                         const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
                         if (previewImg && previewPlaceholder) {
-                            previewImg.src = student.avatar;
+                            // Build the correct avatar URL
+                            let avatarUrl = student.avatar;
+                            // If it's a relative path, make it absolute
+                            if (!avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:') && !avatarUrl.startsWith('/')) {
+                                // It's a relative path like 'assets/img/students/filename.jpg'
+                                avatarUrl = '../../' + avatarUrl;
+                            }
+                            previewImg.src = avatarUrl;
+                            previewImg.setAttribute('data-existing-avatar', student.avatar); // Store original path
                             previewImg.style.display = 'block';
                             previewPlaceholder.style.display = 'none';
                         }
@@ -600,7 +687,14 @@ function initStudentsModule() {
                 const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
                 if (previewImg && previewPlaceholder) {
                     previewImg.style.display = 'none';
+                    previewImg.src = '';
+                    previewImg.removeAttribute('data-existing-avatar');
                     previewPlaceholder.style.display = 'flex';
+                }
+                // Reset image input
+                const studentImageInput = document.getElementById('studentImage');
+                if (studentImageInput) {
+                    studentImageInput.value = '';
                 }
                 // Reset section dropdown
                 if (studentSectionSelect) {
@@ -654,9 +748,10 @@ function initStudentsModule() {
             const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
             if (previewImg && previewPlaceholder) {
                 previewImg.style.display = 'none';
+                previewImg.src = '';
+                previewImg.removeAttribute('data-existing-avatar');
                 previewPlaceholder.style.display = 'flex';
             }
-            
             editingStudentId = null;
         }
 
@@ -820,17 +915,52 @@ function initStudentsModule() {
                         return;
                     }
 
-                    // Get avatar
-                    const previewImg = document.querySelector('.Students-preview-img');
-                    let avatar = '';
-                    if (previewImg && previewImg.style.display !== 'none') {
-                        avatar = previewImg.src;
+                    // Handle avatar image upload
+                    const studentImageInput = document.getElementById('studentImage');
+                    let avatarPath = '';
+                    
+                    // If a new image file is selected, upload it first
+                    if (studentImageInput && studentImageInput.files && studentImageInput.files.length > 0) {
+                        try {
+                            const uploadFormData = new FormData();
+                            uploadFormData.append('image', studentImageInput.files[0]);
+                            
+                            const uploadApiBase = window.location.pathname.includes('admin_page')
+                                ? '../../api/upload_student_image.php'
+                                : '../api/upload_student_image.php';
+                            
+                            const uploadResponse = await fetch(uploadApiBase, {
+                                method: 'POST',
+                                body: uploadFormData
+                            });
+                            
+                            const uploadResult = await uploadResponse.json();
+                            
+                            if (uploadResult.status === 'success' && uploadResult.data && uploadResult.data.path) {
+                                avatarPath = uploadResult.data.path; // e.g., 'assets/img/students/filename.jpg'
+                            } else {
+                                showError(uploadResult.message || 'Failed to upload image');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error uploading image:', error);
+                            showError('Error uploading image. Please try again.');
+                            return;
+                        }
+                    } else {
+                        // No new file - check if we have existing avatar (for edit mode)
+                        const previewImg = document.querySelector('.Students-preview-img');
+                        if (previewImg && previewImg.getAttribute('data-existing-avatar')) {
+                            avatarPath = previewImg.getAttribute('data-existing-avatar');
+                        }
                     }
                     
+                    // Now submit the form with the avatar path
                     const formData = new FormData();
                     if (editingStudentId) {
                         formData.append('studentId', editingStudentId);
                     }
+                    
                     formData.append('studentIdCode', studentId);
                     formData.append('firstName', firstName);
                     formData.append('middleName', middleName);
@@ -841,7 +971,7 @@ function initStudentsModule() {
                     formData.append('studentDept', studentDept);
                     formData.append('studentSection', studentSection);
                     formData.append('studentStatus', studentStatus);
-                    formData.append('studentAvatar', avatar);
+                    formData.append('studentAvatar', avatarPath);
                     
                     if (editingStudentId) {
                         await updateStudent(editingStudentId, formData);

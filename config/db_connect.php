@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$dbname = "osas_sys_db"; // <-- your database name
+$dbname = "osas"; // <-- your database name
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 

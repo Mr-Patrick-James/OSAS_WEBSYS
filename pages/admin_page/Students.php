@@ -1,3 +1,7 @@
+<?php
+require_once '../../config/db_connect.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,7 +124,6 @@
             <option value="active">Active Only</option>
             <option value="inactive">Inactive</option>
             <option value="graduating">Graduating</option>
-            <option value="archived">Archived</option>
           </select>
 
           <button class="Students-filter-btn" title="More filters">
@@ -284,12 +287,7 @@
             <label for="studentDept">Department</label>
             <select id="studentDept" name="studentDept" required>
               <option value="">Select Department</option>
-              <option value="BSIT">BS Information Technology</option>
-              <option value="BSCS">BS Computer Science</option>
-              <option value="BSBA">BS Business Administration</option>
-              <option value="BSN">BS Nursing</option>
-              <option value="BEED">Bachelor of Elementary Education</option>
-              <option value="BSED">Bachelor of Secondary Education</option>
+              <!-- Options loaded from database via JavaScript -->
             </select>
           </div>
           
@@ -297,14 +295,7 @@
             <label for="studentSection">Section</label>
             <select id="studentSection" name="studentSection" required>
               <option value="">Select Section</option>
-              <option value="BSIT-1A">BSIT-1A</option>
-              <option value="BSIT-1B">BSIT-1B</option>
-              <option value="BSIT-2A">BSIT-2A</option>
-              <option value="BSIT-2B">BSIT-2B</option>
-              <option value="BSIT-3A">BSIT-3A</option>
-              <option value="BSIT-3B">BSIT-3B</option>
-              <option value="BSIT-4A">BSIT-4A</option>
-              <option value="BSIT-4B">BSIT-4B</option>
+              <!-- Options loaded from database based on selected department -->
             </select>
           </div>
         </div>
@@ -336,6 +327,19 @@
   </div>
 
 </main>
+
+<!-- Load Student JavaScript -->
+<script src="../../assets/js/student.js"></script>
+<script>
+    // Initialize the students module when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof initStudentsModule === 'function') {
+            initStudentsModule();
+        } else {
+            console.error('initStudentsModule function not found');
+        }
+    });
+</script>
 
 </body>
 </html>

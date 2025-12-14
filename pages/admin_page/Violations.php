@@ -38,9 +38,11 @@
           <span>Print</span>
         </button>
       </div>
-      <button id="btnAddViolations" class="Violations-btn primary">
-        <i class='bx bx-plus'></i> Record Violation
-      </button>
+      <div class="Violations-button-group">
+        <button id="btnAddViolations" class="Violations-btn primary">
+          <i class='bx bx-plus'></i> Record Violation
+        </button>
+      </div>
     </div>
   </div>
 
@@ -177,174 +179,7 @@
         </thead>
 
         <tbody id="ViolationsTableBody">
-          <!-- Sample Data -->
-          <tr>
-            <td class="violation-case-id">VIOL-2024-001</td>
-            <td class="violation-student-cell">
-              <div class="violation-student-info">
-                <div class="violation-student-image">
-                  <img src="https://ui-avatars.com/api/?name=John+Doe&background=ffd700&color=333&size=40" alt="John Doe" class="student-avatar">
-                </div>
-                <div class="violation-student-name">
-                  <strong>John Doe</strong>
-                </div>
-              </div>
-            </td>
-            <td class="violation-student-id">2023-001</td>
-            <td class="violation-type">
-              <span class="violation-type-badge uniform">Improper Uniform</span>
-            </td>
-            <td class="violation-level">
-              <span class="violation-level-badge warning">Warning 2</span>
-            </td>
-            <td class="violation-dept">
-              <span class="dept-badge bsis">BSIS</span>
-            </td>
-            <td class="violation-section">BSIS-3A</td>
-            <td class="violation-date">Feb 15, 2024</td>
-            <td>
-              <span class="Violations-status-badge warning">Warning</span>
-            </td>
-            <td>
-              <div class="Violations-action-buttons">
-                <button class="Violations-action-btn view" title="View Details">
-                  <i class='bx bx-show'></i>
-                </button>
-                <button class="Violations-action-btn edit" title="Edit">
-                  <i class='bx bx-edit'></i>
-                </button>
-                <button class="Violations-action-btn resolve" title="Mark Resolved">
-                  <i class='bx bx-check'></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td class="violation-case-id">VIOL-2024-002</td>
-            <td class="violation-student-cell">
-              <div class="violation-student-info">
-                <div class="violation-student-image">
-                  <img src="https://ui-avatars.com/api/?name=Maria+Santos&background=4361ee&color=fff&size=40" alt="Maria Santos" class="student-avatar">
-                </div>
-                <div class="violation-student-name">
-                  <strong>Maria Santos</strong>
-                </div>
-              </div>
-            </td>
-            <td class="violation-student-id">2023-002</td>
-            <td class="violation-type">
-              <span class="violation-type-badge id">No ID</span>
-            </td>
-            <td class="violation-level">
-              <span class="violation-level-badge permitted">Permitted 1</span>
-            </td>
-            <td class="violation-dept">
-              <span class="dept-badge wft">WFT</span>
-            </td>
-            <td class="violation-section">WFT-2B</td>
-            <td class="violation-date">Feb 14, 2024</td>
-            <td>
-              <span class="Violations-status-badge permitted">Permitted</span>
-            </td>
-            <td>
-              <div class="Violations-action-buttons">
-                <button class="Violations-action-btn view" title="View Details">
-                  <i class='bx bx-show'></i>
-                </button>
-                <button class="Violations-action-btn edit" title="Edit">
-                  <i class='bx bx-edit'></i>
-                </button>
-                <button class="Violations-action-btn resolve" title="Mark Resolved">
-                  <i class='bx bx-check'></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td class="violation-case-id">VIOL-2024-003</td>
-            <td class="violation-student-cell">
-              <div class="violation-student-info">
-                <div class="violation-student-image">
-                  <img src="https://ui-avatars.com/api/?name=Robert+Chen&background=10b981&color=fff&size=40" alt="Robert Chen" class="student-avatar">
-                </div>
-                <div class="violation-student-name">
-                  <strong>Robert Chen</strong>
-                </div>
-              </div>
-            </td>
-            <td class="violation-student-id">2023-003</td>
-            <td class="violation-type">
-              <span class="violation-type-badge footwear">Improper Footwear</span>
-            </td>
-            <td class="violation-level">
-              <span class="violation-level-badge disciplinary">Disciplinary</span>
-            </td>
-            <td class="violation-dept">
-              <span class="dept-badge btvted">BTVTED</span>
-            </td>
-            <td class="violation-section">BTVTED-4A</td>
-            <td class="violation-date">Feb 10, 2024</td>
-            <td>
-              <span class="Violations-status-badge disciplinary">Disciplinary</span>
-            </td>
-            <td>
-              <div class="Violations-action-buttons">
-                <button class="Violations-action-btn view" title="View Details">
-                  <i class='bx bx-show'></i>
-                </button>
-                <button class="Violations-action-btn edit" title="Edit">
-                  <i class='bx bx-edit'></i>
-                </button>
-                <button class="Violations-action-btn escalate" title="Escalate">
-                  <i class='bx bx-alarm'></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td class="violation-case-id">VIOL-2024-004</td>
-            <td class="violation-student-cell">
-              <div class="violation-student-info">
-                <div class="violation-student-image">
-                  <img src="https://ui-avatars.com/api/?name=Anna+Rodriguez&background=f59e0b&color=fff&size=40" alt="Anna Rodriguez" class="student-avatar">
-                </div>
-                <div class="violation-student-name">
-                  <strong>Anna Rodriguez</strong>
-                </div>
-              </div>
-            </td>
-            <td class="violation-student-id">2023-004</td>
-            <td class="violation-type">
-              <span class="violation-type-badge uniform">Improper Uniform</span>
-            </td>
-            <td class="violation-level">
-              <span class="violation-level-badge warning">Warning 3</span>
-            </td>
-            <td class="violation-dept">
-              <span class="dept-badge chs">CHS</span>
-            </td>
-            <td class="violation-section">CHS-3C</td>
-            <td class="violation-date">Feb 8, 2024</td>
-            <td>
-              <span class="Violations-status-badge resolved">Resolved</span>
-            </td>
-            <td>
-              <div class="Violations-action-buttons">
-                <button class="Violations-action-btn view" title="View Details">
-                  <i class='bx bx-show'></i>
-                </button>
-                <button class="Violations-action-btn edit" title="Edit">
-                  <i class='bx bx-edit'></i>
-                </button>
-                <button class="Violations-action-btn reopen" title="Reopen">
-                  <i class='bx bx-rotate-left'></i>
-                </button>
-              </div>
-            </td>
-          </tr>
+          <!-- Data will be loaded dynamically -->
         </tbody>
       </table>
     </div>
@@ -379,18 +214,22 @@
         <button class="Violations-close-btn" id="closeRecordModal">
           <i class='bx bx-x'></i>
         </button>
+        <div class="form-progress" id="violationFormProgress"></div>
       </div>
 
       <div class="Violations-modal-body">
         <form id="ViolationRecordForm">
         <!-- Student Search Section -->
         <div class="Violations-form-group">
-          <label for="studentSearch">Search Student</label>
+            <label for="studentSearch">Search Student</label>
           <div class="student-search-wrapper">
             <i class='bx bx-search'></i>
             <input type="text" id="studentSearch" placeholder="Search by Student ID or Name...">
             <button type="button" class="Violations-search-btn">
               <i class='bx bx-search-alt'></i> Search
+            </button>
+            <button type="button" class="Violations-refresh-btn" id="refreshStudentsBtn" title="Refresh student data">
+              <i class='bx bx-refresh'></i>
             </button>
           </div>
         </div>
@@ -398,7 +237,10 @@
         <!-- Student Info Card -->
         <div class="violation-student-info-card selected">
           <div class="violation-student-image">
-            <img id="modalStudentImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='40' r='20' fill='%23ccc'/%3E%3Ccircle cx='50' cy='100' r='40' fill='%23ccc'/%3E%3C/svg%3E" alt="Student Image">
+            <img id="modalStudentImage" 
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='40' r='20' fill='%23ccc'/%3E%3Ccircle cx='50' cy='100' r='40' fill='%23ccc'/%3E%3C/svg%3E" 
+                 alt="Student Image"
+                 onerror="this.src='https://ui-avatars.com/api/?name=Student&background=ffd700&color=333&size=80'">
           </div>
           <div class="violation-student-details">
             <div class="violation-detail-row">
@@ -513,18 +355,18 @@
           <div class="Violations-form-row">
             <div class="Violations-form-group">
               <label for="violationDate">Date of Violation</label>
-              <input type="date" id="violationDate" name="violationDate" required>
+              <input type="date" id="violationDate" name="violationDate">
             </div>
-            
+
             <div class="Violations-form-group">
               <label for="violationTime">Time of Violation</label>
-              <input type="time" id="violationTime" name="violationTime" required>
+              <input type="time" id="violationTime" name="violationTime">
             </div>
           </div>
 
           <div class="Violations-form-group">
             <label for="violationLocation">Location</label>
-            <select id="violationLocation" name="violationLocation" required>
+            <select id="violationLocation" name="violationLocation">
               <option value="">Select location</option>
               <option value="gate_1">Main Gate 1</option>
               <option value="gate_2">Gate 2</option>
@@ -538,12 +380,12 @@
 
           <div class="Violations-form-group">
             <label for="reportedBy">Reported By</label>
-            <input type="text" id="reportedBy" name="reportedBy" required placeholder="Name of reporting officer">
+            <input type="text" id="reportedBy" name="reportedBy" placeholder="Name of reporting officer" maxlength="100">
           </div>
 
-          <div class="Violations-form-group">
+          <div class="Violations-form-group" style="position: relative;">
             <label for="violationNotes">Additional Notes</label>
-            <textarea id="violationNotes" name="violationNotes" rows="3" placeholder="Enter detailed description of the violation..."></textarea>
+            <textarea id="violationNotes" name="violationNotes" rows="3" placeholder="Enter detailed description of the violation..." maxlength="500"></textarea>
           </div>
         </div>
 
@@ -584,25 +426,27 @@
         <div class="violation-details-content">
         <!-- Case Header -->
         <div class="case-header">
-          <span class="case-id">Case: VIOL-2024-001</span>
-          <span class="case-status-badge warning">Warning</span>
+          <span class="case-id">Case: <span id="detailCaseId">VIOL-2024-001</span></span>
+          <span class="case-status-badge warning" id="detailStatusBadge">Warning</span>
         </div>
 
         <!-- Student Info -->
         <div class="violation-student-info-card detailed">
           <div class="violation-student-image">
-            <img src="https://ui-avatars.com/api/?name=John+Doe&background=ffd700&color=333&size=80" alt="Student">
+            <img id="detailStudentImage" 
+                 src="https://ui-avatars.com/api/?name=Student&background=ffd700&color=333&size=80" 
+                 alt="Student"
+                 onerror="this.src='https://ui-avatars.com/api/?name=Student&background=ffd700&color=333&size=80'">
           </div>
           <div class="violation-student-details">
-            <h3>John Michael Doe</h3>
+            <h3 id="detailStudentName">Student Name</h3>
             <div class="student-meta">
-              <span class="student-id">ID: 2023-001</span>
-              <span class="student-dept badge bsis">BSIS</span>
-              <span class="student-section">Section: BSIT-3A</span>
+              <span class="student-id">ID: <span id="detailStudentId">2023-001</span></span>
+              <span class="student-dept badge bsis" id="detailStudentDept">BSIS</span>
+              <span class="student-section">Section: <span id="detailStudentSection">N/A</span></span>
             </div>
             <div class="student-contact">
-              <i class='bx bx-phone'></i> +63 912 345 6789
-              <i class='bx bx-envelope'></i> john.doe@example.com
+              <i class='bx bx-phone'></i> <span id="detailStudentContact">N/A</span>
             </div>
           </div>
         </div>
@@ -611,27 +455,27 @@
         <div class="violation-details-grid">
           <div class="detail-item">
             <span class="detail-label">Violation Type:</span>
-            <span class="detail-value badge uniform">Improper Uniform</span>
+            <span class="detail-value badge uniform" id="detailViolationType">Improper Uniform</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Level:</span>
-            <span class="detail-value badge warning">Warning 2</span>
+            <span class="detail-value badge warning" id="detailViolationLevel">Warning 2</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Date & Time:</span>
-            <span class="detail-value">Feb 15, 2024 • 08:15 AM</span>
+            <span class="detail-value" id="detailDateTime">Feb 15, 2024 • 08:15 AM</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Location:</span>
-            <span class="detail-value">Main Gate 1</span>
+            <span class="detail-value" id="detailLocation">Main Gate 1</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Reported By:</span>
-            <span class="detail-value">Officer Maria Santos</span>
+            <span class="detail-value" id="detailReportedBy">Officer Maria Santos</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Status:</span>
-            <span class="detail-value badge warning">Active Warning</span>
+            <span class="detail-value badge warning" id="detailStatus">Active Warning</span>
           </div>
         </div>
 
@@ -639,7 +483,7 @@
         <div class="violation-notes-section">
           <h4>Violation Description</h4>
           <div class="notes-content">
-            <p>Student was found wearing improper uniform - wearing colored undershirt instead of the required white undershirt. This is the second offense for improper uniform violation.</p>
+            <p id="detailNotes">No notes available.</p>
           </div>
         </div>
 
@@ -706,7 +550,37 @@
     </button>
   </div>
 
+  <!-- STUDENT DETAILS PANEL (shown when searching by student ID) -->
+  <div class="student-details-panel" id="studentDetailsPanel" style="display: none;">
+    <div class="student-details-header">
+      <h2>Student Violation Details</h2>
+      <button class="student-details-close" id="closeStudentDetails">
+        <i class='bx bx-x'></i>
+      </button>
+    </div>
+
+    <div class="student-profile-section">
+      <div class="student-profile-card" id="studentProfileCard">
+        <!-- Student info will be populated dynamically -->
+      </div>
+
+      <div class="student-stats-grid" id="studentStatsGrid">
+        <!-- Statistics will be populated dynamically -->
+      </div>
+    </div>
+
+    <div class="student-violations-section">
+      <h3>Violation History</h3>
+      <div class="student-violations-timeline" id="studentViolationsTimeline">
+        <!-- Violation timeline will be populated dynamically -->
+      </div>
+    </div>
+  </div>
+
 </main>
- 
+
+<!-- Load Violation JavaScript -->
+<script src="../assets/js/violation.js"></script>
+
 </body>
 </html>
