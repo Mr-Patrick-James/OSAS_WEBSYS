@@ -3,7 +3,7 @@
 /* Settings Navigation */
 .settings-nav {
   margin-top: 24px;
-  background: #FFFFFF;
+  background: var(--light);
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -76,7 +76,7 @@
 
 /* Settings Cards */
 .settings-card {
-  background: #FFFFFF;
+  background: var(--light);
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);

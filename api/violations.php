@@ -4,9 +4,12 @@
 // Start output buffering
 ob_start();
 
-// Enable error display for debugging
+// Error reporting - disable display in production, enable logging
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Set to false in production to hide errors from users
+$isProduction = false; // Set to true when deploying to online host
+ini_set('display_errors', $isProduction ? 0 : 1);
+ini_set('log_errors', 1);
 
 // Set JSON response header FIRST
 header('Content-Type: application/json');
@@ -28,18 +31,14 @@ function outputError($message, $help = '') {
 
 // Connect to database with error handling
 try {
-    $host = "localhost";
-    $user = "root";
-    $pass = "";
-    $dbname = "osas_sys_db";
-
-    $conn = @new mysqli($host, $user, $pass, $dbname);
+    // Use centralized database configuration
+    require_once __DIR__ . '/../config/db_connect.php';
 
     // Check connection
     if ($conn->connect_error) {
         outputError(
             'Database connection failed: ' . $conn->connect_error,
-            'Please check your database configuration. Make sure the database "osas_sys_db" exists and credentials are correct.'
+            'Please check your database configuration. Make sure the database exists and credentials are correct in config/db_connect.php'
         );
     }
     
@@ -49,7 +48,7 @@ try {
 } catch (Exception $e) {
     outputError(
         'Database connection error: ' . $e->getMessage(),
-        'Please check your database configuration'
+        'Please check your database configuration in config/db_connect.php'
     );
 }
 
@@ -455,8 +454,14 @@ function addViolation($conn) {
         outputError('All required fields must be filled.');
     }
 
-    // Get student information
-    $studentQuery = "SELECT first_name, middle_name, last_name, department, section_id FROM students WHERE student_id = ?";
+    // Get student information with department name from departments table if available
+    $studentQuery = "SELECT s.first_name, s.middle_name, s.last_name, 
+                            COALESCE(d.department_name, s.department, 'N/A') as department_name,
+                            s.department as department_code,
+                            s.section_id 
+                     FROM students s
+                     LEFT JOIN departments d ON s.department = d.department_code
+                     WHERE s.student_id = ?";
     $stmt = $conn->prepare($studentQuery);
     $stmt->bind_param("s", $studentId);
     $stmt->execute();
@@ -468,6 +473,20 @@ function addViolation($conn) {
 
     $student = $studentResult->fetch_assoc();
     $stmt->close();
+    
+    // Use department_code if available, otherwise use department_name, otherwise use 'N/A'
+    $department = !empty($student['department_code']) ? $student['department_code'] : 
+                  (!empty($student['department_name']) && $student['department_name'] !== 'N/A' ? $student['department_name'] : 'N/A');
+    
+    // If department is still empty or 'N/A', try to get it from input
+    if (empty($department) || $department === 'N/A') {
+        $department = htmlspecialchars(trim($input['department'] ?? ''));
+    }
+    
+    // Final validation - department should not be empty
+    if (empty($department) || $department === 'N/A') {
+        outputError('Student department is required. Please ensure the student has a department assigned.');
+    }
 
     // Generate case ID
     $year = date('Y');
@@ -496,7 +515,7 @@ function addViolation($conn) {
             $studentId, 
             $violationType, 
             $violationLevel, 
-            $student['department'], 
+            $department, 
             $student['section_id'], 
             $violationDate, 
             $violationTime, 
@@ -538,16 +557,35 @@ function updateViolation($conn, $id) {
         $input = $_POST;
     }
 
-    $violationType = htmlspecialchars(trim($input['violationType'] ?? ''));
-    $violationLevel = htmlspecialchars(trim($input['violationLevel'] ?? ''));
-    $violationDate = htmlspecialchars(trim($input['violationDate'] ?? ''));
-    $violationTime = htmlspecialchars(trim($input['violationTime'] ?? ''));
-    $location = htmlspecialchars(trim($input['location'] ?? ''));
-    $reportedBy = htmlspecialchars(trim($input['reportedBy'] ?? ''));
-    $status = htmlspecialchars(trim($input['status'] ?? ''));
-    $notes = htmlspecialchars(trim($input['notes'] ?? ''));
+    // First, get the current violation data
+    $getQuery = "SELECT * FROM violations WHERE id = ?";
+    $getStmt = $conn->prepare($getQuery);
+    if (!$getStmt) {
+        outputError('Failed to prepare query: ' . $conn->error);
+    }
+    $getStmt->bind_param("i", $id);
+    $getStmt->execute();
+    $result = $getStmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $getStmt->close();
+        outputError('Violation not found.');
+    }
+    
+    $currentViolation = $result->fetch_assoc();
+    $getStmt->close();
 
-    // Validation
+    // Use existing values if not provided (support partial updates)
+    $violationType = !empty($input['violationType']) ? htmlspecialchars(trim($input['violationType'])) : $currentViolation['violation_type'];
+    $violationLevel = !empty($input['violationLevel']) ? htmlspecialchars(trim($input['violationLevel'])) : $currentViolation['violation_level'];
+    $violationDate = !empty($input['violationDate']) ? htmlspecialchars(trim($input['violationDate'])) : $currentViolation['violation_date'];
+    $violationTime = !empty($input['violationTime']) ? htmlspecialchars(trim($input['violationTime'])) : $currentViolation['violation_time'];
+    $location = !empty($input['location']) ? htmlspecialchars(trim($input['location'])) : $currentViolation['location'];
+    $reportedBy = !empty($input['reportedBy']) ? htmlspecialchars(trim($input['reportedBy'])) : $currentViolation['reported_by'];
+    $status = !empty($input['status']) ? htmlspecialchars(trim($input['status'])) : $currentViolation['status'];
+    $notes = isset($input['notes']) ? htmlspecialchars(trim($input['notes'])) : $currentViolation['notes'];
+
+    // Validation - ensure we have all required fields (either from input or existing data)
     if (empty($violationType) || empty($violationLevel) || empty($violationDate) || empty($violationTime) || empty($location) || empty($reportedBy) || empty($status)) {
         outputError('All required fields must be filled.');
     }

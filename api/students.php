@@ -4,9 +4,11 @@
 // Start output buffering to catch any errors/warnings
 ob_start();
 
-// Enable error display for debugging (remove in production)
+// Error reporting - disable display in production, enable logging
 error_reporting(E_ALL);
-ini_set('display_errors', 1); // Temporarily enable for debugging
+// Set to false in production to hide errors from users
+$isProduction = false; // Set to true when deploying to online host
+ini_set('display_errors', $isProduction ? 0 : 1);
 ini_set('log_errors', 1);
 
 // Set JSON response header FIRST
@@ -29,20 +31,19 @@ function outputError($message, $help = '') {
 
 // Connect to database with error handling
 try {
-    $host = "localhost";
-    $user = "root";
-    $pass = "";
-    $dbname = "osas_sys_db";
-    
-    $conn = @new mysqli($host, $user, $pass, $dbname);
+    // Use centralized database configuration
+    require_once __DIR__ . '/../config/db_connect.php';
     
     // Check connection
     if ($conn->connect_error) {
         outputError(
             'Database connection failed: ' . $conn->connect_error,
-            'Please check your database configuration. Make sure the database "osas_sys_db" exists and credentials are correct.'
+            'Please check your database configuration. Make sure the database exists and credentials are correct in config/db_connect.php'
         );
     }
+    
+    // Set charset to UTF-8
+    $conn->set_charset("utf8mb4");
 } catch (Exception $e) {
     outputError(
         'Database connection error: ' . $e->getMessage(),

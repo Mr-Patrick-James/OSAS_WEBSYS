@@ -65,7 +65,7 @@ function initStudentsModule() {
         const API_BASE = getAPIBasePath();
         console.log('🔗 API Base Path:', API_BASE);
         
-        const apiBase = API_BASE + 'students.php';
+        const apiBase = API_BASE+'students.php';
         const departmentsApiBase = API_BASE + 'departments.php';
         const sectionsApiBase = API_BASE + 'sections.php';
         
@@ -494,19 +494,7 @@ function initStudentsModule() {
                                 <button class="Students-action-btn edit" data-id="${s.id}" title="Edit">
                                     <i class='bx bx-edit'></i>
                                 </button>
-                                ${s.status === 'archived' ? 
-                                    `<button class="Students-action-btn restore" data-id="${s.id}" title="Restore">
-                                        <i class='bx bx-reset'></i>
-                                    </button>` : 
-                                    s.status === 'inactive' ? 
-                                    `<button class="Students-action-btn activate" data-id="${s.id}" title="Activate">
-                                        <i class='bx bx-user-check'></i>
-                                    </button>` : 
-                                    `<button class="Students-action-btn deactivate" data-id="${s.id}" title="Deactivate">
-                                        <i class='bx bx-user-x'></i>
-                                    </button>`
-                                }
-                                <button class="Students-action-btn delete" data-id="${s.id}" title="${s.status === 'archived' ? 'Delete Permanently' : 'Archive'}">
+                                <button class="Students-action-btn delete" data-id="${s.id}" title="Archive">
                                     <i class='bx bx-trash'></i>
                                 </button>
                             </div>
@@ -563,46 +551,21 @@ function initStudentsModule() {
         }
 
         // --- Modal functions ---
-        function openModal(editId = null) {
+        async function openModal(editId = null) {
             if (!modal) return;
             
             const modalTitle = document.getElementById('StudentsModalTitle');
             const form = document.getElementById('StudentsForm');
-            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
-            const cancelBtn = document.getElementById('cancelStudentsModal');
             
             editingStudentId = editId;
             
+            // Load departments every time modal opens
+            await loadDepartments();
+            
             if (editId) {
+                modalTitle.textContent = 'Edit Student';
                 const student = allStudents.find(s => s.id === editId);
                 if (student) {
-                    if (viewMode) {
-                        modalTitle.textContent = 'Student Information';
-                        // Disable all form fields for view mode
-                        formInputs.forEach(input => {
-                            if (input.type !== 'button' || input.id === 'cancelStudentsModal') {
-                                input.disabled = true;
-                                input.style.pointerEvents = 'none';
-                                input.style.opacity = '0.7';
-                                input.style.cursor = 'not-allowed';
-                            }
-                        });
-                        // Hide submit button, show only close button
-                        if (submitBtn) submitBtn.style.display = 'none';
-                        if (cancelBtn) {
-                            cancelBtn.textContent = 'Close';
-                            cancelBtn.style.display = 'block';
-                        }
-                    } else {
-                        modalTitle.textContent = 'Edit Student';
-                        if (submitBtn) submitBtn.style.display = 'block';
-                        if (cancelBtn) {
-                            cancelBtn.textContent = 'Cancel';
-                            cancelBtn.style.display = 'block';
-                        }
-                    }
-                    
-                    // Populate form fields
                     document.getElementById('studentId').value = student.studentId || '';
                     document.getElementById('studentStatus').value = student.status || 'active';
                     document.getElementById('firstName').value = student.firstName || '';
@@ -638,50 +601,11 @@ function initStudentsModule() {
                             previewImg.style.display = 'block';
                             previewPlaceholder.style.display = 'none';
                         }
-                    } else {
-                        // Show placeholder if no avatar
-                        const previewImg = document.querySelector('.Students-preview-img');
-                        const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
-                        if (previewImg && previewPlaceholder) {
-                            previewImg.style.display = 'none';
-                            previewPlaceholder.style.display = 'flex';
-                        }
-                    }
-                    
-                    // Disable image upload in view mode
-                    const uploadImageBtn = document.getElementById('uploadImageBtn');
-                    const studentImageInput = document.getElementById('studentImage');
-                    if (viewMode) {
-                        if (uploadImageBtn) {
-                            uploadImageBtn.style.display = 'none';
-                        }
-                        if (studentImageInput) {
-                            studentImageInput.disabled = true;
-                        }
-                    } else {
-                        if (uploadImageBtn) {
-                            uploadImageBtn.style.display = 'block';
-                        }
-                        if (studentImageInput) {
-                            studentImageInput.disabled = false;
-                        }
                     }
                 }
             } else {
                 modalTitle.textContent = 'Add New Student';
                 if (form) form.reset();
-                // Enable all fields for add mode
-                formInputs.forEach(input => {
-                    input.disabled = false;
-                    input.style.pointerEvents = 'auto';
-                    input.style.opacity = '1';
-                    input.style.cursor = 'auto';
-                });
-                if (submitBtn) submitBtn.style.display = 'block';
-                if (cancelBtn) {
-                    cancelBtn.textContent = 'Cancel';
-                    cancelBtn.style.display = 'block';
-                }
                 // Reset image preview
                 const previewImg = document.querySelector('.Students-preview-img');
                 const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
@@ -700,11 +624,6 @@ function initStudentsModule() {
                 if (studentSectionSelect) {
                     studentSectionSelect.innerHTML = '<option value="">Select Department First</option>';
                 }
-                // Show upload button
-                const uploadImageBtn = document.getElementById('uploadImageBtn');
-                if (uploadImageBtn) {
-                    uploadImageBtn.style.display = 'block';
-                }
             }
             
             modal.classList.add('active');
@@ -718,31 +637,6 @@ function initStudentsModule() {
             document.body.style.overflow = 'auto';
             const form = document.getElementById('StudentsForm');
             if (form) form.reset();
-            
-            // Re-enable all form fields
-            const formInputs = form ? form.querySelectorAll('input, select, textarea, button') : [];
-            formInputs.forEach(input => {
-                input.disabled = false;
-                input.style.pointerEvents = 'auto';
-                input.style.opacity = '1';
-                input.style.cursor = 'auto';
-            });
-            
-            // Show submit button and reset cancel button
-            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
-            const cancelBtn = document.getElementById('cancelStudentsModal');
-            if (submitBtn) submitBtn.style.display = 'block';
-            if (cancelBtn) {
-                cancelBtn.textContent = 'Cancel';
-                cancelBtn.style.display = 'block';
-            }
-            
-            // Show upload button
-            const uploadImageBtn = document.getElementById('uploadImageBtn');
-            if (uploadImageBtn) {
-                uploadImageBtn.style.display = 'block';
-            }
-            
             // Reset image preview
             const previewImg = document.querySelector('.Students-preview-img');
             const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
@@ -752,6 +646,11 @@ function initStudentsModule() {
                 previewImg.removeAttribute('data-existing-avatar');
                 previewPlaceholder.style.display = 'flex';
             }
+            // Reset image input
+            const studentImageInput = document.getElementById('studentImage');
+            if (studentImageInput) {
+                studentImageInput.value = '';
+            }
             editingStudentId = null;
         }
 
@@ -759,14 +658,15 @@ function initStudentsModule() {
         function handleTableClick(e) {
             const viewBtn = e.target.closest('.Students-action-btn.view');
             const editBtn = e.target.closest('.Students-action-btn.edit');
-            const activateBtn = e.target.closest('.Students-action-btn.activate');
-            const deactivateBtn = e.target.closest('.Students-action-btn.deactivate');
-            const restoreBtn = e.target.closest('.Students-action-btn.restore');
             const deleteBtn = e.target.closest('.Students-action-btn.delete');
 
             if (viewBtn) {
                 const id = parseInt(viewBtn.dataset.id);
-                openModal(id, true); // Open modal in view mode
+                const student = allStudents.find(s => s.id === id);
+                if (student) {
+                    const fullName = `${student.firstName} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName}`;
+                    alert(`Viewing ${fullName}\nStudent ID: ${student.studentId}\nEmail: ${student.email}\nDepartment: ${student.department}\nSection: ${student.section}`);
+                }
             }
 
             if (editBtn) {
@@ -774,35 +674,10 @@ function initStudentsModule() {
                 openModal(id);
             }
 
-            if (activateBtn) {
-                const id = parseInt(activateBtn.dataset.id);
-                const student = allStudents.find(s => s.id === id);
-                if (student && confirm(`Activate student "${student.firstName} ${student.lastName}"?`)) {
-                    activateStudent(id);
-                }
-            }
-
-            if (deactivateBtn) {
-                const id = parseInt(deactivateBtn.dataset.id);
-                const student = allStudents.find(s => s.id === id);
-                if (student && confirm(`Deactivate student "${student.firstName} ${student.lastName}"?`)) {
-                    deactivateStudent(id);
-                }
-            }
-
-            if (restoreBtn) {
-                const id = parseInt(restoreBtn.dataset.id);
-                const student = allStudents.find(s => s.id === id);
-                if (student && confirm(`Restore student "${student.firstName} ${student.lastName}"?`)) {
-                    restoreStudent(id);
-                }
-            }
-
             if (deleteBtn) {
                 const id = parseInt(deleteBtn.dataset.id);
                 const student = allStudents.find(s => s.id === id);
-                const action = student && student.status === 'archived' ? 'delete permanently' : 'archive';
-                if (student && confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} student "${student.firstName} ${student.lastName}"?`)) {
+                if (student && confirm(`Archive student "${student.firstName} ${student.lastName}"?`)) {
                     deleteStudent(id);
                 }
             }

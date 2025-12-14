@@ -45,12 +45,12 @@ body.dark {
 .page-title {
   font-size: 2.4rem;
   font-weight: 700;
-  color: var(--dark);
   margin: 0 0 8px 0;
+  color: var(--dark);
   background: linear-gradient(135deg, var(--dark) 0%, var(--dark-grey) 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .page-subtitle {

@@ -217,8 +217,7 @@
         <div class="form-progress" id="violationFormProgress"></div>
       </div>
 
-      <div class="Violations-modal-body">
-        <form id="ViolationRecordForm">
+      <form id="ViolationRecordForm">
         <!-- Student Search Section -->
         <div class="Violations-form-group">
             <label for="studentSearch">Search Student</label>
@@ -407,7 +406,6 @@
           <button type="submit" class="Violations-btn-primary">Record Violation</button>
         </div>
       </form>
-      </div>
     </div>
   </div>
 
@@ -422,8 +420,7 @@
         </button>
       </div>
 
-      <div class="Violations-modal-body">
-        <div class="violation-details-content">
+      <div class="violation-details-content">
         <!-- Case Header -->
         <div class="case-header">
           <span class="case-id">Case: <span id="detailCaseId">VIOL-2024-001</span></span>
@@ -520,20 +517,19 @@
 
         <!-- Action Buttons -->
         <div class="violation-details-actions">
-          <button class="Violations-action-btn edit" title="Edit">
+          <button class="Violations-action-btn edit" id="detailEditBtn" title="Edit">
             <i class='bx bx-edit'></i> Edit
           </button>
-          <button class="Violations-action-btn resolve" title="Mark Resolved">
+          <button class="Violations-action-btn resolve" id="detailResolveBtn" title="Mark Resolved">
             <i class='bx bx-check'></i> Mark Resolved
           </button>
-          <button class="Violations-action-btn escalate" title="Escalate">
+          <button class="Violations-action-btn escalate" id="detailEscalateBtn" title="Escalate">
             <i class='bx bx-alarm'></i> Escalate
           </button>
-          <button class="Violations-action-btn print" title="Print">
+          <button class="Violations-action-btn print" id="detailPrintBtn" title="Print">
             <i class='bx bx-printer'></i> Print Report
           </button>
         </div>
-      </div>
       </div>
     </div>
   </div>

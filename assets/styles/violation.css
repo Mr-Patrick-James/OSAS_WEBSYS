@@ -45,12 +45,12 @@ body.dark {
 .Violations-head-title h1 {
   font-size: 2.4rem;
   font-weight: 700;
-  color: var(--dark);
   margin: 0 0 8px 0;
+  color: var(--dark);
   background: linear-gradient(135deg, var(--dark) 0%, var(--dark-grey) 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .Violations-subtitle {
@@ -348,18 +348,21 @@ body.dark {
 .Violations-search-box input {
   width: 100%;
   padding: 12px 16px 12px 48px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 12px;
   background: var(--light);
   color: var(--dark);
   font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .Violations-search-box input:focus {
   outline: none;
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.08);
+  background: var(--light);
 }
 
 .Violations-filter-group {
@@ -371,19 +374,22 @@ body.dark {
 .Violations-filter-select {
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--light);
   color: var(--dark);
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 150px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .Violations-filter-select:focus {
   border-color: var(--gold);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.08);
+  background: var(--light);
 }
 
 .Violations-filter-btn {
@@ -422,18 +428,20 @@ body.dark {
 }
 
 .Violations-table thead {
-  border-bottom: 2px solid var(--border);
+  border-bottom: 3px solid var(--border);
+  background: rgba(255, 215, 0, 0.03);
 }
 
 .Violations-table th {
   padding: 20px 16px;
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--dark-grey);
+  letter-spacing: 0.8px;
+  color: var(--dark);
   white-space: nowrap;
+  border-bottom: 2px solid var(--border);
 }
 
 .Violations-table th.Violations-sortable {
@@ -448,12 +456,19 @@ body.dark {
 }
 
 .Violations-table tbody tr {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
   transition: all 0.3s ease;
+  background: var(--light);
 }
 
 .Violations-table tbody tr:hover {
-  background: rgba(255, 215, 0, 0.03);
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateX(2px);
+}
+
+.Violations-table tbody tr:nth-child(even) {
+  background: rgba(255, 215, 0, 0.02);
 }
 
 .Violations-table td {
@@ -461,6 +476,11 @@ body.dark {
   color: var(--dark);
   font-size: 15px;
   vertical-align: middle;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.Violations-table td:last-child {
+  border-right: none;
 }
 
 /* Case ID */
@@ -514,85 +534,102 @@ body.dark {
 
 /* Violation Type Badges */
 .violation-type-badge {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-block;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .violation-type-badge.uniform {
-  background: rgba(156, 39, 176, 0.15);
-  color: #7b1fa2;
+  background: rgba(156, 39, 176, 0.2);
+  color: #4a148c;
+  border-color: rgba(156, 39, 176, 0.3);
 }
 
 .violation-type-badge.id {
-  background: rgba(33, 150, 243, 0.15);
-  color: #1565c0;
+  background: rgba(33, 150, 243, 0.2);
+  color: #0d47a1;
+  border-color: rgba(33, 150, 243, 0.3);
 }
 
 .violation-type-badge.footwear {
-  background: rgba(76, 175, 80, 0.15);
-  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.2);
+  color: #1b5e20;
+  border-color: rgba(76, 175, 80, 0.3);
 }
 
 .violation-type-badge.behavior {
-  background: rgba(255, 152, 0, 0.15);
-  color: #ef6c00;
+  background: rgba(255, 152, 0, 0.2);
+  color: #e65100;
+  border-color: rgba(255, 152, 0, 0.3);
 }
 
 /* Violation Level Badges */
 .violation-level-badge {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-block;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .violation-level-badge.permitted {
-  background: rgba(76, 175, 80, 0.15);
-  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.2);
+  color: #1b5e20;
+  border-color: rgba(76, 175, 80, 0.3);
 }
 
 .violation-level-badge.warning {
-  background: rgba(255, 152, 0, 0.15);
-  color: #ef6c00;
+  background: rgba(255, 152, 0, 0.2);
+  color: #e65100;
+  border-color: rgba(255, 152, 0, 0.3);
 }
 
 .violation-level-badge.disciplinary {
-  background: rgba(244, 67, 54, 0.15);
-  color: #c62828;
+  background: rgba(244, 67, 54, 0.2);
+  color: #b71c1c;
+  border-color: rgba(244, 67, 54, 0.3);
 }
 
 /* Department Badges */
 .dept-badge {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-block;
   letter-spacing: 0.5px;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .dept-badge.bsis {
-  background: rgba(76, 175, 80, 0.15);
-  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.2);
+  color: #1b5e20;
+  border-color: rgba(76, 175, 80, 0.3);
 }
 
 .dept-badge.wft {
-  background: rgba(33, 150, 243, 0.15);
-  color: #1565c0;
+  background: rgba(33, 150, 243, 0.2);
+  color: #0d47a1;
+  border-color: rgba(33, 150, 243, 0.3);
 }
 
 .dept-badge.btvted {
-  background: rgba(255, 152, 0, 0.15);
-  color: #ef6c00;
+  background: rgba(255, 152, 0, 0.2);
+  color: #e65100;
+  border-color: rgba(255, 152, 0, 0.3);
 }
 
 .dept-badge.chs {
-  background: rgba(156, 39, 176, 0.15);
-  color: #7b1fa2;
+  background: rgba(156, 39, 176, 0.2);
+  color: #4a148c;
+  border-color: rgba(156, 39, 176, 0.3);
 }
 
 /* Section */
@@ -608,33 +645,39 @@ body.dark {
 
 /* Status Badges */
 .Violations-status-badge {
-  padding: 6px 16px;
+  padding: 8px 18px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .Violations-status-badge.permitted {
-  background: rgba(76, 175, 80, 0.15);
-  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.25);
+  color: #1b5e20;
+  border-color: rgba(76, 175, 80, 0.4);
 }
 
 .Violations-status-badge.warning {
-  background: rgba(255, 152, 0, 0.15);
-  color: #ef6c00;
+  background: rgba(255, 152, 0, 0.25);
+  color: #e65100;
+  border-color: rgba(255, 152, 0, 0.4);
 }
 
 .Violations-status-badge.disciplinary {
-  background: rgba(244, 67, 54, 0.15);
-  color: #c62828;
+  background: rgba(244, 67, 54, 0.25);
+  color: #b71c1c;
+  border-color: rgba(244, 67, 54, 0.4);
 }
 
 .Violations-status-badge.resolved {
-  background: rgba(33, 150, 243, 0.15);
-  color: #1565c0;
+  background: rgba(33, 150, 243, 0.25);
+  color: #0d47a1;
+  border-color: rgba(33, 150, 243, 0.4);
 }
 
 /* ========================================= */
@@ -647,22 +690,25 @@ body.dark {
 }
 
 .Violations-action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  background: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--light);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   transition: all 0.3s ease;
-  color: var(--dark-grey);
+  color: var(--dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .Violations-action-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--gold);
 }
 
 .Violations-action-btn.view:hover {
@@ -790,8 +836,7 @@ body.dark {
   animation: modalSlideIn 0.4s ease-out;
   z-index: 2001;
   max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
 }
 
 @keyframes modalSlideIn {
@@ -810,9 +855,7 @@ body.dark {
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
+  align-items: flex-start;
   background: var(--light);
   z-index: 1;
   position: relative;
@@ -878,41 +921,6 @@ body.dark {
   background: var(--red);
   color: white;
   transform: rotate(90deg);
-}
-
-/* Modal Body - Scrollable Container */
-.Violations-modal-body {
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1;
-  min-height: 0;
-  max-height: calc(90vh - 100px);
-}
-
-.Violations-modal-body::-webkit-scrollbar {
-  width: 10px;
-}
-
-.Violations-modal-body::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-  margin: 8px 4px;
-}
-
-.Violations-modal-body::-webkit-scrollbar-thumb {
-  background: var(--dark-grey);
-  border-radius: 5px;
-  border: 2px solid var(--light);
-}
-
-.Violations-modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--dark);
-}
-
-/* Firefox scrollbar */
-.Violations-modal-body {
-  scrollbar-width: thin;
-  scrollbar-color: var(--dark-grey) rgba(0, 0, 0, 0.05);
 }
 
 /* ========================================= */
@@ -1884,7 +1892,7 @@ body.dark {
 
 .violations-loading-content i {
   font-size: 32px;
-  color: var(--primary);
+  color: var(--gold);
   animation: spin 1s linear infinite;
 }
 
@@ -2110,7 +2118,7 @@ body.dark {
 
 .student-profile-meta .student-id {
   font-weight: 600;
-  color: var(--primary);
+  color: var(--gold);
 }
 
 .student-stats-grid {
@@ -2130,7 +2138,7 @@ body.dark {
 .student-stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--gold);
   margin-bottom: 4px;
 }
 
@@ -2183,7 +2191,7 @@ body.dark {
 }
 
 .student-violation-icon.warning {
-  background: #fff3e0;
+  background: rgba(255, 152, 0, 0.1);
   color: #ef6c00;
 }
 

@@ -1035,6 +1035,26 @@ function initViolationsModule() {
             detailsModal.dataset.viewingId = violationId;
             detailsModal.classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            // Update action buttons visibility based on status
+            const detailResolveBtn = document.getElementById('detailResolveBtn');
+            const detailEscalateBtn = document.getElementById('detailEscalateBtn');
+            
+            if (detailResolveBtn) {
+                if (violation.status === 'resolved') {
+                    detailResolveBtn.style.display = 'none';
+                } else {
+                    detailResolveBtn.style.display = 'inline-flex';
+                }
+            }
+
+            if (detailEscalateBtn) {
+                if (violation.status === 'disciplinary' || violation.status === 'resolved') {
+                    detailEscalateBtn.style.display = 'none';
+                } else {
+                    detailEscalateBtn.style.display = 'inline-flex';
+                }
+            }
         }
 
         function closeRecordModal() {
@@ -1224,6 +1244,135 @@ function initViolationsModule() {
 
         if (closeDetailsBtn) closeDetailsBtn.addEventListener('click', closeDetailsModal);
         if (detailsOverlay) detailsOverlay.addEventListener('click', closeDetailsModal);
+
+        // Detail modal action buttons
+        const detailEditBtn = document.getElementById('detailEditBtn');
+        const detailResolveBtn = document.getElementById('detailResolveBtn');
+        const detailEscalateBtn = document.getElementById('detailEscalateBtn');
+        const detailPrintBtn = document.getElementById('detailPrintBtn');
+
+        if (detailEditBtn) {
+            detailEditBtn.addEventListener('click', function() {
+                const violationId = detailsModal.dataset.viewingId;
+                if (violationId) {
+                    closeDetailsModal();
+                    openRecordModal(parseInt(violationId));
+                }
+            });
+        }
+
+        if (detailResolveBtn) {
+            detailResolveBtn.addEventListener('click', async function() {
+                const violationId = detailsModal.dataset.viewingId;
+                if (!violationId) {
+                    showNotification('No violation selected', 'error');
+                    return;
+                }
+
+                const violation = violations.find(v => v.id === parseInt(violationId));
+                if (!violation) {
+                    showNotification('Violation not found', 'error');
+                    return;
+                }
+
+                if (violation.status === 'resolved') {
+                    showNotification('This violation is already resolved', 'warning');
+                    return;
+                }
+
+                if (confirm(`Mark violation ${violation.caseId} as resolved?`)) {
+                    try {
+                        await updateViolation(parseInt(violationId), { status: 'resolved' });
+                        showNotification('Violation marked as resolved!', 'success');
+                        closeDetailsModal();
+                    } catch (error) {
+                        console.error('Error resolving violation:', error);
+                        showNotification('Failed to resolve violation. Please try again.', 'error');
+                    }
+                }
+            });
+        }
+
+        if (detailEscalateBtn) {
+            detailEscalateBtn.addEventListener('click', async function() {
+                const violationId = detailsModal.dataset.viewingId;
+                if (!violationId) {
+                    showNotification('No violation selected', 'error');
+                    return;
+                }
+
+                const violation = violations.find(v => v.id === parseInt(violationId));
+                if (!violation) {
+                    showNotification('Violation not found', 'error');
+                    return;
+                }
+
+                if (confirm(`Escalate violation ${violation.caseId} to disciplinary action?`)) {
+                    try {
+                        await updateViolation(parseInt(violationId), { status: 'disciplinary' });
+                        showNotification('Violation escalated to disciplinary!', 'success');
+                        closeDetailsModal();
+                    } catch (error) {
+                        console.error('Error escalating violation:', error);
+                        showNotification('Failed to escalate violation. Please try again.', 'error');
+                    }
+                }
+            });
+        }
+
+        if (detailPrintBtn) {
+            detailPrintBtn.addEventListener('click', function() {
+                const violationId = detailsModal.dataset.viewingId;
+                if (!violationId) {
+                    showNotification('No violation selected', 'error');
+                    return;
+                }
+
+                const violation = violations.find(v => v.id === parseInt(violationId));
+                if (violation) {
+                    // Print violation details
+                    const printContent = `
+                        <html>
+                            <head>
+                                <title>Violation Report - ${violation.caseId}</title>
+                                <style>
+                                    body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
+                                    h1 { color: #333; margin-bottom: 20px; }
+                                    .report-section { margin-bottom: 30px; }
+                                    .report-label { font-weight: 600; color: #666; }
+                                    .report-value { margin-left: 10px; }
+                                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                                    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                                    th { background-color: #f8f9fa; font-weight: 600; }
+                                </style>
+                            </head>
+                            <body>
+                                <h1>Violation Report</h1>
+                                <div class="report-section">
+                                    <div><span class="report-label">Case ID:</span> <span class="report-value">${violation.caseId}</span></div>
+                                    <div><span class="report-label">Student ID:</span> <span class="report-value">${violation.studentId}</span></div>
+                                    <div><span class="report-label">Student Name:</span> <span class="report-value">${violation.studentName}</span></div>
+                                    <div><span class="report-label">Violation Type:</span> <span class="report-value">${violation.violationTypeLabel}</span></div>
+                                    <div><span class="report-label">Level:</span> <span class="report-value">${violation.violationLevelLabel}</span></div>
+                                    <div><span class="report-label">Date & Time:</span> <span class="report-value">${violation.dateTime}</span></div>
+                                    <div><span class="report-label">Location:</span> <span class="report-value">${violation.locationLabel}</span></div>
+                                    <div><span class="report-label">Reported By:</span> <span class="report-value">${violation.reportedBy}</span></div>
+                                    <div><span class="report-label">Status:</span> <span class="report-value">${violation.statusLabel}</span></div>
+                                    <div><span class="report-label">Notes:</span> <span class="report-value">${violation.notes || 'N/A'}</span></div>
+                                </div>
+                                <div style="margin-top: 40px; color: #666; font-size: 12px;">
+                                    Generated on: ${new Date().toLocaleString()}
+                                </div>
+                            </body>
+                        </html>
+                    `;
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    printWindow.print();
+                }
+            });
+        }
 
         // 4. ESCAPE KEY TO CLOSE MODAL
         document.addEventListener('keydown', (e) => {
@@ -1518,6 +1667,12 @@ function initViolationsModule() {
                             }
                         }
 
+                        // Ensure department is included
+                        const studentDepartment = student.department || 'N/A';
+                        if (!studentDepartment || studentDepartment === 'N/A') {
+                            throw new Error('Student department is required. Please ensure the student has a department assigned.');
+                        }
+
                         const violationData = {
                             studentId: student.studentId,
                             violationType: violationType ? violationType.value : '',
@@ -1527,7 +1682,8 @@ function initViolationsModule() {
                             location: location,
                             reportedBy: reportedBy,
                             status: status,
-                            notes: notes
+                            notes: notes,
+                            department: studentDepartment // Include department in the request
                         };
 
                         await saveViolation(violationData);
