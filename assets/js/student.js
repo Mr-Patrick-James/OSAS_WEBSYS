@@ -422,7 +422,23 @@ function initStudentsModule() {
                 tableBody.innerHTML = filteredStudents.map(s => {
                     const fullName = `${s.firstName || ''} ${s.middleName ? s.middleName + ' ' : ''}${s.lastName || ''}`;
                     const deptClass = getDepartmentClass(s.department);
-                    const avatarUrl = s.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
+                    
+                    // Build avatar URL - handle relative paths
+                    let avatarUrl = '';
+                    if (s.avatar && s.avatar !== '') {
+                        // If it's already a full URL (http/https) or data URL, use it as is
+                        if (s.avatar.startsWith('http') || s.avatar.startsWith('data:')) {
+                            avatarUrl = s.avatar;
+                        } else {
+                            // It's a relative path like 'assets/img/students/filename.jpg'
+                            // Convert to proper relative URL from current page location
+                            const basePath = window.location.pathname.includes('admin_page') ? '../../' : '../';
+                            avatarUrl = basePath + s.avatar;
+                        }
+                    } else {
+                        // Use default avatar generator
+                        avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=ffd700&color=333&size=40`;
+                    }
                     
                     return `
                     <tr data-id="${s.id}">
@@ -562,7 +578,15 @@ function initStudentsModule() {
                         const previewImg = document.querySelector('.Students-preview-img');
                         const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
                         if (previewImg && previewPlaceholder) {
-                            previewImg.src = student.avatar;
+                            // Build the correct avatar URL
+                            let avatarUrl = student.avatar;
+                            // If it's a relative path, make it absolute
+                            if (!avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:') && !avatarUrl.startsWith('/')) {
+                                // It's a relative path like 'assets/img/students/filename.jpg'
+                                avatarUrl = '../../' + avatarUrl;
+                            }
+                            previewImg.src = avatarUrl;
+                            previewImg.setAttribute('data-existing-avatar', student.avatar); // Store original path
                             previewImg.style.display = 'block';
                             previewPlaceholder.style.display = 'none';
                         }
@@ -576,7 +600,14 @@ function initStudentsModule() {
                 const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
                 if (previewImg && previewPlaceholder) {
                     previewImg.style.display = 'none';
+                    previewImg.src = '';
+                    previewImg.removeAttribute('data-existing-avatar');
                     previewPlaceholder.style.display = 'flex';
+                }
+                // Reset image input
+                const studentImageInput = document.getElementById('studentImage');
+                if (studentImageInput) {
+                    studentImageInput.value = '';
                 }
                 // Reset section dropdown
                 if (studentSectionSelect) {
@@ -600,7 +631,14 @@ function initStudentsModule() {
             const previewPlaceholder = document.querySelector('.Students-preview-placeholder');
             if (previewImg && previewPlaceholder) {
                 previewImg.style.display = 'none';
+                previewImg.src = '';
+                previewImg.removeAttribute('data-existing-avatar');
                 previewPlaceholder.style.display = 'flex';
+            }
+            // Reset image input
+            const studentImageInput = document.getElementById('studentImage');
+            if (studentImageInput) {
+                studentImageInput.value = '';
             }
             editingStudentId = null;
         }
@@ -769,17 +807,52 @@ function initStudentsModule() {
                         return;
                     }
 
-                    // Get avatar
-                    const previewImg = document.querySelector('.Students-preview-img');
-                    let avatar = '';
-                    if (previewImg && previewImg.style.display !== 'none') {
-                        avatar = previewImg.src;
+                    // Handle avatar image upload
+                    const studentImageInput = document.getElementById('studentImage');
+                    let avatarPath = '';
+                    
+                    // If a new image file is selected, upload it first
+                    if (studentImageInput && studentImageInput.files && studentImageInput.files.length > 0) {
+                        try {
+                            const uploadFormData = new FormData();
+                            uploadFormData.append('image', studentImageInput.files[0]);
+                            
+                            const uploadApiBase = window.location.pathname.includes('admin_page')
+                                ? '../../api/upload_student_image.php'
+                                : '../api/upload_student_image.php';
+                            
+                            const uploadResponse = await fetch(uploadApiBase, {
+                                method: 'POST',
+                                body: uploadFormData
+                            });
+                            
+                            const uploadResult = await uploadResponse.json();
+                            
+                            if (uploadResult.status === 'success' && uploadResult.data && uploadResult.data.path) {
+                                avatarPath = uploadResult.data.path; // e.g., 'assets/img/students/filename.jpg'
+                            } else {
+                                showError(uploadResult.message || 'Failed to upload image');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error uploading image:', error);
+                            showError('Error uploading image. Please try again.');
+                            return;
+                        }
+                    } else {
+                        // No new file - check if we have existing avatar (for edit mode)
+                        const previewImg = document.querySelector('.Students-preview-img');
+                        if (previewImg && previewImg.getAttribute('data-existing-avatar')) {
+                            avatarPath = previewImg.getAttribute('data-existing-avatar');
+                        }
                     }
                     
+                    // Now submit the form with the avatar path
                     const formData = new FormData();
                     if (editingStudentId) {
                         formData.append('studentId', editingStudentId);
                     }
+                    
                     formData.append('studentIdCode', studentId);
                     formData.append('firstName', firstName);
                     formData.append('middleName', middleName);
@@ -790,7 +863,7 @@ function initStudentsModule() {
                     formData.append('studentDept', studentDept);
                     formData.append('studentSection', studentSection);
                     formData.append('studentStatus', studentStatus);
-                    formData.append('studentAvatar', avatar);
+                    formData.append('studentAvatar', avatarPath);
                     
                     if (editingStudentId) {
                         await updateStudent(editingStudentId, formData);
