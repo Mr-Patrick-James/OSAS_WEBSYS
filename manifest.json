@@ -1,0 +1,20 @@
+{
+  "name": "OSAS Student Entrance System",
+  "short_name": "OSAS",
+  "start_url": "index.php",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "assets/img/default.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/default.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    }
+  ]
+}
