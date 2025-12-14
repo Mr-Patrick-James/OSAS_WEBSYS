@@ -1,0 +1,60 @@
+<!-- Chatbot Widget -->
+<div id="osas-chatbot" class="chatbot-widget">
+  <!-- Chat Button -->
+  <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open chatbot">
+    <i class='bx bx-message-rounded'></i>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="chatbot-window" class="chatbot-window">
+    <!-- Chat Header -->
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <i class='bx bx-bot'></i>
+        <div>
+          <h3>OSAS Assistant</h3>
+          <span class="chatbot-status">Online</span>
+        </div>
+      </div>
+      <button id="chatbot-close" class="chatbot-close" aria-label="Close chatbot">
+        <i class='bx bx-x'></i>
+      </button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="chatbot-message bot-message">
+        <div class="message-avatar">
+          <i class='bx bx-bot'></i>
+        </div>
+        <div class="message-content">
+          <p>Hello! I'm your OSAS Assistant. How can I help you today?</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div id="chatbot-quick-actions" class="chatbot-quick-actions">
+      <button class="quick-action-btn" data-action="students">View Students</button>
+      <button class="quick-action-btn" data-action="violations">Check Violations</button>
+      <button class="quick-action-btn" data-action="help">Get Help</button>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="chatbot-typing" class="chatbot-typing" style="display: none;">
+      <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chatbot-input-container">
+      <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Type your message..." maxlength="500">
+      <button id="chatbot-send" class="chatbot-send" aria-label="Send message">
+        <i class='bx bx-send'></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<?php
+/**
+ * Chatbot Configuration
+ * 
+ * IMPORTANT: Copy this file to chatbot_config.php and add your actual API key.
+ * DO NOT commit chatbot_config.php to version control!
+ * 
+ * To enable AI features:
+ * 1. Copy this file: cp chatbot_config.php.example chatbot_config.php
+ * 2. Add your OpenAI API key below
+ * 3. The chatbot will use rule-based responses if no API key is provided
+ */
+
+return [
+    // OpenAI API Key (get one from https://platform.openai.com/api-keys)
+    // Leave empty to use only rule-based responses
+    'openai_api_key' => '',
+    
+    // Optional: Customize rate limiting
+    'rate_limit_max' => 20,      // Max requests per window
+    'rate_limit_window' => 60,   // Time window in seconds
+    
+    // Optional: Customize AI behavior
+    'ai_model' => 'gpt-3.5-turbo',
+    'ai_temperature' => 0.8,
+    'ai_max_tokens' => 300,
+];
