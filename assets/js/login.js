@@ -158,18 +158,20 @@ function handleLoginFormSubmit(e) {
             if (data.status === 'success') {
                 showToast('Login successful! Redirecting...', 'success');
 
+                // Extract data from response (Controller wraps it in 'data' property)
+                const responseData = data.data || data;
                 const sessionData = {
-                    name: data.name,
-                    role: data.role,
-                    studentId: data.studentId,
-                    expires: data.expires * 1000,
+                    name: responseData.name,
+                    role: responseData.role,
+                    studentId: responseData.studentId,
+                    expires: responseData.expires * 1000,
                     theme: darkMode ? 'dark' : 'light'
                 };
 
                 localStorage.setItem('userSession', JSON.stringify(sessionData));
 
                 setTimeout(() => {
-                    if (data.role === 'admin') {
+                    if (responseData.role === 'admin') {
                         window.location.href = './includes/dashboard.php';
                     } else {
                         window.location.href = './includes/user_dashboard.php';
