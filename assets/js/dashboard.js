@@ -56,6 +56,26 @@ function initializeServiceWorker() {
 
 // Enhanced authentication check
 function checkAuthentication() {
+    // Check if PHP session is valid (cookies exist)
+    const hasCookies = document.cookie.includes('user_id') && document.cookie.includes('role');
+    
+    if (hasCookies) {
+        console.log('✅ PHP session cookies found, authentication valid');
+        // Try to get localStorage session for UI updates
+        const userSession = localStorage.getItem('userSession');
+        if (userSession) {
+            try {
+                const session = JSON.parse(userSession);
+                updateUserInfo(session);
+                console.log('✅ Admin authenticated:', session.name, 'Role:', session.role);
+            } catch (error) {
+                console.warn('⚠️ Could not parse localStorage session, but cookies are valid');
+            }
+        }
+        return; // Don't redirect if cookies exist
+    }
+
+    // Fallback to localStorage check
     const userSession = localStorage.getItem('userSession');
 
     if (!userSession) {

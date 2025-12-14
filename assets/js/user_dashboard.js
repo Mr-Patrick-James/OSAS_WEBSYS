@@ -40,14 +40,28 @@ document.addEventListener('DOMContentLoaded', function () {
 function checkAuthentication() {
   console.log('🔍 Checking authentication...');
 
-  // Get session from localStorage (persistent) or sessionStorage (temporary)
-  let storedSession = localStorage.getItem('userSession') || sessionStorage.getItem('userSession');
-
-  // Fallback: try cookies if no JS storage found
-  if (!storedSession) {
-    const cookieSession = getCookie('userSession');
-    if (cookieSession) storedSession = cookieSession;
+  // Check if PHP session is valid (cookies exist) - this is the primary check
+  const hasCookies = document.cookie.includes('user_id') && document.cookie.includes('role');
+  
+  if (hasCookies) {
+    console.log('✅ PHP session cookies found, authentication valid');
+    // Try to get localStorage session for UI updates
+    const storedSession = localStorage.getItem('userSession');
+    if (storedSession) {
+      try {
+        const session = JSON.parse(storedSession);
+        updateUserInfo(session);
+        console.log('✅ Authenticated as:', session.name, '| Role:', session.role);
+        return session;
+      } catch (error) {
+        console.warn('⚠️ Could not parse localStorage session, but cookies are valid');
+      }
+    }
+    return { role: 'user' }; // Return minimal session object
   }
+
+  // Fallback to localStorage check (only if cookies don't exist)
+  let storedSession = localStorage.getItem('userSession') || sessionStorage.getItem('userSession');
 
   if (!storedSession) {
     console.warn('❌ No session found. Redirecting to login.');
