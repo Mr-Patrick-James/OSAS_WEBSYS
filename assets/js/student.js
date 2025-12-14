@@ -34,21 +34,44 @@ function initStudentsModule() {
         let currentView = 'active'; // 'active' or 'archived'
         let editingStudentId = null;
 
-        // API base URL - adjust path based on current location
-        // If we're in pages/admin_page/, we need to go up two levels
-        const apiBase = window.location.pathname.includes('admin_page') 
-            ? '../../api/students.php' 
-            : '../api/students.php';
-        
-        const departmentsApiBase = window.location.pathname.includes('admin_page')
-            ? '../../api/departments.php'
-            : '../api/departments.php';
+        // ========== DYNAMIC API PATH DETECTION ==========
+        // Detect the correct API path based on current page location
+        function getAPIBasePath() {
+            const currentPath = window.location.pathname;
+            console.log('📍 Current path:', currentPath);
             
-        const sectionsApiBase = window.location.pathname.includes('admin_page')
-            ? '../../api/sections.php'
-            : '../api/sections.php';
+            // Try to extract the base project path from the URL
+            // e.g., /OSAS_WEBSYS/pages/admin_page/Students.php -> /OSAS_WEBSYS/
+            const pathMatch = currentPath.match(/^(\/[^\/]+)\//);
+            const projectBase = pathMatch ? pathMatch[1] : '';
+            console.log('📁 Project base:', projectBase);
+            
+            // Use absolute path from project root for reliability
+            if (projectBase) {
+                // We have a project folder (e.g., /OSAS_WEBSYS)
+                return projectBase + '/api/';
+            }
+            
+            // Fallback to relative paths
+            if (currentPath.includes('/pages/admin_page/')) {
+                return '../../api/';
+            } else if (currentPath.includes('/pages/')) {
+                return '../api/';
+            } else {
+                return 'api/';
+            }
+        }
         
-        console.log('API Base URL:', apiBase); // Debug log
+        const API_BASE = getAPIBasePath();
+        console.log('🔗 API Base Path:', API_BASE);
+        
+        const apiBase = API_BASE + 'students.php';
+        const departmentsApiBase = API_BASE + 'departments.php';
+        const sectionsApiBase = API_BASE + 'sections.php';
+        
+        console.log('📡 Students API:', apiBase);
+        console.log('📡 Departments API:', departmentsApiBase);
+        console.log('📡 Sections API:', sectionsApiBase);
 
         // --- API Functions ---
         async function fetchStudents() {

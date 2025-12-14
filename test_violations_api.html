@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Path Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #28a745; }
+        .error { background: #f8d7da; border-color: #dc3545; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; max-height: 300px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 API Path Diagnostic Tool</h1>
+    
+    <div class="test">
+        <h3>Current Page Location</h3>
+        <p><strong>pathname:</strong> <span id="pathname"></span></p>
+        <p><strong>origin:</strong> <span id="origin"></span></p>
+        <p><strong>href:</strong> <span id="href"></span></p>
+    </div>
+
+    <div class="test">
+        <h3>Test Different API Paths</h3>
+        <button onclick="testPath('api/violations.php')">Test: api/violations.php</button>
+        <button onclick="testPath('../api/violations.php')">Test: ../api/violations.php</button>
+        <button onclick="testPath('../../api/violations.php')">Test: ../../api/violations.php</button>
+        <button onclick="testPath('/OSAS_WEBSYS/api/violations.php')">Test: /OSAS_WEBSYS/api/violations.php</button>
+    </div>
+
+    <div class="test">
+        <h3>Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Display current location info
+        document.getElementById('pathname').textContent = window.location.pathname;
+        document.getElementById('origin').textContent = window.location.origin;
+        document.getElementById('href').textContent = window.location.href;
+
+        async function testPath(path) {
+            const resultsDiv = document.getElementById('results');
+            const testDiv = document.createElement('div');
+            testDiv.style.marginBottom = '20px';
+            testDiv.innerHTML = `<h4>Testing: ${path}</h4><p>Loading...</p>`;
+            resultsDiv.prepend(testDiv);
+
+            try {
+                console.log('Testing path:', path);
+                const startTime = Date.now();
+                const response = await fetch(path);
+                const duration = Date.now() - startTime;
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const text = await response.text();
+                console.log('Response text (first 500 chars):', text.substring(0, 500));
+
+                let jsonData = null;
+                let isJson = false;
+                try {
+                    jsonData = JSON.parse(text);
+                    isJson = true;
+                } catch (e) {
+                    console.log('Not valid JSON');
+                }
+
+                let html = `
+                    <h4>Testing: ${path}</h4>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Duration:</strong> ${duration}ms</p>
+                    <p><strong>Content-Type:</strong> ${response.headers.get('content-type') || 'Not set'}</p>
+                    <p><strong>Is JSON:</strong> ${isJson ? '✅ Yes' : '❌ No'}</p>
+                `;
+
+                if (isJson) {
+                    html += `<pre>${JSON.stringify(jsonData, null, 2).substring(0, 1000)}</pre>`;
+                    if (jsonData.status === 'success') {
+                        testDiv.className = 'test success';
+                        html += `<p style="color: green;"><strong>✅ API Working! Found ${jsonData.violations?.length || jsonData.count || 0} violations</strong></p>`;
+                    } else {
+                        testDiv.className = 'test error';
+                        html += `<p style="color: red;"><strong>❌ API Error: ${jsonData.message || 'Unknown error'}</strong></p>`;
+                    }
+                } else {
+                    testDiv.className = 'test error';
+                    html += `<p style="color: red;"><strong>❌ Not JSON Response (likely HTML error page)</strong></p>`;
+                    html += `<pre>${text.substring(0, 500)}</pre>`;
+                }
+
+                testDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                testDiv.className = 'test error';
+                testDiv.innerHTML = `
+                    <h4>Testing: ${path}</h4>
+                    <p style="color: red;"><strong>❌ Network Error:</strong> ${error.message}</p>
+                    <p>This usually means the path is wrong or CORS is blocking the request.</p>
+                `;
+            }
+        }
+
+        // Auto-test the most common path
+        window.onload = function() {
+            testPath('api/violations.php');
+        };
+    </script>
+</body>
+</html>
+

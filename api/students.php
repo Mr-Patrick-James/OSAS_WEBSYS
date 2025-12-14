@@ -4,9 +4,9 @@
 // Start output buffering to catch any errors/warnings
 ob_start();
 
-// Disable error display but keep error reporting for logging
+// Enable error display for debugging (remove in production)
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1); // Temporarily enable for debugging
 ini_set('log_errors', 1);
 
 // Set JSON response header FIRST
